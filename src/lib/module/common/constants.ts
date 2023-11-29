@@ -134,6 +134,14 @@ const TABLE_FILTER : any = {
         {value : "email", name : "이메일"},
         {value : "phone", name : "연락처"},
     ],
+    user_order : [
+        {value : "all",name : "전체"},
+        {value : "code", name : "사업자번호"},
+        {value : "customer_name", name : "거래처명"},
+        {value : "order_status", name : "주문상태"},
+        {value : "price_status", name : "수금유무"},
+        {value : "car", name : "지정차량"},
+    ],
 }
 
 const EXCEL_CONFIG : any = {
@@ -397,8 +405,12 @@ const TABLE_HEADER_CONFIG : any = {
             cell.getRow().toggleSelect()
         }},
         {title:"ID", field:"uid", width:150, headerFilter:"input"},
-        
-        {title:"사업자번호", field:"code", width:150, headerFilter:"input"},
+        {title:"사업자번호", field:"code", width:150, headerFilter:"input",
+        formatter:function(cell : any){
+            var value = cell.getValue();
+        return businessNumber(value);
+         },
+        },
         
         {title:"매입처명", field:"name", width:150, headerFilter:"input", 
         formatter:function(cell : any){
@@ -416,8 +428,10 @@ const TABLE_HEADER_CONFIG : any = {
         }
     },
         
-    {title:"연락처", field:"phone", width:150, headerFilter:"input"},
-  
+    {title:"연락처", field:"phone", width:150, headerFilter:"input", formatter:function(cell : any){
+        var value = cell.getValue();
+    return phoneNumber(value);
+     }},
     {title:"이메일", field:"email", width:150, headerFilter:"input"},
 
         {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
@@ -476,7 +490,7 @@ const TABLE_HEADER_CONFIG : any = {
    ],
 
    user_product : [
-    {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:false, 
+    {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
     cellClick:function(e : any, cell:any){
         cell.getRow().toggleSelect();
         console.log(cell.getRow());
@@ -498,6 +512,49 @@ const TABLE_HEADER_CONFIG : any = {
     {title:"수량", field:"qty", width:150, editor : "input"},
 
    ],
+
+   user_order : [
+    {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:false, 
+    cellClick:function(e : any, cell:any){
+        cell.getRow().toggleSelect()
+    }},
+    {title:"ID", field:"uid", width:150, headerFilter:"input"},
+    {title:"사업자번호", field:"user.code", width:150, headerFilter:"input",
+    formatter:function(cell : any){
+        var value = cell.getValue();
+    return businessNumber(value);
+     },
+    },
+    {title:"거래처명", field:"user.customer_name", width:150, headerFilter:"input", 
+    formatter:function(cell : any){
+        var value = cell.getValue();
+    return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+     },
+
+    cellClick:function(e : any, cell:any){
+        let row = cell.getRow();
+       if(row){
+        productModalOpen(row.getData(),"update");
+       }else{
+      
+       }
+    }
+    },
+
+    {title:"주문상태", field:"order_status", width:150, headerFilter:"input"},
+    {title:"수금유무", field:"price_status", width:150, headerFilter:"input"},
+ 
+
+    
+    {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
+    formatter: function(cell : any, formatterParams: any, onRendered: any) {
+        // Luxon을 사용하여 datetime 값을 date로 변환
+        const datetimeValue = cell.getValue();
+        const date = DateTime.fromISO(datetimeValue).toFormat("yyyy-MM-dd");
+        return date;
+    },
+
+    }],
 
 
 }

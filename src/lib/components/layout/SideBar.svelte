@@ -82,10 +82,16 @@
             <SidebarDropdownItem class={text_style} label="매입처 관리" href='/customer/company' active={activeUrl === '/customer/company'} on:click={handleToggle('company')}/>
             <SidebarDropdownItem class={text_style} label="회원 관리" href='/customer/user' active={activeUrl === '/customer/user'} on:click={handleToggle('user')}/>
             
+            </SidebarDropdownWrapper>
+          </SidebarGroup>
 
-
-
-
+          <SidebarGroup border>
+            <SidebarDropdownWrapper class={text_style} label="영업 관리" isOpen={mainPath ==='sale' ? true : false} transitionType="fly" {transitionParams} >
+              <svelte:fragment slot="icon">
+                <Icon.StoreSolid size="20"/>
+            </svelte:fragment>
+            <SidebarDropdownItem class={text_style} label="주문 관리" href='/sale/user_order' active={activeUrl === '/sale/user_order'} on:click={handleToggle('user_order')}/>
+             
             </SidebarDropdownWrapper>
           </SidebarGroup>
     

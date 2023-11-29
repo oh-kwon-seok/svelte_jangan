@@ -170,10 +170,10 @@
 
           <div class="grid grid-cols-1 gap-4">
                 <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
-         
+                <p class="mb-4 font-semibold text-xl dark:text-white">취급품목</p>
           </div>
 
-
+        
 
             <div id="example-table-theme" bind:this={tableComponent}></div>
          

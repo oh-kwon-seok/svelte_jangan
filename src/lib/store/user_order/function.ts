@@ -1,9 +1,10 @@
 
 
 //@ts-nocheck
-
+import { DateTime } from 'luxon';
 import { writable } from 'svelte/store';
-import {user_modal_state,user_form_state} from './state';
+import {user_order_modal_state,user_order_form_state} from './state';
+
 
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
@@ -11,6 +12,7 @@ import {common_alert_state, common_toast_state,common_search_state,login_state,t
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
+import { businessNumber,phoneNumber} from '$lib/module/common/function';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
 
@@ -28,30 +30,29 @@ let search_state : any;
 let login_data : any;
 let table_data : any;
 let user_data : any;
-
 let selected_data : any;
 
 
 let init_form_data = {
   uid : 0,
-    id : '',
-    code : '',
-    customer_name : '',
-    name : '',
-    email : '',
-    phone : '',
-    password : '1111',
-    car : '',
-    used : 1,
+  id : '',
+  code : '',
+  customer_name : '',
+  name : '',
+  email : '',
+  phone : '',
+  password : '1111',
+  car : '',
+  used : 1,
 
 }
 
 
-user_modal_state.subscribe((data) => {
+user_order_modal_state.subscribe((data) => {
     update_modal = data;
 })
 
-user_form_state.subscribe((data) => {
+user_order_form_state.subscribe((data) => {
     update_form = data;
 })
 
@@ -73,19 +74,20 @@ login_state.subscribe((data) => {
 table_state.subscribe((data) => {
   table_data = data;
 })
-common_user_state.subscribe((data) => {
-  user_data = data;
-})
 
 common_selected_state.subscribe((data) => {
   selected_data = data;
 })
+
+common_user_state.subscribe((data) => {
+  user_data = data;
+})
  
  
 
 
 
-const userModalOpen = (data : any, title : any) => {
+const userOrderModalOpen = (data : any, title : any) => {
  console.log('data : ', data);
 
   console.log('title : ', title);
@@ -96,18 +98,18 @@ const userModalOpen = (data : any, title : any) => {
     common_alert_state.update(() => alert);
     update_modal['title'] = title;
     update_modal[title]['use'] = true;
-    user_modal_state.update(() => update_modal);
+    user_order_modal_state.update(() => update_modal);
 
     console.log('update_modal : ', update_modal);
 
     if(title === 'add'){
-      user_form_state.update(() => init_form_data);
+      user_order_form_state.update(() => init_form_data);
      
     }
     if(title === 'update' ){
 
         Object.keys(update_form).map((item)=> {    
-            if(item === 'car'){
+            if(item === 'car' || item === 'user'){
               update_form[item] = data[item]['uid'];
             }else{
               update_form[item] = data[item];
@@ -115,8 +117,8 @@ const userModalOpen = (data : any, title : any) => {
            
         }); 
 
-            user_form_state.update(() => update_form);
-            user_modal_state.update(() => update_modal);
+            user_order_form_state.update(() => update_form);
+            user_order_modal_state.update(() => update_modal);
             console.log('update_modal : ', update_modal);
 
     }
@@ -133,7 +135,7 @@ const userModalOpen = (data : any, title : any) => {
 
       }else{
         for(let i=0; i<data.length; i++){
-          uid_array.push(data[i]['id']);
+          uid_array.push(data[i]['uid']);
         }
       }
   }
@@ -169,7 +171,7 @@ const select_query = (type) => {
     }
   }
     axios.get(url,config).then(res=>{
-      console.log('table_state : ', table_state['user']);
+      console.log('table_state : ', table_state['user_order']);
       table_data[type].setData(res.data);
       table_state.update(() => table_data);
       console.log('table_data : ', table_data);
@@ -185,12 +187,19 @@ const save = (param,title) => {
  
     if(title === 'add'){
       console.log('param : ', param);
-    
-      if( param['code'] === '' || param['car'] === ''){
+      let data = table_data['user_order_sub'].getSelectedData();
+
+      let checked_data = data.filter(item => {
+        return parseInt(item.qty) > 0 && item.qty !== undefined 
+      })
+
+      return console.log('checked_data : ', checked_data);
+
+      if( param['user'] === '' || param['car'] === '' || checked_data.length === 0 || checked_data.length === undefined ){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
-        user_modal_state.update(() => update_modal);
+        user_order_modal_state.update(() => update_modal);
  
         return common_alert_state.update(() => alert);
   
@@ -201,16 +210,14 @@ const save = (param,title) => {
   
           
           let params = {
-            id : param.code,
-            code : param.code,
-            name : param.name,
-            customer_name : param.customer_name,
-            email : param.email,
-            phone : param.phone,
-            password : param.password,
+            
+            order_status : param.order_status,
+            price_status : param.price_status,
+            user_id : param.user,
             car_uid : param.car,
             used : param.used,
             auth : 'user',
+            user_order_sub : checked_data,
             token : login_data['token'],
           };
         axios.post(url,
@@ -225,7 +232,7 @@ const save = (param,title) => {
             toast['value'] = true;
             update_modal['title'] = '';
             update_modal['add']['use'] = !update_modal['add']['use'];
-            user_modal_state.update(() => update_modal);
+            user_order_modal_state.update(() => update_modal);
 
             
 
@@ -249,7 +256,7 @@ const save = (param,title) => {
       const url = `${api}/user/update`
       
       
-      let data =  table_data['user_product'].getSelectedData();
+      let data =  table_data['user_order_sub'].getSelectedData();
 
       let checked_data = data.filter(item => {
         return parseInt(item.qty) > 0 && item.qty !== undefined 
@@ -273,7 +280,7 @@ const save = (param,title) => {
           used : param.used,
           auth : 'user',
           token : login_data['token'],
-          user_product : checked_data,
+          user_order_sub : checked_data,
 
         };
       axios.post(url,
@@ -288,8 +295,8 @@ const save = (param,title) => {
           toast['value'] = true;
           update_modal['title'] = '';
           update_modal['update']['use'] = false;
-          user_modal_state.update(() => update_modal);
-          user_form_state.update(()=> init_form_data);
+          user_order_modal_state.update(() => update_modal);
+          user_order_form_state.update(()=> init_form_data);
           select_query('user');
           return common_toast_state.update(() => toast);
 
@@ -339,8 +346,8 @@ const save = (param,title) => {
               toast['value'] = true;
               update_modal['title'] = '';
               update_modal['update']['use'] = false;
-              user_modal_state.update(() => update_modal);
-              user_form_state.update(()=> init_form_data);
+              user_order_modal_state.update(() => update_modal);
+              user_order_form_state.update(()=> init_form_data);
 
               select_query('user');
     
@@ -358,13 +365,13 @@ const save = (param,title) => {
         }
 
         update_modal[title]['use'] = !update_modal[title]['use'];
-        user_modal_state.update(() => update_modal);
-        user_form_state.update(()=> init_form_data);
+        user_order_modal_state.update(() => update_modal);
+        user_order_form_state.update(()=> init_form_data);
     }
   }
 
 
-  const userProductTable = (table_state,type,tableComponent) => {
+  const userOrderSubTable = (table_state,type,tableComponent) => {
 
 
     const url = `${api}/product/select`; 
@@ -377,7 +384,7 @@ const save = (param,title) => {
     let search_text = '';
     let filter_title = 'all';
     let checked_data = [];
-    let total_data = [];
+  
 
     let params = 
     {
@@ -396,8 +403,8 @@ const save = (param,title) => {
       }
     }
       axios.get(url,config).then(res=>{
-        if(table_state['user_product']){
-          table_state['user_product'].destory();
+        if(table_state['user_order_sub']){
+          table_state['user_order_sub'].destory();
         }
 
         if(res.data.length > 0){
@@ -405,11 +412,10 @@ const save = (param,title) => {
     
           const url = `${api}/user_product/info_select`;
            
-          
   
           let params = 
           {
-          user_id : update_form.id
+          user_id : update_form.user
           };
           const config = {
             params : params,
@@ -420,22 +426,22 @@ const save = (param,title) => {
           }
             axios.get(url,config).then(res=>{
               
-              let user_checked_data =  res.data;
+              let user_order_checked_data =  res.data;
           
 
               for(let i=0; i < product_data.length; i++){
                 let product_uid = product_data[i]['uid'];
 
-                for(let j=0; j< user_checked_data.length; j++){
-                  let user_checked_uid = user_checked_data[j]['product']['uid'];
-                  if(product_uid === user_checked_uid){
+                for(let j=0; j< user_order_checked_data.length; j++){
+                  let user_order_checked_uid = user_order_checked_data[j]['product']['uid'];
+                  if(product_uid === user_order_checked_uid){
                     checked_data.push(product_uid);
                     product_data[i]['selected'] = true; 
                     
-                    product_data[i]['qty'] = user_checked_data[j]['qty'].toString(); 
+                    product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
                     
-                    console.log(user_checked_data[j]['qty']);
-                    user_checked_data.splice(j,1);
+                    console.log(user_order_checked_data[j]['qty']);
+                    user_order_checked_data.splice(j,1);
                     break;
                   }
 
@@ -444,15 +450,12 @@ const save = (param,title) => {
 
               }
 
-  
-
+              console.log('product_data',product_data);
             
-              console.log('total_data : ', total_data);
-          
-              // table_data['user_product'].setData(res.data);
+              // table_data['user_order_sub'].setData(res.data);
               // table_state.update(() => table_data);
-              table_data['user_product'] =   new Tabulator(tableComponent, {
-                height:TABLE_TOTAL_CONFIG['height'],
+              table_data['user_order_sub'] =   new Tabulator(tableComponent, {
+                height:"40vh",
                 layout:TABLE_TOTAL_CONFIG['layout'],
                 pagination:TABLE_TOTAL_CONFIG['pagination'],
                 paginationSize:1000,
@@ -463,8 +466,6 @@ const save = (param,title) => {
                 locale: TABLE_TOTAL_CONFIG['locale'],
                 langs: TABLE_TOTAL_CONFIG['langs'],
                 selectable: true,
-               
-      
                 rowClick:function(e, row){
                   //e - the click event object
                   //row - row component
@@ -486,7 +487,7 @@ const save = (param,title) => {
       
                 data : product_data,
               
-                columns: TABLE_HEADER_CONFIG[type],
+                columns: TABLE_HEADER_CONFIG['user_product'],
                 
            
                
@@ -500,12 +501,12 @@ const save = (param,title) => {
         
     }else{
       
-      if(table_state['user_product']){
-        table_state['user_product'].destory();
+      if(table_state['user_order_sub']){
+        table_state['user_order_sub'].destory();
       }
 
-      table_data['user_product'] =   new Tabulator(tableComponent, {
-        height:TABLE_TOTAL_CONFIG['height'],
+      table_data['user_order_sub'] =   new Tabulator(tableComponent, {
+        height:"25vh",
         layout:TABLE_TOTAL_CONFIG['layout'],
         pagination:TABLE_TOTAL_CONFIG['pagination'],
         paginationSize:TABLE_TOTAL_CONFIG['paginationSize'],
@@ -531,8 +532,8 @@ const save = (param,title) => {
 
         data : [],
       
-        columns: TABLE_HEADER_CONFIG[type],
-        
+        columns: TABLE_HEADER_CONFIG['user_product'],
+      
   
         });
         console.log('table_data  :', table_data);
@@ -549,9 +550,94 @@ const save = (param,title) => {
 
 
 
+const userTable = (table_state,type,tableComponent) => {
+
+            table_data[type] =   new Tabulator(tableComponent, {
+              height:"25vh",
+              layout:TABLE_TOTAL_CONFIG['layout'],
+              pagination:TABLE_TOTAL_CONFIG['pagination'],
+              paginationSize:1000,
+              paginationSizeSelector:[10, 50, 100,1000,5000],
+              movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
+              paginationCounter: TABLE_TOTAL_CONFIG['paginationCounter'],
+              paginationAddRow:TABLE_TOTAL_CONFIG['paginationAddRow'], //add rows relative to the table
+              locale: TABLE_TOTAL_CONFIG['locale'],
+              langs: TABLE_TOTAL_CONFIG['langs'],
+              selectable: true,
+             
+    
+
+           
+              data : user_data, 
+              columns: [
+                {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:false, 
+                cellClick:function(e : any, cell:any){
+                    console.log('cellClick',cellClick);
+                    cell.getRow().toggleSelect();
+                    
+                }},
+                {title:"ID", field:"id", width:150, headerFilter:"input"},
+                {title:"사업자번호", field:"code", width:150, headerFilter:"input",
+                formatter:function(cell : any){
+                    var value = cell.getValue();
+                return businessNumber(value);
+                 },
+                },
+                {title:"상호명", field:"customer_name", width:150, headerFilter:"input", 
+                formatter:function(cell : any){
+                    var value = cell.getValue();
+                    
+                return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+                 },
+        
+                cellClick:function(e : any, cell:any){
+               
+                    let row = cell.getRow();
+                   if(row){
+                    console.log('row : ', row.getData());
+                    let id = row.getData().id;
+                    let car = row.getData().car['uid'];
+                    
+                    update_form['user'] = id;
+                    update_form['car'] = car;
+                    
+                    user_order_form_state.update(() => update_form);
+                
+                   }else{
+                  
+                   }
+                }
 
 
+                },
+                {title:"지정차량", field:"car.name", width:150, headerFilter:"input"},
+                {title:"연락처", field:"phone", width:150, headerFilter:"input", formatter:function(cell : any){
+                    var value = cell.getValue();
+                return phoneNumber(value);
+                 },},
+          
+                {title:"이메일", field:"email", width:150, headerFilter:"input"},
+                
+                {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
+                formatter: function(cell : any, formatterParams: any, onRendered: any) {
+                    // Luxon을 사용하여 datetime 값을 date로 변환
+                    const datetimeValue = cell.getValue();
+                    const date = DateTime.fromISO(datetimeValue).toFormat("yyyy-MM-dd");
+                    return date;
+                }},     
+            
+           ],
+           rowClick:function(e, row){
+            //e - the click event object
+            //row - row component
+            console.log('test : ', row);
+            row.toggleSelect(); //toggle row selected state on row click
+        },
+
+              });
+              table_state.update(()=> table_data);
+        
+}
 
 
-
-export {userModalOpen,save,userProductTable}
+export {userOrderModalOpen,save,userTable,userOrderSubTable}

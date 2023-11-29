@@ -30,6 +30,7 @@
 		infoCallApi('standard');
 		infoCallApi('origin');
 		infoCallApi('car');
+		infoCallApi('user');
 		
 		
 
