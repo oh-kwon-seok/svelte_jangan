@@ -66,9 +66,6 @@
                     <Icon.DatabaseSolid size="20"/>
                 </svelte:fragment>
               <SidebarDropdownItem class={text_style} label="품목 관리" href='/info/product' active={activeUrl === '/info/product'} on:click={handleToggle('product')} />
-              <SidebarDropdownItem class={text_style} label="원산지 관리" href='/info/origin' active={activeUrl === '/info/origin'} on:click={handleToggle('origin')} />
-              <SidebarDropdownItem class={text_style} label="규격 관리" href='/info/standard' active={activeUrl === '/info/standard'} on:click={handleToggle('standard')} />
-              <SidebarDropdownItem class={text_style} label="단위 관리" href='/info/unit' active={activeUrl === 'info/unit'} on:click={handleToggle('unit')} />
               <SidebarDropdownItem class={text_style} label="차량 관리" href='/info/car' active={activeUrl === 'info/car'} on:click={handleToggle('car')} />
             </SidebarDropdownWrapper>
  

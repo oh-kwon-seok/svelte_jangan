@@ -31,12 +31,9 @@ let selected_data : any;
 
 let init_form_data = {
   uid : 0,
-  code : '',
   name : '',
-  unit : '',
-  standard : '',
-  type : '',
-  origin : '',
+  type : '기타',
+  company : '',
   used : 1,
 
 }
@@ -100,7 +97,7 @@ const productModalOpen = (data : any, title : any) => {
        
    
         Object.keys(update_form).map((item)=> {    
-            if(item === 'unit' || item === 'standard' || item === 'type' || item === 'origin'){
+            if(item === 'company' ){
               update_form[item] = data[item]['uid'];
             }else{
               update_form[item] = data[item];
@@ -169,13 +166,14 @@ const select_query = (type) => {
 
 const save = (param,title) => {
 
+  console.log(param);
 
   update_modal['title'] = 'add';
   update_modal['add']['use'] = true;
  
     if(title === 'add'){
     
-      if(param['name'] === '' || param['unit'] === '' || param['standard'] === '' || param['origin'] === '' || param['type'] === ''){
+      if(param['name'] === '' || param['type'] === '' || param['company'] === ''){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
@@ -191,10 +189,8 @@ const save = (param,title) => {
           
           let params = {
             name : param.name,
-            unit_uid : param.unit,
-            standard_uid : param.standard,
-            origin_uid : param.origin,
-            type_uid : param.type,
+            type : param.type,
+            company_uid : param.company,
             used : param.used,
             
             token : login_data['token'],
@@ -238,10 +234,8 @@ const save = (param,title) => {
         let params = {
           uid : param.uid,
           name : param.name,
-          unit_uid : param.unit,
-          standard_uid : param.standard,
-          origin_uid : param.origin,
-          type_uid : param.type,
+          type : param.type,  
+          company_uid : param.company,
           used : param.used,
           token : login_data['token'],
         };

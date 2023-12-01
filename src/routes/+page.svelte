@@ -142,7 +142,7 @@
 		<div class="flex justify-center items-center ">
 		<Card class="w-full mt-16 "  padding='xl' img={src_url}   reverse={false} horizontal>	
 		<form class="flex flex-col space-y-6" >
-				<h3 class="text-xl font-medium text-gray-700 dark:text-white p-0 w-80">스마트공장 MES 시스템</h3>
+				<h3 class="text-xl font-medium text-gray-700 dark:text-white p-0 w-80">장안유통 식자재유통서비스</h3>
 				<Label class="space-y-2">
 					<span>ID</span>
 					<Input   type="text" name="id" placeholder="ID를 입력하세요" required vind:value={$login_state.id} on:change={(e)=> onChangeHandler(e)} />

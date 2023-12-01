@@ -50,7 +50,7 @@
         userTable(table_state,"user",tableComponent);
       
         if($user_order_form_state['user'] !== ''){
-          console.log('ㅋㅋ111',$user_order_form_state['user']);
+         
           userOrderSubTable(table_state,"user_order_sub",tableComponent1);
         }
       })
@@ -68,10 +68,14 @@
           {#if title === 'add' || title === 'update'}
           
 
+          {#if title==='add'}
+            <div id="example-table-theme" bind:this={tableComponent}></div>
+          {/if}
+         
 
-          <div id="example-table-theme" bind:this={tableComponent}></div>
 
-        <div class="grid grid-cols-2 gap-4">
+
+          <div class="grid grid-cols-2 gap-4">
      
 
         

@@ -448,9 +448,10 @@ const save = (param,title) => {
 
             
               console.log('total_data : ', total_data);
-          
+              
               // table_data['user_product'].setData(res.data);
               // table_state.update(() => table_data);
+
               table_data['user_product'] =   new Tabulator(tableComponent, {
                 height:TABLE_TOTAL_CONFIG['height'],
                 layout:TABLE_TOTAL_CONFIG['layout'],

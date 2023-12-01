@@ -109,8 +109,10 @@ const userOrderModalOpen = (data : any, title : any) => {
     if(title === 'update' ){
 
         Object.keys(update_form).map((item)=> {    
-            if(item === 'car' || item === 'user'){
+            if(item === 'car'){
               update_form[item] = data[item]['uid'];
+            }else if(item === 'user'){
+              update_form[item] = data[item]['id'];
             }else{
               update_form[item] = data[item];
             }
@@ -193,8 +195,7 @@ const save = (param,title) => {
         return parseInt(item.qty) > 0 && item.qty !== undefined 
       })
 
-      return console.log('checked_data : ', checked_data);
-
+    
       if( param['user'] === '' || param['car'] === '' || checked_data.length === 0 || checked_data.length === undefined ){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
@@ -205,7 +206,7 @@ const save = (param,title) => {
   
       }else {
       
-        const url = `${api}/user/save`
+        const url = `${api}/user_order/save`
         try {
   
           
@@ -233,7 +234,7 @@ const save = (param,title) => {
             update_modal['title'] = '';
             update_modal['add']['use'] = !update_modal['add']['use'];
             user_order_modal_state.update(() => update_modal);
-
+            select_query('user_order');
             
 
             return common_toast_state.update(() => toast);
@@ -253,7 +254,7 @@ const save = (param,title) => {
     }
     
     if(title === 'update'){
-      const url = `${api}/user/update`
+      const url = `${api}/user_order/update`
       
       
       let data =  table_data['user_order_sub'].getSelectedData();
@@ -268,19 +269,19 @@ const save = (param,title) => {
 
         console.log('params : ', param);
         let params = {
-          id : param.id,
-          code : param.code,
-          name : param.name,
-          password : param.password,
-          customer_name : param.customer_name,
-          email : param.email,
-          phone : param.phone,
-          
+
+          user_order_uid : param.uid,
+          order_status : param.order_status,
+          price_status : param.price_status,
+          user_id : param.user,
           car_uid : param.car,
           used : param.used,
           auth : 'user',
-          token : login_data['token'],
           user_order_sub : checked_data,
+          token : login_data['token'],
+
+         
+        
 
         };
       axios.post(url,
@@ -373,6 +374,10 @@ const save = (param,title) => {
 
   const userOrderSubTable = (table_state,type,tableComponent) => {
 
+    console.log('update : ', update_modal['title']);
+    console.log('update : ', update_modal['title']);
+    
+
 
     const url = `${api}/product/select`; 
 
@@ -409,14 +414,20 @@ const save = (param,title) => {
 
         if(res.data.length > 0){
           let product_data = res.data;
-    
-          const url = `${api}/user_product/info_select`;
-           
-  
-          let params = 
-          {
-          user_id : update_form.user
-          };
+          let url;
+          let params;
+          update_modal['title']
+          if(update_modal['title'] === 'add'){
+            url = `${api}/user_product/info_select`;
+            params = { user_id : update_form.user};
+
+          }
+          if(update_modal['title'] === 'update'){
+             url = `${api}/user_order_sub/info_select`;
+             params = { user_order_uid : update_form.uid};
+          }
+       
+
           const config = {
             params : params,
             headers:{
@@ -437,10 +448,17 @@ const save = (param,title) => {
                   if(product_uid === user_order_checked_uid){
                     checked_data.push(product_uid);
                     product_data[i]['selected'] = true; 
-                    
-                    product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
-                    
-                    console.log(user_order_checked_data[j]['qty']);
+                    if(update_modal['title'] === 'add'){
+                      product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
+                   
+                    }else if(update_modal['title'] === 'update'){
+                      product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
+                      product_data[i]['price'] = user_order_checked_data[j]['price'].toString();
+                      product_data[i]['supply_price'] = user_order_checked_data[j]['supply_price'].toString();
+                       
+                      
+                    }
+              
                     user_order_checked_data.splice(j,1);
                     break;
                   }
@@ -482,12 +500,18 @@ const save = (param,title) => {
                         row.toggleSelect();
                       }
                 },
+                cellEdited:function(cell){
+                  // 행이 업데이트될 때 실행되는 코드
+                  var updatedData = cell.getData();
+                  console.log("Updated Data:", updatedData);
+                  // 여기에서 데이터를 처리하면 됩니다.
+              },
              
              
       
                 data : product_data,
               
-                columns: TABLE_HEADER_CONFIG['user_product'],
+                columns: TABLE_HEADER_CONFIG['user_order_sub'],
                 
            
                

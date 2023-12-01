@@ -9,7 +9,7 @@
     import Toast from '$lib/components/toast/Toast.svelte';
     import Alert from '$lib/components/alert/Alert.svelte';
     import {car_modal_state, car_form_state} from '$lib/store/car/state';
-    import {common_alert_state, common_toast_state,common_type_state, common_car_state, common_origin_state,common_standard_state} from '$lib/store/common/state';
+    import {common_alert_state, common_toast_state,common_car_state } from '$lib/store/common/state';
     
     import {save} from '$lib/store/car/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';

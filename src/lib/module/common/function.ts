@@ -47,10 +47,26 @@ function validEmail(email: string): boolean {
 }
 
 
+// tabulator에서만 사용가능한 함수임
+function updateSupplyPrice(cell:any) {
+    // "qty" 셀과 "price" 셀의 값을 가져옴
+    var qty = cell.getData().qty || 0;
+    var price = cell.getData().price || 0;
+
+    // "supply_price" 셀을 계산하여 업데이트
+    var supplyPrice = qty * price;
+    cell.getRow().update({ supply_price: supplyPrice });
+}
+
+
+
+
+
 
 export {
     
     businessNumber,
     phoneNumber,
-    validEmail
+    validEmail,
+    updateSupplyPrice
 }

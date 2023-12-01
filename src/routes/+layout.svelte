@@ -24,11 +24,8 @@
 
 		// 기준정보 select용 데이터들을 호출한다.
 
-	
-		infoCallApi('unit');
-		infoCallApi('type');
-		infoCallApi('standard');
-		infoCallApi('origin');
+		
+		infoCallApi('company');
 		infoCallApi('car');
 		infoCallApi('user');
 		
