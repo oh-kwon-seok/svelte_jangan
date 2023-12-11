@@ -88,9 +88,21 @@
                 <Icon.StoreSolid size="20"/>
             </svelte:fragment>
             <SidebarDropdownItem class={text_style} label="주문 관리" href='/sale/user_order' active={activeUrl === '/sale/user_order'} on:click={handleToggle('user_order')}/>
-             
+            <SidebarDropdownItem class={text_style} label="매입 현황" href='/sale/user_order_sub' active={activeUrl === '/sale/user_order_sub'} on:click={handleToggle('user_order_sub')}/> 
+
             </SidebarDropdownWrapper>
           </SidebarGroup>
+          
+
+          <!-- <SidebarGroup border>
+            <SidebarDropdownWrapper class={text_style} label="관리자 통계" isOpen={mainPath ==='stat' ? true : false} transitionType="fly" {transitionParams} >
+              <svelte:fragment slot="icon">
+                <Icon.StoreSolid size="20"/>
+            </svelte:fragment>
+            <SidebarDropdownItem class={text_style} label="주문 관리" href='/stat/user_order' active={activeUrl === '/stat/user_order'} on:click={handleToggle('user_order')}/>
+             
+            </SidebarDropdownWrapper>
+          </SidebarGroup> -->
     
 
        

@@ -2,7 +2,7 @@
 
 
 import { writable } from 'svelte/store';
-import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,table_state } from './state';
+import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state } from './state';
 
 // import {item_data,item_form_state} from '$lib/store/info/item/state';
 
@@ -44,6 +44,8 @@ let company_data : any;
 let user_data : any;
 
 let user_order_data : any;
+
+let user_order_sub_data : any;
 
 const workbook = new Excel.Workbook();
 
@@ -106,6 +108,11 @@ common_user_state.subscribe((data) => {
 common_user_order_state.subscribe((data : any) => {
   user_order_data = data;
 })
+
+common_user_order_sub_state.subscribe((data : any) => {
+  user_order_sub_data = data;
+})
+
 
 
 const infoCallApi = (title) => {
@@ -312,7 +319,7 @@ const check_delete = (data, key,value) => {
 const excelDownload = (type,config) => {
   
       let data =  table_data[type].getSelectedData();
-      
+      console.log('data  : ', table_data[type].getSelectedData());
       if(data.length > 0){
         // 모든 객체에서 공통된 키(key) 이름을 찾기 위한 반복문
         for (let i = 0; i <  data.length; i++) {
@@ -415,6 +422,114 @@ const excelDownload = (type,config) => {
       }
    
   }
+
+
+  const excelDownload = (type,config) => {
+  
+    let data =  table_data[type].getSelectedData();
+    console.log('data  : ', table_data[type].getSelectedData());
+    if(data.length > 0){
+      // 모든 객체에서 공통된 키(key) 이름을 찾기 위한 반복문
+      for (let i = 0; i <  data.length; i++) {
+        let currentObject =  data[i];
+
+        Object.keys(currentObject).map((key)=> {    
+        
+          if(typeof currentObject[key] === "object"){
+            data[i][key] = data[i][key]['name'];
+          }
+        
+        }); 
+      }
+
+      try {
+
+        let text_title : any= '';
+        switch(type){
+            case 'product': 
+                text_title = '품목 관리';
+            break;
+            
+            default:
+                text_title = '제목 없음';
+            break;
+      }
+
+      const workbook = new Excel.Workbook();
+        // 엑셀 생성
+  
+        // 생성자
+        workbook.creator = '작성자';
+       
+        // 최종 수정자
+        workbook.lastModifiedBy = '최종 수정자';
+       
+        // 생성일(현재 일자로 처리)
+        workbook.created = new Date();
+       
+        // 수정일(현재 일자로 처리)
+        workbook.modified = new Date();
+
+        let file_name = text_title + moment().format('YYYY-MM-DD HH:mm:ss') + '.xlsx';
+        let sheet_name = moment().format('YYYYMMDDHH:mm:ss');
+     
+      
+        workbook.addWorksheet(text_title);
+           
+
+        const sheetOne = workbook.getWorksheet(text_title);
+             
+             
+              
+        // 컬럼 설정
+        // header: 엑셀에 표기되는 이름
+        // key: 컬럼을 접근하기 위한 key
+        // hidden: 숨김 여부
+        // width: 컬럼 넓이
+        sheetOne.columns = config;
+     
+        const sampleData = data;
+        const borderStyle = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+       
+        sampleData.map((item, index) => {
+          sheetOne.addRow(item);
+       
+          // 추가된 행의 컬럼 설정(헤더와 style이 다를 경우)
+          
+          for(let loop = 1; loop <= 6; loop++) {
+            const col = sheetOne.getRow(index + 2).getCell(loop);
+            col.border = borderStyle;
+            col.font = {name: 'Arial Black', size: 10};
+          }
+        
+      });
+  
+  
+          
+     
+        workbook.xlsx.writeBuffer().then((data) => {
+          const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+          const url = window.URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = file_name;
+          anchor.click();
+          window.URL.revokeObjectURL(url);
+        })
+      } catch(error) {
+        console.error(error);
+      }
+
+    }else{
+      alert('데이터를 선택해주세요');
+    }
+ 
+}
 
   const fileButtonClick = (id) => {
 
@@ -570,6 +685,9 @@ const excelDownload = (type,config) => {
         let search_text = search_data['search_text'];
         let filter_title = search_data['filter_title'];
         
+
+        
+
         let params = 
         {
           start_date : start_date,
@@ -585,8 +703,11 @@ const excelDownload = (type,config) => {
           }
         }
           axios.get(url,config).then(res=>{
+            console.log('url : ',url);
             console.log('select_query : ',res);
             console.log('table_data : ',table_data);
+            console.log('type : ', type);
+            console.log('params : ', params);
             
             table_data[type].setData(res.data);
             table_state.update(() => table_data);

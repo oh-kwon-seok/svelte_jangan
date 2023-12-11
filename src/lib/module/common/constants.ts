@@ -135,6 +135,15 @@ const TABLE_FILTER : any = {
 
         {value : "car", name : "지정차량"},
     ],
+    user_order_sub : [
+        {value : "all",name : "전체"},
+        {value : "company", name : "매입처명"},
+        {value : "name", name : "상품명"},
+        {value : "type", name : "분류명"},
+        {value : "car", name : "지정차량"},
+        {value : "order_status", name : "주문상태"},
+       
+    ],
 }
 
 const EXCEL_CONFIG : any = {
@@ -179,6 +188,12 @@ const EXCEL_CONFIG : any = {
 
         {header: '등록일', key: 'created', width: 30},
         ],
+        user_order_sub : [
+            {header: '상품명', key: 'product', width: 30},
+            {header: '매입처', key: 'product.company', width: 30},
+
+            
+            ],
 }; 
 
 
@@ -393,18 +408,36 @@ const TABLE_HEADER_CONFIG : any = {
     {title:"수금유무", field:"price_status", width:150, headerFilter:"input"},
  
 
+    {title:"주문총액", field:"totalSupplyPrice", width:150, editor : "input",formatter: "money",  
     
-    {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
-    formatter: function(cell : any, formatterParams: any, onRendered: any) {
-        // Luxon을 사용하여 datetime 값을 date로 변환
-        const datetimeValue = cell.getValue();
-        const date = DateTime.fromISO(datetimeValue).toFormat("yyyy-MM-dd");
-        return date;
+    formatterParams: {    
+        thousand:",",
+        symbol:"원",
+        symbolAfter:"p",
+        precision:false,
     },
+    bottomCalc:"sum", bottomCalcFormatter: "money", // 합계 포매터 지정
+    bottomCalcFormatterParams: {
+        thousand: ",",
+        symbol: "원",
+        symbolAfter: "p",
+        precision: false,
+      },
 
-    }],
 
-    user_order_sub : [
+},
+
+    {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
+        formatter: function(cell : any, formatterParams: any, onRendered: any) {
+            // Luxon을 사용하여 datetime 값을 date로 변환
+            const datetimeValue = cell.getValue();
+            const date = DateTime.fromISO(datetimeValue).toFormat("yyyy-MM-dd");
+            return date;
+        },
+    },
+],
+
+    user_order_sub_list : [
         {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
         cellClick:function(e : any, cell:any){
             cell.getRow().toggleSelect();
@@ -434,6 +467,67 @@ const TABLE_HEADER_CONFIG : any = {
             symbolAfter:"p",
             precision:false,
         },cellEdited: updateSupplyPrice},
+        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
+            
+            thousand:",",
+            symbol:"원",
+          symbolAfter:"p",
+          precision:false,
+      }},
+
+
+        {title:"공급가액", field:"supply_price", width:150, editor : "input",formatter: "money",  formatterParams: {
+           
+            thousand:",",
+            symbol:"원",
+            symbolAfter:"p",
+            precision:false,
+        }},
+        
+
+    
+       ],
+
+       user_order_sub: [
+        {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
+        cellClick:function(e : any, cell:any){
+            cell.getRow().toggleSelect();
+            console.log(cell.getRow());
+        }},
+       
+        {title:"분류", field:"product.type", width:150, headerFilter:"input"},
+      
+        {title:"상품명", field:"product.name", width:150, headerFilter:"input", 
+        formatter:function(cell : any){
+            var value = cell.getValue();
+        return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+         },
+    
+        },
+        {title:"매입처", field:"product.company.name", width:150, headerFilter:"input"},
+        {title:"지정차량", field:"userOrder.car.name", width:150, headerFilter:"input"},
+        {title:"수량", field:"qty", width:150, editor : "input",formatter: "money",  formatterParams: {
+          
+            thousand:",",
+            precision:false,
+
+        }},
+        {title:"단가", field:"price", width:150, editor : "input",formatter: "money",  formatterParams: {
+            
+              thousand:",",
+              symbol:"원",
+            symbolAfter:"p",
+            precision:false,
+        }},
+        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
+            
+            thousand:",",
+            symbol:"원",
+          symbolAfter:"p",
+          precision:false,
+      }},
+
+
         {title:"공급가액", field:"supply_price", width:150, editor : "input",formatter: "money",  formatterParams: {
            
             thousand:",",

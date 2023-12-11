@@ -267,10 +267,10 @@ const save = (param,title) => {
      
       try {
 
-        console.log('params : ', param);
+        
         let params = {
 
-          user_order_uid : param.uid,
+          uid : param.uid,
           order_status : param.order_status,
           price_status : param.price_status,
           user_id : param.user,
@@ -298,7 +298,7 @@ const save = (param,title) => {
           update_modal['update']['use'] = false;
           user_order_modal_state.update(() => update_modal);
           user_order_form_state.update(()=> init_form_data);
-          select_query('user');
+          select_query('user_order');
           return common_toast_state.update(() => toast);
 
         }else{
@@ -350,7 +350,7 @@ const save = (param,title) => {
               user_order_modal_state.update(() => update_modal);
               user_order_form_state.update(()=> init_form_data);
 
-              select_query('user');
+              select_query('user_order');
     
               return common_toast_state.update(() => toast);
     
@@ -455,6 +455,8 @@ const save = (param,title) => {
                       product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
                       product_data[i]['price'] = user_order_checked_data[j]['price'].toString();
                       product_data[i]['supply_price'] = user_order_checked_data[j]['supply_price'].toString();
+                      product_data[i]['buy_price'] = user_order_checked_data[j]['buy_price'].toString();
+                      
                        
                       
                     }
@@ -472,7 +474,7 @@ const save = (param,title) => {
             
               // table_data['user_order_sub'].setData(res.data);
               // table_state.update(() => table_data);
-              table_data['user_order_sub'] =   new Tabulator(tableComponent, {
+              table_data['user_order_sub_list'] =   new Tabulator(tableComponent, {
                 height:"40vh",
                 layout:TABLE_TOTAL_CONFIG['layout'],
                 pagination:TABLE_TOTAL_CONFIG['pagination'],
@@ -511,7 +513,7 @@ const save = (param,title) => {
       
                 data : product_data,
               
-                columns: TABLE_HEADER_CONFIG['user_order_sub'],
+                columns: TABLE_HEADER_CONFIG['user_order_sub_list'],
                 
            
                
