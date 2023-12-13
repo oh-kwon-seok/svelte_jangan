@@ -32,7 +32,10 @@
     import Toast from '$lib/components/toast/Toast.svelte'
     
     import {makeTable,infoCallApi} from '$lib/store/common/function';
+
+    import {userOrderSubexcelDownload} from '$lib/store/user_order_sub/function';
     
+
 
 	import { afterUpdate, onMount } from 'svelte';
 
@@ -107,9 +110,9 @@
 
                  
 
-                        <Button  color='green' on:click={() =>excelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
+                        <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
                           <Icon.FileCsvSolid class='mr-2' size="20" />
-                          엑셀다운
+                          엑셀다운dd
                       </Button>
 
                       

@@ -183,16 +183,17 @@ const EXCEL_CONFIG : any = {
     user_product : [
         {header: '번호코드', key: 'uid', width: 30},
         {header: '분류', key: "type", width: 30},
-        {header: '상품명', key: 'name', width: 30},
+        {header: '상품명', key: 'name', width: 150},
         {header: '개수', key: 'qty', width: 30},
 
         {header: '등록일', key: 'created', width: 30},
         ],
         user_order_sub : [
-            {header: '상품명', key: 'product', width: 30},
-            {header: '매입처', key: 'product.company', width: 30},
-
-            
+            {header: '매입처', key: 'company', width: 30},
+            {header: '상품명', key: 'name', width: 150},  
+            {header: '주문수량', key: 'qty', width: 30},  
+            {header: '차량명', key: 'car', width: 30},
+        
             ],
 }; 
 
