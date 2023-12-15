@@ -35,13 +35,11 @@ let selected_data : any;
 
 let init_form_data = {
   uid : 0,
-  id : '',
-  code : '',
-  customer_name : '',
-  name : '',
-  email : '',
-  phone : '',
-  password : '1111',
+  user : '',
+  
+  price_status : '미수금',
+  order_status : '주문완료',
+  image_url:'',
   car : '',
   used : 1,
 
@@ -88,9 +86,7 @@ common_user_state.subscribe((data) => {
 
 
 const userOrderModalOpen = (data : any, title : any) => {
- console.log('data : ', data);
-
-  console.log('title : ', title);
+ 
   
     alert['type'] = 'save';
     alert['value'] = false;
@@ -100,8 +96,7 @@ const userOrderModalOpen = (data : any, title : any) => {
     update_modal[title]['use'] = true;
     user_order_modal_state.update(() => update_modal);
 
-    console.log('update_modal : ', update_modal);
-
+    
     if(title === 'add'){
       user_order_form_state.update(() => init_form_data);
      
@@ -118,18 +113,16 @@ const userOrderModalOpen = (data : any, title : any) => {
             }
            
         }); 
-
+        
             user_order_form_state.update(() => update_form);
             user_order_modal_state.update(() => update_modal);
-            console.log('update_modal : ', update_modal);
-
+           
     }
     if(title === 'check_delete'){
-      let data =  table_data['user'].getSelectedData();
+      let data =  table_data['user_order'].getSelectedData();
 
       common_selected_state.update(() => data);
       
-      console.log('modalOpen : ', data);
       let uid_array = [];
       if(data.length === 0){
         alert['value'] = true;
@@ -173,10 +166,9 @@ const select_query = (type) => {
     }
   }
     axios.get(url,config).then(res=>{
-      console.log('table_state : ', table_state['user_order']);
       table_data[type].setData(res.data);
       table_state.update(() => table_data);
-      console.log('table_data : ', table_data);
+     
    })
 
 }
@@ -188,8 +180,7 @@ const save = (param,title) => {
   update_modal['add']['use'] = true;
  
     if(title === 'add'){
-      console.log('param : ', param);
-      let data = table_data['user_order_sub'].getSelectedData();
+      let data = table_data['user_order_sub_list'].getSelectedData();
 
       let checked_data = data.filter(item => {
         return parseInt(item.qty) > 0 && item.qty !== undefined 
@@ -224,10 +215,7 @@ const save = (param,title) => {
         axios.post(url,
           params,
         ).then(res => {
-          console.log('res',res);
           if(res.data !== undefined && res.data !== null && res.data !== '' ){
-            console.log('실행');
-            console.log('res:data', res.data);
             
             toast['type'] = 'success';
             toast['value'] = true;
@@ -287,10 +275,7 @@ const save = (param,title) => {
       axios.post(url,
         params,
       ).then(res => {
-        console.log('res',res);
         if(res.data !== undefined && res.data !== null && res.data !== '' ){
-          console.log('실행');
-          console.log('res:data', res.data);
           
           toast['type'] = 'success';
           toast['value'] = true;
@@ -316,32 +301,28 @@ const save = (param,title) => {
       let data =  selected_data;
       let uid_array = [];
 
-      console.log('deleted_data : ', data);
       if(data.length === 0){
         alert['value'] = true;
         common_alert_state.update(() => alert);
 
       }else{
         for(let i=0; i<data.length; i++){
-          uid_array.push(data[i]['id']);
+          uid_array.push(data[i]['uid']);
         }
       }
 
         if(uid_array.length > 0){
 
-          const url = `${api}/user/delete`
+          const url = `${api}/user_order/delete`
           try {
     
             let params = {
-              id : uid_array,
+              uid : uid_array,
             };
           axios.post(url,
             params,
           ).then(res => {
-            console.log('res',res);
             if(res.data !== undefined && res.data !== null && res.data !== '' ){
-              console.log('실행');
-              console.log('res:data', res.data);
               
               toast['type'] = 'success';
               toast['value'] = true;
@@ -374,10 +355,6 @@ const save = (param,title) => {
 
   const userOrderSubTable = (table_state,type,tableComponent) => {
 
-    console.log('update : ', update_modal['title']);
-    console.log('update : ', update_modal['title']);
-    
-
 
     const url = `${api}/product/select`; 
 
@@ -408,8 +385,8 @@ const save = (param,title) => {
       }
     }
       axios.get(url,config).then(res=>{
-        if(table_state['user_order_sub']){
-          table_state['user_order_sub'].destory();
+        if(table_state['user_order_sub_list']){
+          table_state['user_order_sub_list'].destory();
         }
 
         if(res.data.length > 0){
@@ -470,7 +447,6 @@ const save = (param,title) => {
 
               }
 
-              console.log('product_data',product_data);
             
               // table_data['user_order_sub'].setData(res.data);
               // table_state.update(() => table_data);
@@ -505,8 +481,7 @@ const save = (param,title) => {
                 cellEdited:function(cell){
                   // 행이 업데이트될 때 실행되는 코드
                   var updatedData = cell.getData();
-                  console.log("Updated Data:", updatedData);
-                  // 여기에서 데이터를 처리하면 됩니다.
+           
               },
              
              
@@ -527,11 +502,11 @@ const save = (param,title) => {
         
     }else{
       
-      if(table_state['user_order_sub']){
-        table_state['user_order_sub'].destory();
+      if(table_state['user_order_sub_list']){
+        table_state['user_order_sub_list'].destory();
       }
 
-      table_data['user_order_sub'] =   new Tabulator(tableComponent, {
+      table_data['user_order_sub_list'] =   new Tabulator(tableComponent, {
         height:"25vh",
         layout:TABLE_TOTAL_CONFIG['layout'],
         pagination:TABLE_TOTAL_CONFIG['pagination'],
@@ -558,12 +533,11 @@ const save = (param,title) => {
 
         data : [],
       
-        columns: TABLE_HEADER_CONFIG['user_product'],
+        columns: TABLE_HEADER_CONFIG['user_order_sub_list'],
       
   
         });
-        console.log('table_data  :', table_data);
-
+        
         table_state.update(()=> table_data);
 
 
@@ -577,7 +551,9 @@ const save = (param,title) => {
 
 
 const userTable = (table_state,type,tableComponent) => {
-
+  if(table_state['user']){
+    table_state['user'].destory();
+  }
             table_data[type] =   new Tabulator(tableComponent, {
               height:"25vh",
               layout:TABLE_TOTAL_CONFIG['layout'],
@@ -598,7 +574,6 @@ const userTable = (table_state,type,tableComponent) => {
               columns: [
                 {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:false, 
                 cellClick:function(e : any, cell:any){
-                    console.log('cellClick',cellClick);
                     cell.getRow().toggleSelect();
                     
                 }},
@@ -620,7 +595,6 @@ const userTable = (table_state,type,tableComponent) => {
                
                     let row = cell.getRow();
                    if(row){
-                    console.log('row : ', row.getData());
                     let id = row.getData().id;
                     let car = row.getData().car['uid'];
                     
@@ -656,7 +630,7 @@ const userTable = (table_state,type,tableComponent) => {
            rowClick:function(e, row){
             //e - the click event object
             //row - row component
-            console.log('test : ', row);
+            
             row.toggleSelect(); //toggle row selected state on row click
         },
 

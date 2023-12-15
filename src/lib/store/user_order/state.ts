@@ -19,9 +19,10 @@ import {v4 as uuid} from 'uuid';
   const user_order_form_state : any = writable({
     uid : 0,
     user : '',
-
+    
     price_status : '미수금',
     order_status : '주문완료',
+    image_url:'',
     car : '',
     used : 1,
     

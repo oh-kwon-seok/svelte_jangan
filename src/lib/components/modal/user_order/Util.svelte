@@ -19,11 +19,27 @@
 
 
 
+
+
+    let showModal = false;
+    let imageUrl = '';
+
+    function openModal() {
+  
+        showModal = true;
+    }
+
+    function closeModal() {
+        showModal = false;
+    }
+
+
+
   
     console.log('title',title);
     
     let label_title = '';
-   
+    let size = 'xl';
    
     if(title === 'add'){
       label_title = '추가';
@@ -40,10 +56,9 @@
     let tableComponent1 = "example-table-theme1";
 
     onMount(()=>{
-        
-      userTable(table_state,"user",tableComponent);
-
-   
+        if(title === 'add'){
+          userTable(table_state,"user",tableComponent);
+        }
       });
 
       afterUpdate(()=> {
@@ -51,7 +66,7 @@
       
         if($user_order_form_state['user'] !== ''){
          
-          userOrderSubTable(table_state,"user_order_sub",tableComponent1);
+          userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
         }
       })
 
@@ -59,9 +74,30 @@
 
     </script>
 
+    <style>
+      .modal {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+      .modal img {
+        max-width: 80%;
+        max-height: 80%;
+      }
+
+
+    </style>
+
  
 
-    <Modal title={`주문 ${label_title}`} color={color} bind:open={$user_order_modal_state[title]['use']} size="xl" placement={title === 'add' || title === 'check_delete'  ? 'center' : 'center-right'}   class="w-full">
+    <Modal title={`주문 ${label_title}`}  color={color} {size} bind:open={$user_order_modal_state[title]['use']}  placement={title === 'add' || title === 'check_delete'  ? 'center' : 'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
         <form action="#">
@@ -72,15 +108,8 @@
             <div id="example-table-theme" bind:this={tableComponent}></div>
           {/if}
          
-
-
-
           <div class="grid grid-cols-2 gap-4">
-     
-
-        
-         
-       
+    
           <Label class="space-y-2">
             <span>계정</span>
             <Input type="text" readOnly  id="last_name" placeholder="업체룰 선택하세요" required bind:value={$user_order_form_state['user']}/>
@@ -89,7 +118,7 @@
             <Helper class="mt-2" color="red"><span class="font-medium">업체를 선택해주세요</span></Helper>
             {/if}
           </Label>
-
+          
           <Label class="space-y-2">
             <span>지정차량</span>
 
@@ -101,6 +130,7 @@
                 {/each}
               </Select>
           </Label>
+          
 
           <Label class="space-y-2">
             <span>주문상태</span>
@@ -141,17 +171,42 @@
             </Label>
           {/if}
           </div>
-         
 
+
+
+
+         
           <div class="grid grid-cols-1 gap-4">
                 <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
                 <p class="mb-4 font-semibold text-xl dark:text-white">주문 목록</p>
           </div>
 
-         
+           
 
-          <div id="example-table-theme1" bind:this={tableComponent1}></div>
+          <div class="flex flex-row">
+            <div id="example-table-theme1" bind:this={tableComponent1}></div>
+            {#if $user_order_form_state['image_url']}
+ 
+           
+            <!-- svelte-ignore missing-declaration -->
+            <img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['image_url']} alt="Selected Image" on:click={() => openModal()}/>
 
+
+            {#if showModal}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div class="modal" on:click={closeModal}>
+        
+                <!-- svelte-ignore a11y-img-redundant-alt -->
+                <img src={$user_order_form_state['image_url']} alt="Zoomed Image">
+              </div>
+            {/if}
+
+
+            {/if}
+
+          </div>
+
+        
 
 
          {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
@@ -190,6 +245,7 @@
           
         
         </svelte:fragment> -->
+        
         <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($user_order_form_state,title)}>{label_title}</Button>
        
        
@@ -199,6 +255,7 @@
         <!-- <div class="mt-12">
                <Alert  color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT[title].title} content={DATA_FAIL_ALERT[title].content}/>
            </div> -->
+
         {/if}
 
       </Modal>

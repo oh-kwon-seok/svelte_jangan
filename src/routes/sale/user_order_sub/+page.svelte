@@ -112,13 +112,10 @@
 
                         <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
                           <Icon.FileCsvSolid class='mr-2' size="20" />
-                          엑셀다운dd
+                          엑셀다운
                       </Button>
 
                       
-
-                     
-               
 
                       </div>
 
