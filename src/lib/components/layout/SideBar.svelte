@@ -88,7 +88,9 @@
                 <Icon.StoreSolid size="20"/>
             </svelte:fragment>
             <SidebarDropdownItem class={text_style} label="주문 관리" href='/sale/user_order' active={activeUrl === '/sale/user_order'} on:click={handleToggle('user_order')}/>
-            <SidebarDropdownItem class={text_style} label="매입 현황" href='/sale/user_order_sub' active={activeUrl === '/sale/user_order_sub'} on:click={handleToggle('user_order_sub')}/> 
+            <SidebarDropdownItem class={text_style} label="매입 현황" href='/sale/user_order_sub' active={activeUrl === '/sale/user_order_sub'} on:click={handleToggle('user_order_sub')}/>
+            <SidebarDropdownItem class={text_style} label="상품단가 이력 조회" href='/sale/user_price_history' active={activeUrl === '/sale/user_price_history'} on:click={handleToggle('user_price_history')}/>
+             
 
             </SidebarDropdownWrapper>
           </SidebarGroup>

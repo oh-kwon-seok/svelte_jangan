@@ -9,7 +9,7 @@ import {v4 as uuid} from 'uuid';
 import axios from 'axios'
 import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state} from '$lib/store/common/state';
 import moment from 'moment';
-
+import Excel from 'exceljs';
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
 
 const api = import.meta.env.VITE_API_BASE_URL;
@@ -25,6 +25,7 @@ let toast : any;
 let search_state : any;
 let login_data : any;
 let table_data : any;
+let product_upload_data : any;
 
 let selected_data : any;
 
@@ -405,9 +406,101 @@ const save = (param,title) => {
 
   // }
 
+  const productExcelUpload = (e) => {
+  
+    const product_config : any = [
+      {header: '제품명', key: 'name', width: 30},
+      {header: '품목분류', key: 'type', width: 30},
+  
+    ]; 
+
+
+    const wb = new Excel.Workbook();
+    const reader = new FileReader()
+
+    let file = e.target.files[0];
+
+    reader.readAsArrayBuffer(file)
+    reader.onload = () => {
+     let change_data = [];
+     
+      const buffer = reader.result;
+      wb.xlsx.load(buffer).then(workbook => {
+        console.log(workbook, 'workbook instance')
+        workbook.eachSheet((sheet, id) => {
+          sheet.eachRow((row, rowIndex) => {
+          
+            if(rowIndex > 1){
+            let obj = {
+
+            };
+            for(let i=0; i<product_config.length; i++){
+              obj[product_config[i].key] = row.values[i+1] !== '' ?  row.values[i+1] : "";
+
+            }
+            change_data.push(obj);
+            
+            product_upload_data = change_data;
+
+          
+          }else {
+
+          }
+          });
+
+          console.log('product_upload_data',product_upload_data);
+
+            const url = `${api}/product/excel_upload`
+            try {
+      
+              let params = {
+                data :  product_upload_data,
+                
+              };
+            axios.post(url,
+              params,
+            ).then(res => {
+              console.log('res',res);
+              if(res.data !== undefined && res.data !== null && res.data !== '' ){
+                console.log('실행');
+                console.log('res:data', res.data);
+                
+                toast['type'] = 'success';
+                toast['value'] = true;
+                update_modal['title'] = '';
+                update_modal['update']['use'] = false;
+                select_query('product');
+                return common_toast_state.update(() => toast);
+      
+              }else{
+              
+                return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+              }
+            })
+            }catch (e:any){
+              return console.log('에러 : ',e);
+            };
+      
+      
+           
+          
+
+
+
+        
+  
+
+        })
+      })
+
+    }
+
+  }
 
 
 
 
 
-export {productModalOpen,save}
+
+
+export {productModalOpen,save,productExcelUpload}

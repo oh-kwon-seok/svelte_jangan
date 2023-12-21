@@ -34,15 +34,7 @@
 	
 	});
 	
-	onMount(() => {
-		if (Kakao.isInitialized()) return; // 이미 초기화가 되어있다면 실행하지 않음
-		
-		Kakao.init('2713d0b777a1e2fbfaf1b0cd5aa224f4',{
-			redirectUri: 'http://localhost:5173/home', // 콜백 URL 설정
-  			persistAccessToken: true, // 액세스 토큰 지속 설정
-		}); // 카카오 JS SDK를 초기화
-		
-	});
+	
 
 
 </script>

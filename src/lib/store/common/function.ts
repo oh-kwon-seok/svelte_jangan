@@ -750,6 +750,146 @@ const excelDownload = (type,config) => {
          })
 
         
+
+        }
+
+        
+      const makeCustomTable = (table_state,type,tableComponent,select) => {
+
+
+        console.log(table_state);
+        console.log(type);
+        console.log(tableComponent);
+        
+        const url = `${api}/${type}/${select}`; 
+        
+        search_data['filter'] = TABLE_FILTER[type];
+        
+        common_search_state.update(() => search_data);
+
+        let start_date = moment(search_data['start_date']).format('YYYY-MM-DDTHH:mm:ss');
+
+        let end_date = moment(search_data['end_date']).format('YYYY-MM-DDTHH:mm:ss');
+        let search_text = search_data['search_text'];
+        let filter_title = search_data['filter_title'];
+      
+
+        let params = 
+        {
+          start_date : start_date,
+          end_date  : end_date,
+          search_text : search_text,
+          filter_title : filter_title,   
+        };
+
+       
+        const config = {
+          params : params,
+          headers:{
+            "Content-Type": "application/json",
+            
+          }
+        }
+          axios.get(url,config).then(res=>{
+            
+            console.log('makeTable : ',res);
+            console.log('url : ',url);
+         
+           
+            if(res.data.length > 0){
+             
+              if(table_state[type]){
+                table_state[type].destory();
+              }
+
+              
+              table_data[type] =   new Tabulator(tableComponent, {
+              height:TABLE_TOTAL_CONFIG['height'],
+              layout:TABLE_TOTAL_CONFIG['layout'],
+              pagination:TABLE_TOTAL_CONFIG['pagination'],
+              paginationSize:TABLE_TOTAL_CONFIG['paginationSize'],
+              paginationSizeSelector:TABLE_TOTAL_CONFIG['paginationSizeSelector'],
+              movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
+              paginationCounter: TABLE_TOTAL_CONFIG['paginationCounter'],
+              paginationAddRow:TABLE_TOTAL_CONFIG['paginationAddRow'], //add rows relative to the table
+              locale: TABLE_TOTAL_CONFIG['locale'],
+              langs: TABLE_TOTAL_CONFIG['langs'],
+              selectable: true,
+             
+
+              rowClick:function(e, row){
+                //e - the click event object
+                //row - row component
+             
+                row.toggleSelect(); //toggle row selected state on row click
+            },
+
+              rowFormatter:function(row){
+                    row.getElement().classList.add("table-primary"); //mark rows with age greater than or equal to 18 as successful;
+              },
+           
+
+              data : res.data,
+            
+              columns: TABLE_HEADER_CONFIG[type],
+              
+         
+             
+              });
+              console.log('table_data  :', table_data);
+
+              table_state.update(()=> table_data);
+
+          
+            
+              
+        }else{
+          
+          if(table_state[type]){
+            table_state[type].destory();
+          }
+
+          table_data[type] =   new Tabulator(tableComponent, {
+            height:TABLE_TOTAL_CONFIG['height'],
+            layout:TABLE_TOTAL_CONFIG['layout'],
+            pagination:TABLE_TOTAL_CONFIG['pagination'],
+            paginationSize:TABLE_TOTAL_CONFIG['paginationSize'],
+            paginationSizeSelector:TABLE_TOTAL_CONFIG['paginationSizeSelector'],
+            movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
+            paginationCounter: TABLE_TOTAL_CONFIG['paginationCounter'],
+            paginationAddRow:TABLE_TOTAL_CONFIG['paginationAddRow'], //add rows relative to the table
+            locale: TABLE_TOTAL_CONFIG['locale'],
+            langs: TABLE_TOTAL_CONFIG['langs'],
+            selectable: true,
+            placeholder:"데이터 없음",
+            rowClick:function(e, row){
+              //e - the click event object
+              //row - row component
+           
+              row.toggleSelect(); //toggle row selected state on row click
+          },
+
+            rowFormatter:function(row){
+                  row.getElement().classList.add("table-primary"); //mark rows with age greater than or equal to 18 as successful;
+            },
+         
+
+            data : [],
+          
+            columns: TABLE_HEADER_CONFIG[type],
+            
+      
+            });
+            console.log('table_data  :', table_data);
+
+            table_state.update(()=> table_data);
+
+
+       
+        }
+         })
+
+        
     }
 
 
@@ -779,6 +919,7 @@ export {handleToggle,
   minMaxFilterFunction,
   minMaxFilterEditor,
   makeTable,
+  makeCustomTable,
   tokenChange,
   select_query,
 

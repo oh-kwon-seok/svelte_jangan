@@ -15,30 +15,32 @@
     import { ChevronDownSolid, SearchOutline } from 'flowbite-svelte-icons';
 
 
-    import Util from '$lib/components/modal/company/Util.svelte';
+    import Util from '$lib/components/modal/user_order/Util.svelte';
     
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {companyModalOpen} from '$lib/store/company/function';
+    import {userOrderModalOpen} from '$lib/store/user_order/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
-    import {company_form_state,company_modal_state} from '$lib/store/company/state';
+    
 
-    import {url_state,cookie_state,common_company_state,table_state,common_toast_state,common_search_state} from '$lib/store/common/state';
+    import {url_state,cookie_state,common_user_order_sub_state,table_state,common_toast_state,common_search_state} from '$lib/store/common/state';
     import {TABLE_COMPONENT,EXCEL_CONFIG} from '$lib/module/common/constants';
 
     import SearchBar from '$lib/components/layout/SearchBar.svelte'
     import Toast from '$lib/components/toast/Toast.svelte'
     
-    import {makeTable,infoCallApi} from '$lib/store/common/function';
+    import {makeCustomTable,infoCallApi} from '$lib/store/common/function';
+
+    import {userOrderSubexcelDownload} from '$lib/store/user_order_sub/function';
     
+
 
 	import { afterUpdate, onMount } from 'svelte';
 
   
     // import {TabulatorFull as Tabulator} from 'tabulator-tables';
-
 
 	import moment from 'moment';
             
@@ -52,7 +54,7 @@
     onMount(()=>{
         console.log('시점');
        
-        makeTable(table_state,"company",tableComponent);
+        makeCustomTable(table_state,"user_order_sub",tableComponent,"history_select");
 
     });
 
@@ -61,9 +63,9 @@
         if(data.title === 'redirect'){
             window.location.href = '/';
             alert('잘못된 주소거나 요청시간이 만료되었습니다.');
-        }else if($url_state['path'] === '/company'){
+        }else if($url_state['path'] === '/user_price_history'){
          
-            makeTable(table_state,"company",tableComponent);
+          makeCustomTable(table_state,"user_order_sub",tableComponent,"history_select");
         }
       
     })
@@ -73,18 +75,21 @@
  
 
     </script>
-
-<style>
-  @import 'tabulator-tables/dist/css/tabulator_modern.min.css';
-
-  /* 나머지 스타일 정의 */
-</style>
-
-
+          <style>
+            @import 'tabulator-tables/dist/css/tabulator_modern.min.css';
+         
+            /* 나머지 스타일 정의 */
+          </style>
+          
         
         {#if $common_toast_state['value'] === true}
          <Toast />
         {/if}
+
+  
+
+
+
 
         
      
@@ -95,7 +100,7 @@
               <SideBar />
             </div>
             <div class="col-span-1 row-span-1"> 
-              <Title title='거래처 관리' subtitle='매입처 관리'/>
+              <Title title='영업 관리' subtitle='매입 관리'/>
             </div>
 
           
@@ -105,39 +110,22 @@
                     <TabItem  open >
                    
 
-                      <span slot="title">매입처 관리</span>
+                      <span slot="title">매입 관리</span>
 
                 
-                      <SearchBar title="company"/>
+                      <SearchBar title="user_order_sub"/>
 
 
                       <div class='m-5'>
 
-                        <Button  on:click={() => {companyModalOpen('','add')}}>
-                          <Icon.FloppyDiskSolid class='mr-2' size="20" />
-                          추가
-                        </Button>
+                 
 
-                        <Button  color='red' on:click={() => companyModalOpen('','check_delete')}>
-                          <Icon.BanSolid class='mr-2' size="20" />
-                          선택삭제
-                        </Button>
-
-                        <Button  color='green' on:click={() =>excelDownload('company',EXCEL_CONFIG['company'])}>
+                        <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
                           <Icon.FileCsvSolid class='mr-2' size="20" />
                           엑셀다운
                       </Button>
 
                       
-
-                        {#if $company_modal_state['title'] === 'add'}
-                          <Util title="add" />
-                        {:else if $company_modal_state['title'] === 'update'}
-                          <Util  title="update"/>
-                          {:else if $company_modal_state['title'] === 'check_delete'}
-                          <Util  title="check_delete"/>
-                        {/if}
-                        
 
                       </div>
 

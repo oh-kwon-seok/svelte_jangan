@@ -20,7 +20,7 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {productModalOpen} from '$lib/store/product/function';
+    import {productModalOpen,productExcelUpload} from '$lib/store/product/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {product_form_state,product_modal_state} from '$lib/store/product/state';
@@ -39,7 +39,7 @@
   
     // import {TabulatorFull as Tabulator} from 'tabulator-tables';
 
-    import 'tabulator-tables-css'; // CSS 파일이 import됩니다.
+   
 	import moment from 'moment';
             
   
@@ -72,6 +72,14 @@
  
 
     </script>
+
+<style>
+  @import 'tabulator-tables/dist/css/tabulator_modern.min.css';
+
+  /* 나머지 스타일 정의 */
+</style>
+
+
         
         {#if $common_toast_state['value'] === true}
          <Toast />
@@ -118,6 +126,19 @@
                         <Button  color='green' on:click={() =>excelDownload('product',EXCEL_CONFIG['product'])}>
                           <Icon.FileCsvSolid class='mr-2' size="20" />
                           엑셀다운
+                        </Button>
+
+                        <Button  color='green' on:click={(e)=> fileButtonClick('upload')}>
+                          <Icon.UploadSolid class='mr-2' size="20" />
+                            엑셀 업로드
+                          <input 
+                          hidden  
+                          id = 'upload' 
+                          type='file' 
+                          accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+                          on:change={(e)=> productExcelUpload(e)}
+                    
+                          />
                       </Button>
 
                       

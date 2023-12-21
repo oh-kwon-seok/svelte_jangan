@@ -42,7 +42,6 @@
   
     // import {TabulatorFull as Tabulator} from 'tabulator-tables';
 
-    import 'tabulator-tables-css'; // CSS 파일이 import됩니다.
 	import moment from 'moment';
             
   
@@ -76,10 +75,21 @@
  
 
     </script>
+          <style>
+            @import 'tabulator-tables/dist/css/tabulator_modern.min.css';
+         
+            /* 나머지 스타일 정의 */
+          </style>
+          
         
         {#if $common_toast_state['value'] === true}
          <Toast />
         {/if}
+
+  
+
+
+
 
         
      

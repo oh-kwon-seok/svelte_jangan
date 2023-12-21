@@ -21,39 +21,12 @@
 	import { onMount } from 'svelte';
 
 
-
-
-	
-	const clientId = import.meta.env.NAVER_CLIENT_ID
-	const callbackUrl = '/api/sign-in/naver-login'
-	
-	let kakaoClientId = '2713d0b777a1e2fbfaf1b0cd5aa224f4'; // 여기에 본인의 Kakao 클라이언트 ID를 입력하세요.
-  	let kakaoAuthURL = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=http://localhost:5173/home&response_type=code`;
-
-
-
-	function handleKakaoLogin() {
-    	window.location.href = kakaoAuthURL;
-  }
-
-
-
-  function onKakaoLogin() {
-		// 카카오 로그인 버튼을 눌렀을 때 동작하는 함수
-		Kakao.Auth.authorize({
-			redirectUri: 'http://localhost:5173/home' // 카카오 로그인 후 리다이렉트 될 주소
-			
-		});
-	}
-
-
-
 	const login = async(e : any) => {
 		loadChange(true);
 		$common_alert_state = {type : 'login', value : false};
 		
 	
-		const url = `/api/user/sign-in`
+		const url = `http://localhost:8081/user/sign-in`
 
 		try {
 			await performAsyncTask();
@@ -130,15 +103,7 @@
   
 
 </script>
-		<style>
-		    .image-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-			width : 50%;
-        }
-		</style>
+		
 		<div class="flex justify-center items-center ">
 		<Card class="w-full mt-16 "  padding='xl' img={src_url}   reverse={false} horizontal>	
 		<form class="flex flex-col space-y-6" >
@@ -161,18 +126,6 @@
 					<Loading />
 				{/if}
 
-				<button class="image-button" on:click={() => handleKakaoLogin()} >
-					<!-- svelte-ignore a11y-img-redundant-alt -->
-					<img alt="The project logo" src={naver_login_button} />
-				</button>
-
-				<button on:click={onKakaoLogin}>
-					<img
-						src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
-						width="222"
-						alt="카카오 로그인 버튼"
-					/>
-				</button>
 				
 			</form>
 		{#if $common_alert_state['type'] === 'login' && $common_alert_state['value'] === true}
