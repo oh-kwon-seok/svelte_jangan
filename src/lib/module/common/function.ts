@@ -58,6 +58,15 @@ function updateSupplyPrice(cell:any) {
     cell.getRow().update({ supply_price: supplyPrice });
 }
 
+const commaNumber = (number:any) => {
+    if (number)
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    else if (number === 0)
+        return 0;
+    else
+        return ''
+};
+
 
 
 
@@ -68,5 +77,5 @@ export {
     businessNumber,
     phoneNumber,
     validEmail,
-    updateSupplyPrice
+    updateSupplyPrice,commaNumber
 }

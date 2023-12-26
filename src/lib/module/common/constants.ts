@@ -1,4 +1,4 @@
-
+//@ts-nocheck
 import { DateTime } from 'luxon';
 
 
@@ -13,15 +13,381 @@ import {productModalOpen} from '$lib/store/product/function';
 import { carModalOpen } from '$lib/store/car/function';
 
 import { companyModalOpen } from '$lib/store/company/function';
-import { phoneNumber,businessNumber,updateSupplyPrice } from './function';
+import { phoneNumber,businessNumber,updateSupplyPrice ,commaNumber} from './function';
 
 import { userModalOpen} from '$lib/store/user/function';
 
 import { userOrderModalOpen} from '$lib/store/user_order/function';
+import moment from 'moment';
+
+import axios from 'axios'
+
+const api = import.meta.env.VITE_API_BASE_URL;
+
+
+const printContent = (data : any) => {
+
+    console.log('data : ', data);
+
+   let regdate = moment(data.created).format('YYYY 년 MM월 DD일'); 
+   
+    const url = `${api}/user_order_sub/info_select`;
+    const params = { user_order_uid : data.uid};
+    const config = {
+        params : params,
+        headers:{
+          "Content-Type": "application/json",
+          
+        }
+      }
+
+
+    axios.get(url,config).then(res=>{
+
+   let user_order_checked_data =  res.data;
+
+
+   const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item,index) => `
+   
+   <tr>
+    
+     <td style="text-align : center; "class="info-bottom-border ">${index+1}</td>
+     <td style="text-align : center; "class="info-bottom-border info-left-border">${item.product.name}</td>
+     <td style="text-align : right; "class="info-bottom-border info-left-border info-right-border">${commaNumber(item.qty)}</td>
+     <td style="text-align : right; "class="info-bottom-border info-right-border">${commaNumber(item.price)}</td>
+     <td style="text-align : right; "class="info-bottom-border info-right-border">${commaNumber(item.supply_price)}</td>
+     
+   </tr>
+
+   
+
+ `).join('');
+
+
+   const content = `
+     <html>
+       <head>
+         <style>
+         @media print {
+            @page {
+              size: A4;
+              margin: 0;
+            }
+            body {
+              font-family: 'Nanum Gothic', sans-serif;
+              margin: 20;
+              padding: 30;
+              background-color: #fff;
+              display: flex;
+              flex-direction: column;
+            }
+            .container {
+              width: 100%;
+              height: 50%;
+                 padding: 20px;
+            }
+            .red-border {
+              border: 3px solid red;
+              border-radius: 10px;
+              padding: 10px; /* 예시로 padding을 추가하여 테두리가 둥글게 나타날 수 있도록 함 */
+
+            }
+            .blue-border {
+              border: 3px solid blue;
+              border-radius: 10px;
+              padding: 10px; /* 예시로 padding을 추가하여 테두리가 둥글게 나타날 수 있도록 함 */
+            }
+            .header {
+              text-align: center;
+              padding: 10px 0;
+              
+            }
+            .header_sub {
+                text-align: center;
+                display : flex;
+                flex-direction : row;
+                padding: 10px 0;
+                
+              }
+            .top_title {
+                text-align: center;
+                font-size : 24px;
+                font-weight : bold;
+                text-decoration: underline;
+                color : red;
+              }
+              .top_title_sub {
+                width : "30%",
+                text-align: center;
+                font-size : 16px;
+                color : red;
+              
+              }
+              .bottom_title {
+                text-align: center;
+                font-size : 16px;
+                font-weight : bold;
+                text-decoration: underline;
+              }
+
+
+            .content {
+              padding: 20px 0;
+            }
+            .bottom_footer {
+              text-align: center;
+              padding: 20px 0;
+              border-top: 1px solid #ccc;
+            }
+
+            .table-container {
+                border-collapse: collapse;
+              }
+          
+              .table-container table, .table-container th, .table-container td {
+                border: none;
+              }
+          
+              .table-container th, .table-container td {
+                padding: 3px; /* 원하는 패딩 값 설정 */
+              }
+
+              .table_row {
+                padding: 5px; 
+
+                display:flex; flex-direction : row;
+              }
+
+
+              .info-table-container {
+                border: 2px solid red; /* 테이블의 전체 border 색상 설정 */
+                border-collapse: collapse;
+              
+              }
+           
+          
+              .info-table-container th, .info-table-container td {
+                border: 1px solid red; /* 각 셀의 border 색상 설정 */
+                padding: 1px; /* 원하는 패딩 값 설정 */
+              }
+             
+              
+                td.info-no-border {
+                    border: none; /* 모든 테두리 없애기 */
+                }
+            
+                td.info-top-border {
+                    border-top: none; /* 위쪽 테두리 없애기 */
+                }
+            
+                td.info-right-border {
+                    border-right: none; /* 오른쪽 테두리 없애기 */
+                }
+            
+                td.info-bottom-border {
+                    border-bottom: none; /* 아래쪽 테두리 없애기 */
+                }
+            
+                td.info-left-border {
+                    border-left: none; /* 왼쪽 테두리 없애기 */
+                }
+
+
+                .info-sub-table-container {
+                    margin-top : 10px;
+                    border: 2px solid red; /* 테이블의 전체 border 색상 설정 */
+                    border-collapse: collapse;
+                    width: 100%;
+                  }
+               
+              
+                  .info-sub-table-container th, .info-sub-table-container td {
+                    border: 1px solid red; /* 각 셀의 border 색상 설정 */
+                    padding: 1px; /* 원하는 패딩 값 설정 */
+                  }
+                 
+            
+
+          }
+         </style>
+       </head>
+       <body>
+       <div class="container red-border">
+       <div class="header">
+         <span class="top_title">거&nbsp;&nbsp;래&nbsp;&nbsp;명&nbsp;&nbsp;세&nbsp;&nbsp;서</span>
+        </div>
+       
+        
+                <div class="table-container">
+                    <table class="table-with-border">
+                    <thead>
+                        <tr>
+                            <th  style="width : 300px; text-align : left; color : red;">NO.</th>
+                            <th style="width : 130px; text-align : left; color : red;">(공급자 보관용)</th>
+                            <th style="width : 100px; text-align : left; color : red;">TEL :</th>
+                            <th style="width : 50px; text-align : left; color : red;">FAX : </th>
+                            
+                            <th style="width : 120px; text-align : left; color : black;">${CLIENT_INFO.fax}</th>
+                            
+                        </tr>    
+                    </thead>
+                    </table>
+                </div>
+
+                <div style="display:flex; flex-direction : row; width : 100%;" >
+                    <div style="display:flex; flex-direction : column; width : 40%;" class="table-container">
+                        <div class="table_row">
+                            
+                            <div style="text-align : left; color : red; ">서기</div>
+                            <div style="text-align : left;  ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${regdate}</div>
+                        </div>
+                        <div class="table_row">
+                            
+                            <div style="text-align : left; text-decoration : underline; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${data.user.customer_name}</div>
+                            <div style="text-align : left; text-decoration: underline; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;귀하</div>
+
+                        </div>
+                    <div class="table_row">
+                            
+                        <div style="text-align : left; text-decoration : underline; color : red; font-weight: bold; font-size : 24px;">아래와 같이 거래합니다.</div>
+                    
+                    </div>
+
+                    <div class="table_row">
+                            
+                        <div style="text-align : left; color : red; font-weight: bold; font-size : 24px;">합계금</div>
+                        <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}</div>
+                    </div>
+                          
+                    </div>
+                    <div style="display:flex; flex-direction : row; justify-content: flex-end; width : 60%;" class="table-container">
+                    <div class="info-table-container">
+                       
+                    <table>
+                    <tbody>
+                <tr >
+                    <td  class="info-no-border" style="writing-mode: vertical-lr; letter-spacing: 45px;" rowspan="4">공급자</td>
+                    <td  class="info-top-border">등록번호</td>
+                    <td  class="info-top-border info-right-border info-left-border" colspan="3">${CLIENT_INFO.code}</td>
+                  </tr>
+                  <tr>
+                    <td  class="info-bottom-border info-top-border">상호<br/>(법인명)</td>
+                    <td class="info-bottom-border info-top-border info-left-border">${CLIENT_INFO.company_name}</td>
+                    <td class="info-bottom-border info-right-border info-top-border info-left-border">성명</td>
+                    <td class="info-bottom-border info-top-border info-right-border">${CLIENT_INFO.name}</td>
+                  </tr>
+                  <tr>
+                    <td class="info-bottom-border ">사업장<br/>주소</td>
+                    <td class="info-bottom-border info-left-border info-right-border" colspan="3">${CLIENT_INFO.address}</td>
+                  </tr>
+                  <tr>
+                    <td class="info-bottom-border ">업태</td>
+                    <td class="info-bottom-border info-left-border">${CLIENT_INFO.type}</td>
+                    <td class="info-bottom-border info-left-border info-right-border">종목</td>
+                    <td class="info-bottom-border info-right-border">${CLIENT_INFO.type2}</td>
+                  </tr>
+                    </tbody>
+                  </table>
+                       
+                    </div>
+                </div>
+                </div>
 
 
 
 
+
+
+
+
+                <div style="display:flex; flex-direction : row; width : 100%;" class="table-container">
+                <div class="info-sub-table-container">
+                   
+                <table>
+                <tbody>
+                <tr >
+                <td style="width : 5%" class="info-bottom-border ">순서</td>
+                <td style="width : 60%" class="info-bottom-border info-left-border">품명</td>
+                <td style="width : 10%" class="info-bottom-border info-left-border info-right-border">수량</td>
+                <td style="width : 10%" class="info-bottom-border info-right-border">단가</td>
+                <td style="width : 15%" class="info-bottom-border info-right-border">공급가액</td>
+                
+                </tr>
+
+                ${productDetails}
+                   
+                </tbody>
+              </table>
+                   
+                </div>
+            </div>
+
+
+              
+            
+     </div>
+     
+     <div class="container blue-border">
+       <div class="header">
+         <span class="bottom_title">거래명세서</span>
+       </div>
+       <div class="content">
+         <p><strong>상호:</strong> (상호명)</p>
+         <p><strong>주소:</strong> (주소)</p>
+         <p><strong>전화번호:</strong> (전화번호)</p>
+         <p><strong>거래일자:</strong> (거래일자)</p>
+         <p><strong>거래금액:</strong> (거래금액)</p>
+         <!-- 기타 거래 내용 추가 -->
+         ${productDetails}
+       </div>
+       <div class="footer">
+         <p>감사합니다.</p>
+       </div>
+     </div>
+     </body>
+     </html>
+   `;
+   // 현재 창의 내용을 복제
+   const originalContent = document.body.innerHTML;
+
+   // 프린트 다이얼로그가 열리기 전에 현재 창의 내용을 변경하지 않도록
+   const printWindow : any = window.open('', '_blank');
+           
+
+
+   printWindow.document.write(content);
+   printWindow.document.close();
+
+
+   // 프린트 다이얼로그가 열릴 때 현재 창의 내용을 복원
+   printWindow.onload = () => {
+     document.body.innerHTML = originalContent;
+
+      
+     // 프린트 다이얼로그 호출
+     printWindow.print();
+   };
+
+   // 프린트 다이얼로그가 닫힐 때 현재 창의 내용을 원복
+   printWindow.onafterprint = () => {
+      
+     printWindow.close();
+   };
+
+
+
+   // 프린트 다이얼로그가 열릴 때 현재 창의 내용을 복원
+  
+
+   // 프린트 다이얼로그 호출
+   printWindow.print();
+
+       
+    });
+
+
+   
+  };
 
 
 
@@ -40,6 +406,19 @@ const LOGIN_ALERT = {
     title : '로그인',
     content : '로그인에 실패했습니다. 계정 및 비밀번호를 확인해주십시오,',
     
+}
+
+
+const CLIENT_INFO = {  // 업체정보
+   
+    code  : "314-13-24575",
+    company_name : "장안유통(대청254번)",
+    name : "김옥병",
+    address : "대전시 대덕구 오정동 705 대청254번",
+    type : "도,소매",
+    type2 : "음식재료",
+    fax : "042-369-6892",
+
 }
 
 const DATA_SUCCESS_ALERT = {
@@ -417,6 +796,8 @@ const TABLE_HEADER_CONFIG : any = {
         symbolAfter:"p",
         precision:false,
     },
+    
+    
     bottomCalc:"sum", bottomCalcFormatter: "money", // 합계 포매터 지정
     bottomCalcFormatterParams: {
         thousand: ",",
@@ -424,9 +805,24 @@ const TABLE_HEADER_CONFIG : any = {
         symbolAfter: "p",
         precision: false,
       },
-
-
 },
+
+        {title:"출력", field:"print", width:150,  
+        formatter:function(cell : any){
+            var value = cell.getValue();
+        return "<span style='color:#3FB449; font-weight:bold;'>출력</span>";
+        },
+        cellClick:function(e : any, cell:any){
+            let row = cell.getRow();
+        if(row){
+            printContent(row.getData());
+        }else{
+        
+        }
+        }
+        },
+
+
 
     {title:"등록일", field:"created", hozAlign:"center", sorter:"date",  headerFilter:"input", 
         formatter: function(cell : any, formatterParams: any, onRendered: any) {
