@@ -108,25 +108,13 @@
             <div class="row-span-15 col-span-12 "> 
                 <Tabs  style="pill" defaultClass=" mt-5 overflow-auto  flex rounded-lg divide-x divide-gray-200 shadow dark:divide-gray-700" >
                     <TabItem  open >
-                   
-
                       <span slot="title">매입 관리</span>
-
-                
                       <SearchBar title="user_order_sub"/>
-
-
-                      <div class='m-5'>
-
-                 
-
-                        <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
-                          <Icon.FileCsvSolid class='mr-2' size="20" />
-                          엑셀다운
-                      </Button>
-
+                      <div class='m-5'>                      
                       
-
+                        <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
+                        <Icon.FileCsvSolid class='mr-2' size="20" />엑셀다운
+                      </Button>
                       </div>
 
                       <div id="example-table-theme" bind:this={tableComponent}></div>

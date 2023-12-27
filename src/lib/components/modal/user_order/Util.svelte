@@ -170,6 +170,14 @@
                 </Select>
             </Label>
           {/if}
+
+          <Label class="space-y-2">
+            <span>안내사항</span>
+            <Input type="textarea"   id="last_name" placeholder="업체룰 선택하세요" required bind:value={$user_order_form_state['description']}/>
+            
+            
+          </Label>
+       
           </div>
 
 

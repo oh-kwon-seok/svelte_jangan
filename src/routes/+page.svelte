@@ -55,7 +55,7 @@
 				tokenChange(res.data['token']);
 
 		
-				window.location.href = '/home';
+				window.location.href = '/sale/user_order';
 			
 			}else if(res.data['success'] === false){
 				

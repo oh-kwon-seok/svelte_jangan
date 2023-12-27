@@ -46,22 +46,31 @@ const printContent = (data : any) => {
 
    let user_order_checked_data =  res.data;
 
+   let skyblue = "#1E90FF";
+
 
    const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item,index) => `
    
    <tr>
     
-     <td style="text-align : center; "class="info-bottom-border ">${index+1}</td>
-     <td style="text-align : center; "class="info-bottom-border info-left-border">${item.product.name}</td>
-     <td style="text-align : right; "class="info-bottom-border info-left-border info-right-border">${commaNumber(item.qty)}</td>
-     <td style="text-align : right; "class="info-bottom-border info-right-border">${commaNumber(item.price)}</td>
-     <td style="text-align : right; "class="info-bottom-border info-right-border">${commaNumber(item.supply_price)}</td>
-     
+     <td style="text-align : center; "class="info-bottom-border info-left-border info-right-border">${index+1}</td>
+     <td style="text-align : left; "class="info-bottom-border">${item.product.name}</td>
+     <td style="text-align : right; "class="info-bottom-border info-left-border ">${commaNumber(item.qty)}</td>
+     <td style="text-align : right; "class="info-bottom-border info-left-border">${commaNumber(item.price)}</td>
+     <td style="text-align : right; "class="info-bottom-border info-left-border info-right-border">${commaNumber(item.supply_price)}</td>
    </tr>
-
-   
-
  `).join('');
+
+
+ const tempDetails = Array.from({ length: 10 - user_order_checked_data.length}, (_, index) => `
+ <tr>
+   <td style="text-align: center;" class="info-bottom-border info-left-border info-right-border">${user_order_checked_data.length+index+1}</td>
+   <td style="text-align: left;" class="info-bottom-border"></td>
+   <td style="text-align: right;" class="info-bottom-border info-left-border"></td>
+   <td style="text-align: right;" class="info-bottom-border info-left-border"></td>
+   <td style="text-align: right;" class="info-bottom-border info-left-border info-right-border"></td>
+ </tr>
+`).join('');
 
 
    const content = `
@@ -71,30 +80,35 @@ const printContent = (data : any) => {
          @media print {
             @page {
               size: A4;
-              margin: 0;
+             
+              margin: 0.5cm;
             }
             body {
               font-family: 'Nanum Gothic', sans-serif;
-              margin: 20;
-              padding: 30;
+              margin: 0;
+              padding: 0px 30px 0px 5px;
+            box-sizing: border-box;
+
               background-color: #fff;
               display: flex;
               flex-direction: column;
             }
             .container {
               width: 100%;
-              height: 50%;
-                 padding: 20px;
+              height: 47%;
+               
             }
             .red-border {
               border: 3px solid red;
               border-radius: 10px;
               padding: 10px; /* 예시로 padding을 추가하여 테두리가 둥글게 나타날 수 있도록 함 */
+              padding-top : 10px;
 
             }
-            .blue-border {
-              border: 3px solid blue;
+            .skyblue-border {
+              border: 3px solid ${skyblue};
               border-radius: 10px;
+              padding-top : 10px;
               padding: 10px; /* 예시로 padding을 추가하여 테두리가 둥글게 나타날 수 있도록 함 */
             }
             .header {
@@ -123,11 +137,22 @@ const printContent = (data : any) => {
                 color : red;
               
               }
+          
+
+
               .bottom_title {
                 text-align: center;
-                font-size : 16px;
+                font-size : 24px;
                 font-weight : bold;
                 text-decoration: underline;
+                color : ${skyblue};
+              }
+              .bottom_title_sub {
+                width : "30%",
+                text-align: center;
+                font-size : 16px;
+                color : ${skyblue};
+              
               }
 
 
@@ -135,13 +160,13 @@ const printContent = (data : any) => {
               padding: 20px 0;
             }
             .bottom_footer {
-              text-align: center;
-              padding: 20px 0;
-              border-top: 1px solid #ccc;
+              text-align: left;
+              padding: 10px 0 10px 0;
+              
             }
 
             .table-container {
-                border-collapse: collapse;
+                //border-collapse: collapse;
               }
           
               .table-container table, .table-container th, .table-container td {
@@ -169,6 +194,7 @@ const printContent = (data : any) => {
               .info-table-container th, .info-table-container td {
                 border: 1px solid red; /* 각 셀의 border 색상 설정 */
                 padding: 1px; /* 원하는 패딩 값 설정 */
+                font-size:12px;
               }
              
               
@@ -204,7 +230,102 @@ const printContent = (data : any) => {
                   .info-sub-table-container th, .info-sub-table-container td {
                     border: 1px solid red; /* 각 셀의 border 색상 설정 */
                     padding: 1px; /* 원하는 패딩 값 설정 */
+                    font-size:12px;
                   }
+                  td.info-no-border {
+                    border: none; /* 모든 테두리 없애기 */
+                }
+            
+                td.info-top-border {
+                    border-top: none; /* 위쪽 테두리 없애기 */
+                }
+            
+                td.info-right-border {
+                    border-right: none; /* 오른쪽 테두리 없애기 */
+                }
+            
+                td.info-bottom-border {
+                    border-bottom: none; /* 아래쪽 테두리 없애기 */
+                }
+            
+                td.info-left-border {
+                    border-left: none; /* 왼쪽 테두리 없애기 */
+                }
+
+
+
+
+
+
+
+
+                .info-bottom-table-container {
+                    border: 2px solid ${skyblue}; /* 테이블의 전체 border 색상 설정 */
+                    border-collapse: collapse;
+                  
+                  }
+               
+              
+                  .info-bottom-table-container th, .info-bottom-table-container td {
+                    border: 1px solid ${skyblue}; /* 각 셀의 border 색상 설정 */
+                    padding: 1px; /* 원하는 패딩 값 설정 */
+                    font-size:12px;
+                  }
+                 
+                  
+                    td.info-no-border {
+                        border: none; /* 모든 테두리 없애기 */
+                    }
+                
+                    td.info-top-border {
+                        border-top: none; /* 위쪽 테두리 없애기 */
+                    }
+                
+                    td.info-right-border {
+                        border-right: none; /* 오른쪽 테두리 없애기 */
+                    }
+                
+                    td.info-bottom-border {
+                        border-bottom: none; /* 아래쪽 테두리 없애기 */
+                    }
+                
+                    td.info-left-border {
+                        border-left: none; /* 왼쪽 테두리 없애기 */
+                    }
+    
+    
+                    .info-bottom-sub-table-container {
+                        margin-top : 10px;
+                        border: 2px solid ${skyblue}; /* 테이블의 전체 border 색상 설정 */
+                        border-collapse: collapse;
+                        width: 100%;
+                      }
+                   
+                  
+                      .info-bottom-sub-table-container th, .info-bottom-sub-table-container td {
+                        border: 1px solid ${skyblue}; /* 각 셀의 border 색상 설정 */
+                        padding: 1px; /* 원하는 패딩 값 설정 */
+                        font-size:12px;
+                      }
+                      td.info-no-border {
+                        border: none; /* 모든 테두리 없애기 */
+                    }
+                
+                    td.info-top-border {
+                        border-top: none; /* 위쪽 테두리 없애기 */
+                    }
+                
+                    td.info-right-border {
+                        border-right: none; /* 오른쪽 테두리 없애기 */
+                    }
+                
+                    td.info-bottom-border {
+                        border-bottom: none; /* 아래쪽 테두리 없애기 */
+                    }
+                
+                    td.info-left-border {
+                        border-left: none; /* 왼쪽 테두리 없애기 */
+                    }
                  
             
 
@@ -238,7 +359,7 @@ const printContent = (data : any) => {
                     <div style="display:flex; flex-direction : column; width : 40%;" class="table-container">
                         <div class="table_row">
                             
-                            <div style="text-align : left; color : red; ">서기</div>
+                            <div style="text-align : left; color : red;font-weight: bold; ">일자</div>
                             <div style="text-align : left;  ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${regdate}</div>
                         </div>
                         <div class="table_row">
@@ -249,13 +370,13 @@ const printContent = (data : any) => {
                         </div>
                     <div class="table_row">
                             
-                        <div style="text-align : left; text-decoration : underline; color : red; font-weight: bold; font-size : 24px;">아래와 같이 거래합니다.</div>
+                        <div style="text-align : left; text-decoration : underline; color : red; font-weight: bold; font-size : 16px;">아래와 같이 거래합니다.</div>
                     
                     </div>
 
                     <div class="table_row">
                             
-                        <div style="text-align : left; color : red; font-weight: bold; font-size : 24px;">합계금</div>
+                        <div style="text-align : left; color : red; font-weight: bold; font-size : 20px;">합계금</div>
                         <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}</div>
                     </div>
                           
@@ -266,31 +387,33 @@ const printContent = (data : any) => {
                     <table>
                     <tbody>
                 <tr >
-                    <td  class="info-no-border" style="writing-mode: vertical-lr; letter-spacing: 45px;" rowspan="4">공급자</td>
+                    <td  class="info-no-border" style="writing-mode: vertical-lr; letter-spacing: 30px;" rowspan="4">공급자</td>
                     <td  class="info-top-border">등록번호</td>
                     <td  class="info-top-border info-right-border info-left-border" colspan="3">${CLIENT_INFO.code}</td>
                   </tr>
                   <tr>
-                    <td  class="info-bottom-border info-top-border">상호<br/>(법인명)</td>
+                    <td  class="info-bottom-border info-top-border">상호</td>
                     <td class="info-bottom-border info-top-border info-left-border">${CLIENT_INFO.company_name}</td>
                     <td class="info-bottom-border info-right-border info-top-border info-left-border">성명</td>
                     <td class="info-bottom-border info-top-border info-right-border">${CLIENT_INFO.name}</td>
                   </tr>
                   <tr>
-                    <td class="info-bottom-border ">사업장<br/>주소</td>
-                    <td class="info-bottom-border info-left-border info-right-border" colspan="3">${CLIENT_INFO.address}</td>
+                    <td class="">사업장주소</td>
+                    <td class="info-left-border info-right-border" colspan="3">${CLIENT_INFO.address}</td>
                   </tr>
                   <tr>
-                    <td class="info-bottom-border ">업태</td>
-                    <td class="info-bottom-border info-left-border">${CLIENT_INFO.type}</td>
-                    <td class="info-bottom-border info-left-border info-right-border">종목</td>
-                    <td class="info-bottom-border info-right-border">${CLIENT_INFO.type2}</td>
+                    <td class="info-top-border info-bottom-border ">업태</td>
+                    <td class="info-top-border info-bottom-border info-left-border">${CLIENT_INFO.type}</td>
+                    <td class="info-top-border info-bottom-border info-left-border info-right-border">종목</td>
+                    <td class="info-top-border info-bottom-border info-right-border">${CLIENT_INFO.type2}</td>
                   </tr>
                     </tbody>
                   </table>
                        
                     </div>
                 </div>
+              
+                
                 </div>
 
 
@@ -306,43 +429,186 @@ const printContent = (data : any) => {
                 <table>
                 <tbody>
                 <tr >
-                <td style="width : 5%" class="info-bottom-border ">순서</td>
-                <td style="width : 60%" class="info-bottom-border info-left-border">품명</td>
-                <td style="width : 10%" class="info-bottom-border info-left-border info-right-border">수량</td>
-                <td style="width : 10%" class="info-bottom-border info-right-border">단가</td>
-                <td style="width : 15%" class="info-bottom-border info-right-border">공급가액</td>
+                <td style="width : 40px; text-align:center; font-weight : 600" class="info-no-border">순 서</td>
+                <td style="width : 480px; text-align:center; font-weight : 600" class="info-bottom-border info-top-border">품 명</td>
+                <td style="width : 100px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border">수 량</td>
+                <td style="width : 100px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border">단 가</td>
+                <td style="width : 200px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border info-right-border">공 급 가 액</td>
                 
                 </tr>
 
                 ${productDetails}
+                ${tempDetails}
                    
                 </tbody>
+               
               </table>
-                   
+                
+              
+    
                 </div>
             </div>
+
+            <div class="bottom_footer">
+            <span style="text-align : left;">전미수금 : ${data.totalUnpaidPrice-data.totalSupplyPrice > 0? commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice) : 0}</span>
+    
+            <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice+data.totalSupplyPrice)}</span>
+
+
+            <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 :        </span>
+            <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 :        </span>
+            
+         
+            <br/>
+           
+             
+            ${data.description}
+            </div>
+
 
 
               
             
      </div>
+
      
-     <div class="container blue-border">
+     
+     <div style="margin-top : 2px;" class="container skyblue-border">
        <div class="header">
-         <span class="bottom_title">거래명세서</span>
-       </div>
-       <div class="content">
-         <p><strong>상호:</strong> (상호명)</p>
-         <p><strong>주소:</strong> (주소)</p>
-         <p><strong>전화번호:</strong> (전화번호)</p>
-         <p><strong>거래일자:</strong> (거래일자)</p>
-         <p><strong>거래금액:</strong> (거래금액)</p>
-         <!-- 기타 거래 내용 추가 -->
-         ${productDetails}
-       </div>
-       <div class="footer">
-         <p>감사합니다.</p>
-       </div>
+         <span class="bottom_title">거&nbsp;&nbsp;래&nbsp;&nbsp;명&nbsp;&nbsp;세&nbsp;&nbsp;서</span>
+        </div>
+       
+        
+                <div class="table-container">
+                    <table class="table-with-border">
+                    <thead>
+                        <tr>
+                            <th  style="width : 300px; text-align : left; color : ${skyblue};">NO.</th>
+                            <th style="width : 130px; text-align : left; color : ${skyblue};">(공급자 보관용)</th>
+                            <th style="width : 100px; text-align : left; color : ${skyblue};">TEL :</th>
+                            <th style="width : 50px; text-align : left; color : ${skyblue};">FAX : </th>
+                            
+                            <th style="width : 120px; text-align : left; color : black;">${CLIENT_INFO.fax}</th>
+                            
+                        </tr>    
+                    </thead>
+                    </table>
+                </div>
+
+                <div style="display:flex; flex-direction : row; width : 100%;" >
+                    <div style="display:flex; flex-direction : column; width : 40%;" class="table-container">
+                        <div class="table_row">
+                            
+                            <div style="text-align : left; color : ${skyblue}; font-weight: bold;">일자</div>
+                            <div style="text-align : left;  ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${regdate}</div>
+                        </div>
+                        <div class="table_row">
+                            
+                            <div style="text-align : left; text-decoration : underline; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${data.user.customer_name}</div>
+                            <div style="text-align : left; text-decoration: underline; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;귀하</div>
+
+                        </div>
+                    <div class="table_row">
+                            
+                        <div style="text-align : left; text-decoration : underline; color : ${skyblue}; font-weight: bold; font-size : 20px;">아래와 같이 거래합니다.</div>
+                    
+                    </div>
+
+                    <div class="table_row">
+                            
+                        <div style="text-align : left; color : ${skyblue}; font-weight: bold; font-size : 22px;">합계금</div>
+                        <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}</div>
+                    </div>
+                          
+                    </div>
+                    <div style="display:flex; flex-direction : row; justify-content: flex-end; width : 60%;" class="table-container">
+                    <div class="info-bottom-table-container">
+                       
+                    <table>
+                    <tbody>
+                <tr >
+                    <td  class="info-no-border" style="writing-mode: vertical-lr; letter-spacing: 30px;" rowspan="4">공급자</td>
+                    <td  class="info-top-border">등록번호</td>
+                    <td  class="info-top-border info-right-border info-left-border" colspan="3">${CLIENT_INFO.code}</td>
+                  </tr>
+                  <tr>
+                    <td  class="info-bottom-border info-top-border">상호</td>
+                    <td class="info-bottom-border info-top-border info-left-border">${CLIENT_INFO.company_name}</td>
+                    <td class="info-bottom-border info-right-border info-top-border info-left-border">성명</td>
+                    <td class="info-bottom-border info-top-border info-right-border">${CLIENT_INFO.name}</td>
+                  </tr>
+                  <tr>
+                    <td class="">사업장주소</td>
+                    <td class="info-left-border info-right-border" colspan="3">${CLIENT_INFO.address}</td>
+                  </tr>
+                  <tr>
+                    <td class="info-top-border info-bottom-border ">업태</td>
+                    <td class="info-top-border info-bottom-border info-left-border">${CLIENT_INFO.type}</td>
+                    <td class="info-top-border info-bottom-border info-left-border info-right-border">종목</td>
+                    <td class="info-top-border info-bottom-border info-right-border">${CLIENT_INFO.type2}</td>
+                  </tr>
+                    </tbody>
+                  </table>
+                       
+                    </div>
+                </div>
+              
+                
+                </div>
+
+
+
+
+
+
+
+
+                <div style="display:flex; flex-direction : row; width : 100%;" class="table-container">
+                <div class="info-bottom-sub-table-container">
+                   
+                <table>
+                <tbody>
+                <tr >
+                <td style="width : 40px; text-align:center; font-weight : 600" class="info-no-border">순 서</td>
+                <td style="width : 480px; text-align:center; font-weight : 600" class="info-bottom-border info-top-border">품 명</td>
+                <td style="width : 100px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border">수 량</td>
+                <td style="width : 100px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border">단 가</td>
+                <td style="width : 200px; text-align:center; font-weight : 600" class="info-left-border info-bottom-border info-top-border info-right-border">공 급 가 액</td>
+                
+                </tr>
+
+                ${productDetails}
+                ${tempDetails}
+                   
+                </tbody>
+               
+              </table>
+                
+              
+    
+                </div>
+            </div>
+
+            <div class="bottom_footer">
+            <span style="text-align : left;">전미수금 : ${data.totalUnpaidPrice-data.totalSupplyPrice > 0? commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice) : 0}</span>
+    
+            <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice+data.totalSupplyPrice)}</span>
+
+
+            <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 :        </span>
+            <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 :        </span>
+            
+         
+            <br/>
+           
+             
+            ${data.description}
+            </div>
+
+
+
+              
+            
      </div>
      </body>
      </html>
@@ -786,6 +1052,9 @@ const TABLE_HEADER_CONFIG : any = {
 
     {title:"주문상태", field:"order_status", width:150, headerFilter:"input"},
     {title:"수금유무", field:"price_status", width:150, headerFilter:"input"},
+
+   
+
  
 
     {title:"주문총액", field:"totalSupplyPrice", width:150, editor : "input",formatter: "money",  

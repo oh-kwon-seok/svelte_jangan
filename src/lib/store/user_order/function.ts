@@ -39,6 +39,7 @@ let init_form_data = {
   
   price_status : '미수금',
   order_status : '주문완료',
+  description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
   image_url:'',
   car : '',
   used : 1,
@@ -205,6 +206,7 @@ const save = (param,title) => {
             
             order_status : param.order_status,
             price_status : param.price_status,
+            description : param.description,
             user_id : param.user,
             car_uid : param.car,
             used : param.used,
@@ -244,16 +246,20 @@ const save = (param,title) => {
     if(title === 'update'){
       const url = `${api}/user_order/update`
       
-      
-      let data =  table_data['user_order_sub'].getSelectedData();
+    
+      let data =  table_data['user_order_sub_list'].getSelectedData();
 
       let checked_data = data.filter(item => {
+        if(item['buy_price'] === "" || item['buy_price'] === undefined || item['buy_price'] === null){
+          item['buy_price'] = 0; 
+
+        }
         return parseInt(item.qty) > 0 && item.qty !== undefined 
       })
 
      
-     
-      try {
+      console.log('checked_data  : ', checked_data );
+      
 
         
         let params = {
@@ -261,6 +267,7 @@ const save = (param,title) => {
           uid : param.uid,
           order_status : param.order_status,
           price_status : param.price_status,
+          description : param.description,
           user_id : param.user,
           car_uid : param.car,
           used : param.used,
@@ -272,6 +279,9 @@ const save = (param,title) => {
         
 
         };
+
+        console.log('param : ', param);
+
       axios.post(url,
         params,
       ).then(res => {
@@ -291,9 +301,7 @@ const save = (param,title) => {
           return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         }
       })
-      }catch (e:any){
-        return console.log('에러 : ',e);
-      };
+      
 
 
      
