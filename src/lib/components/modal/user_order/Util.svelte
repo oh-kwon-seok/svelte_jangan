@@ -10,8 +10,10 @@
     import Alert from '$lib/components/alert/Alert.svelte';
     import {user_order_modal_state, user_order_form_state} from '$lib/store/user_order/state';
     import {common_alert_state, common_toast_state,common_car_state,table_state} from '$lib/store/common/state';
+
+    import {fileButtonClick} from '$lib/store/common/function';
     
-    import {save,userOrderSubTable,userTable} from '$lib/store/user_order/function';
+    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload} from '$lib/store/user_order/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     
     import {onMount,afterUpdate } from 'svelte';
@@ -194,8 +196,6 @@
           <div class="flex flex-row">
             <div id="example-table-theme1" bind:this={tableComponent1}></div>
             {#if $user_order_form_state['image_url']}
- 
-           
             <!-- svelte-ignore missing-declaration -->
             <img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['image_url']} alt="Selected Image" on:click={() => openModal()}/>
 
@@ -214,7 +214,54 @@
 
           </div>
 
+          <div class="mt-5">
         
+            {#if $user_order_form_state['ship_image_url']}   
+            <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
+            <p class="mb-4 font-semibold text-xl dark:text-white">배송완료 사진</p>
+           
+
+            <!-- svelte-ignore missing-declaration -->
+            <img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['ship_image_url']} alt="Selected Image" on:click={() => openModal()}/>
+
+
+            {#if showModal}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div class="modal" on:click={closeModal}>
+        
+                <!-- svelte-ignore a11y-img-redundant-alt -->
+                <img src={$user_order_form_state['ship_image_url']} alt="Zoomed Image">
+              </div>
+            {/if}
+
+
+            {/if}
+
+          </div>
+
+          {#if $user_order_modal_state['title'] === 'update'}
+       
+            <Button class="mt-5"  color='blue' on:click={(e)=> fileButtonClick('upload')}>
+              <Icon.FileImageSolid class='mr-2' size="20" />
+                배송완료 사진 등록
+              <input 
+              hidden  
+              id = 'upload' 
+              type='file' 
+              accept="image/*"
+              on:change={(e)=> userOrderFileUpload(e)}
+              />
+          </Button>
+
+            {#if $user_order_form_state['ship_image_url']}   
+              <Button id="download"class="mt-5"  color='blue' on:click={()=> shipImageDownload()}>
+               이미지 다운로드
+            </Button>
+            {/if}
+
+          {/if}
+         
+
 
 
          {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}

@@ -15,6 +15,7 @@ import {TOAST_SAMPLE} from '$lib/module/common/constants';
 import { businessNumber,phoneNumber} from '$lib/module/common/function';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
+import { user_form_state } from '../user/state';
 
 const api = import.meta.env.VITE_API_BASE_URL;
 
@@ -41,6 +42,8 @@ let init_form_data = {
   order_status : '주문완료',
   description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
   image_url:'',
+  ship_image_url:'',
+  
   car : '',
   used : 1,
 
@@ -258,7 +261,7 @@ const save = (param,title) => {
       })
 
      
-      console.log('checked_data  : ', checked_data );
+      console.log('param  : ', param );
       
 
         
@@ -268,6 +271,8 @@ const save = (param,title) => {
           order_status : param.order_status,
           price_status : param.price_status,
           description : param.description,
+         
+          ship_image_url : param['ship_image_url'],  
           user_id : param.user,
           car_uid : param.car,
           used : param.used,
@@ -275,9 +280,7 @@ const save = (param,title) => {
           user_order_sub : checked_data,
           token : login_data['token'],
 
-         
         
-
         };
 
         console.log('param : ', param);
@@ -556,6 +559,26 @@ const save = (param,title) => {
 }
 
 
+const userOrderFileUpload = (e) => {
+  const file = e.target.files[0];
+    if (file) {
+      // 이미지 파일이 선택된 경우 처리
+      const reader = new FileReader();
+
+      
+
+      reader.onload = (e) => {
+        update_form['ship_image_url'] = e.target.result;
+       
+
+        user_order_form_state.update(()=> update_form);
+      };
+      
+      
+      
+      reader.readAsDataURL(file);
+    }
+}
 
 
 const userTable = (table_state,type,tableComponent) => {
@@ -647,5 +670,28 @@ const userTable = (table_state,type,tableComponent) => {
         
 }
 
+function base64Decode(base64String) {
+  var byteCharacters = atob(base64String);
+  var byteNumbers = new Array(byteCharacters.length);
+  for (var i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  return new Uint8Array(byteNumbers);
+}
 
-export {userOrderModalOpen,save,userTable,userOrderSubTable}
+
+
+const shipImageDownload = () => {
+
+  if (update_form['ship_image_url']) {
+    const link = document.createElement("a");
+    link.href = update_form['ship_image_url'];
+    link.download = "배송완료사진.jpg";
+    link.click();
+  }
+}
+
+
+
+
+export {userOrderModalOpen,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload}
