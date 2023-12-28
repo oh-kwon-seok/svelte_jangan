@@ -343,7 +343,9 @@ const printContent = (data : any) => {
                     <table class="table-with-border">
                     <thead>
                         <tr>
-                            <th  style="width : 300px; text-align : left; color : red;">NO.</th>
+                            <th  style="width : 50px; text-align : left; color : red;">NO.</th>
+                            <th  style="width : 250px; text-align : left;">${data.uid}</th>
+                        
                             <th style="width : 130px; text-align : left; color : red;">(공급자 보관용)</th>
                             <th style="width : 100px; text-align : left; color : red;">TEL :</th>
                             <th style="width : 50px; text-align : left; color : red;">FAX : </th>
@@ -483,8 +485,13 @@ const printContent = (data : any) => {
                     <table class="table-with-border">
                     <thead>
                         <tr>
-                            <th  style="width : 300px; text-align : left; color : ${skyblue};">NO.</th>
-                            <th style="width : 130px; text-align : left; color : ${skyblue};">(공급자 보관용)</th>
+                       
+
+                            <th  style="width : 50px; text-align : left; color : ${skyblue};">NO.</th>
+                            <th  style="width : 200px; text-align : left;">${data.uid}</th>
+
+
+                            <th style="width : 150px; text-align : left; color : ${skyblue};">(공급받는자 보관용)</th>
                             <th style="width : 100px; text-align : left; color : ${skyblue};">TEL :</th>
                             <th style="width : 50px; text-align : left; color : ${skyblue};">FAX : </th>
                             
@@ -510,13 +517,13 @@ const printContent = (data : any) => {
                         </div>
                     <div class="table_row">
                             
-                        <div style="text-align : left; text-decoration : underline; color : ${skyblue}; font-weight: bold; font-size : 20px;">아래와 같이 거래합니다.</div>
+                        <div style="text-align : left; text-decoration : underline; color : ${skyblue}; font-weight: bold; font-size : 16px;">아래와 같이 거래합니다.</div>
                     
                     </div>
 
                     <div class="table_row">
                             
-                        <div style="text-align : left; color : ${skyblue}; font-weight: bold; font-size : 22px;">합계금</div>
+                        <div style="text-align : left; color : ${skyblue}; font-weight: bold; font-size : 20px;">합계금</div>
                         <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}</div>
                     </div>
                           
@@ -590,13 +597,8 @@ const printContent = (data : any) => {
             </div>
 
             <div class="bottom_footer">
-            <span style="text-align : left;">전미수금 : ${data.totalUnpaidPrice-data.totalSupplyPrice > 0? commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice) : 0}</span>
+            <span style="text-align : left;">공급가합 : ${commaNumber(data.totalSupplyPrice)}</span>
     
-            <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(data.totalUnpaidPrice-data.totalSupplyPrice+data.totalSupplyPrice)}</span>
-
-
-            <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 :        </span>
-            <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 :        </span>
             
          
             <br/>
