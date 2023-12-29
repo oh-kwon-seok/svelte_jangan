@@ -22,7 +22,7 @@ import {v4 as uuid} from 'uuid';
     
     price_status : '미수금',
     order_status : '주문완료',
-
+   
     image_url:'',
     ship_image_url : '',
   

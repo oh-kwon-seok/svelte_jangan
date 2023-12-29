@@ -45,7 +45,7 @@ const url_state : any = writable({ path : '', query : ''});
     new_order_count : 0,
     cancel_order_count : 0,
     pay_count : 0,
-    suppy_price : 0,
+    supply_price : 0,
     
   });
 

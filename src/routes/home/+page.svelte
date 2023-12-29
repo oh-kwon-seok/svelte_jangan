@@ -60,14 +60,30 @@
         if(res.data.length > 0){
            
             let filtered_data = res.data.filter((item)=> {
-                return item['order_status'] === "주문완료" && item['price_status'] === "수금완료";
+                return item['order_status'] === "주문완료";
+            });
+
+            let filtered_cancel_data = res.data.filter((item)=> {
+                return item['order_status'] === "주문취소";
+            });
+            let filtered_pay_data = res.data.filter((item)=> {
+                return item['order_status'] !== "주문취소" && item['price_status'] === "미수금";
             });
 
 
             dashboard_data['new_order_count'] = filtered_data.length;
+            dashboard_data['cancel_order_count'] = filtered_cancel_data.length;
+            dashboard_data['pay_count'] = filtered_pay_data.length;
+        
+            const total = filtered_pay_data.reduce((accumulator, currentValue) => {
+              return accumulator + parseInt(currentValue.totalSupplyPrice);
+            }, 0); 
+            dashboard_data['supply_price'] =  total;
+
+            console.log('total : ', total);
+
 
             dashboard_state.update(()=> dashboard_data);
-
 
          console.log('res.data : ',res.data);
         
@@ -123,7 +139,7 @@
           
               
 
-              
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));  gap: 10px; ">
                 <div class='m-5'>
 
                     <Card padding="sm ">
@@ -138,10 +154,62 @@
                           </div>
                         </div>
                       </Card>
-                  
-                    
-                </div>
 
+              
+                </div>
+                <div class='m-5'>
+
+                  <Card padding="sm ">
+                    
+                      <div class="flex flex-col items-center pb-4">
+                  
+                        <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">취소건수</h5>
+                       
+                        <div class="flex justify-between items-center">
+                          <span class="text-3xl font-bold text-gray-900 dark:text-white">{$dashboard_state['cancel_order_count']}</span>
+                      
+                        </div>
+                      </div>
+                    </Card>
+
+            
+              </div>
+              <div class='m-5'>
+
+                <Card padding="sm ">
+                  
+                    <div class="flex flex-col items-center pb-4">
+                
+                      <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">결제건수</h5>
+                     
+                      <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-gray-900 dark:text-white">{$dashboard_state['pay_count']}</span>
+                    
+                      </div>
+                    </div>
+                  </Card>
+
+          
+            </div>
+
+            <div class='m-5'>
+
+              <Card padding="sm ">
+                
+                  <div class="flex flex-col items-center pb-4">
+              
+                    <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">결제금액</h5>
+                   
+                    <div class="flex justify-between items-center">
+                      <span class="text-3xl font-bold text-gray-900 dark:text-white">{$dashboard_state['supply_price']}</span>
+                  
+                    </div>
+                  </div>
+                </Card>
+
+        
+          </div>
+              </div>
               
 
 
