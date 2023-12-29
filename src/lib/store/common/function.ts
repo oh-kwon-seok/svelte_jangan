@@ -619,12 +619,9 @@ const excelDownload = (type,config) => {
 
 
       const makeTable = (table_state,type,tableComponent) => {
+       
 
-
-        console.log(table_state);
-        console.log(type);
-        console.log(tableComponent);
-        
+   
         const url = `${api}/${type}/select`; 
         
         search_data['filter'] = TABLE_FILTER[type];
@@ -678,6 +675,7 @@ const excelDownload = (type,config) => {
               locale: TABLE_TOTAL_CONFIG['locale'],
               langs: TABLE_TOTAL_CONFIG['langs'],
               selectable: true,
+           
              
 
               rowClick:function(e, row){
@@ -750,10 +748,11 @@ const excelDownload = (type,config) => {
 
        
         }
-         })
 
         
+         })
 
+       
         }
 
         
@@ -896,6 +895,54 @@ const excelDownload = (type,config) => {
     }
 
 
+    const selectCustomQuery = (type,select) => {
+   
+      const url = `${api}/${type}/${select}`; 
+
+      console.log('url : ', url);
+            
+      search_data['filter'] = TABLE_FILTER[type];
+      
+      common_search_state.update(() => search_data);
+
+      let start_date = moment(search_data['start_date']).format('YYYY-MM-DDTHH:mm:ss');
+
+      let end_date = moment(search_data['end_date']).format('YYYY-MM-DDTHH:mm:ss');
+
+      console.log('start_date: ',start_date);
+      console.log('end_date: ',end_date);
+      
+      let search_text = search_data['search_text'];
+      let filter_title = search_data['filter_title'];
+      
+
+      
+
+      let params = 
+      {
+        start_date : start_date,
+        end_date  : end_date,
+        search_text : search_text,
+        filter_title : filter_title,   
+      };
+      const config = {
+        params : params,
+        headers:{
+          "Content-Type": "application/json",
+          
+        }
+      }
+        axios.get(url,config).then(res=>{
+          console.log('res.data : ',res);
+          
+          table_data[type].setData(res.data);
+          table_state.update(() => table_data);
+         
+       })
+    
+    }
+
+
 
 
 
@@ -925,5 +972,5 @@ export {handleToggle,
   makeCustomTable,
   tokenChange,
   select_query,
- 
+  selectCustomQuery
 }

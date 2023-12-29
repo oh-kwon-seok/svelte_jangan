@@ -56,10 +56,12 @@
     let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
     let tableComponent = "example-table-theme";
     let tableComponent1 = "example-table-theme1";
+ 
 
     onMount(()=>{
         if(title === 'add'){
           userTable(table_state,"user",tableComponent);
+       
         }
       });
 
@@ -258,7 +260,7 @@
                이미지 다운로드
             </Button>
             {/if}
-
+ 
           {/if}
          
 

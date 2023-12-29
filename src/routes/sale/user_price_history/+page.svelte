@@ -46,26 +46,31 @@
             
   
     export let data;
-
+ 
  
     let tableComponent = "example-table-theme";
 
 
-    onMount(()=>{
-        console.log('시점');
-       
+    onMount(() =>{
+        
         makeCustomTable(table_state,"user_order_sub",tableComponent,"history_select");
+      
+      
 
     });
 
     afterUpdate(()=> {
-
+        console.log('눌럿나?');
+        
+      
         if(data.title === 'redirect'){
             window.location.href = '/';
             alert('잘못된 주소거나 요청시간이 만료되었습니다.');
-        }else if($url_state['path'] === '/user_price_history'){
-         
+        }else if($url_state['path'] === '/sale/user_price_history'){
+          console.log('흠?',loading);
+       
           makeCustomTable(table_state,"user_order_sub",tableComponent,"history_select");
+       
         }
       
     })
@@ -109,7 +114,7 @@
                 <Tabs  style="pill" defaultClass=" mt-5 overflow-auto  flex rounded-lg divide-x divide-gray-200 shadow dark:divide-gray-700" >
                     <TabItem  open >
                       <span slot="title">매입 관리</span>
-                      <SearchBar title="user_order_sub"/>
+                      <SearchBar title="user_order_sub" custom={true} query="history_select"/>
                       <div class='m-5'>                      
                       
                         <Button  color='green' on:click={() => userOrderSubexcelDownload('user_order_sub',EXCEL_CONFIG['user_order_sub'])}>
@@ -117,7 +122,18 @@
                       </Button>
                       </div>
 
-                      <div id="example-table-theme" bind:this={tableComponent}></div>
+
+                      <div id="example-table-theme" bind:this={tableComponent}></div>    
+                      <!-- {#if loading === true}
+                      <div style="border : 3px solid black;">로딩중...</div>
+                      {:else }
+                      <div id="example-table-theme" bind:this={tableComponent}></div>    
+                     
+                    
+                      {/if} -->
+                   
+                    
+                  
                     </TabItem>
                    
                   

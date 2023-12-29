@@ -25,7 +25,7 @@
     
     import {user_order_form_state,user_order_modal_state} from '$lib/store/user_order/state';
 
-    import {url_state,cookie_state,common_user_order_state,table_state,common_toast_state,common_search_state} from '$lib/store/common/state';
+    import {url_state,cookie_state,common_user_order_state,table_state,common_toast_state,common_search_state,load_state} from '$lib/store/common/state';
     import {TABLE_COMPONENT,EXCEL_CONFIG} from '$lib/module/common/constants';
 
     import SearchBar from '$lib/components/layout/SearchBar.svelte'
@@ -50,7 +50,7 @@
 
 
     onMount(()=>{
-        console.log('시점');
+        console.log('시점',$load_state);
        
         makeTable(table_state,"user_order",tableComponent);
 
@@ -61,7 +61,7 @@
         if(data.title === 'redirect'){
             window.location.href = '/';
             alert('잘못된 주소거나 요청시간이 만료되었습니다.');
-        }else if($url_state['path'] === '/user_order'){
+        }else if($url_state['path'] === '/sale/user_order'){
          
             makeTable(table_state,"user_order",tableComponent);
         }
@@ -141,7 +141,9 @@
 
                       </div>
 
-                      <div id="example-table-theme" bind:this={tableComponent}></div>
+                      
+                        <div id="example-table-theme" bind:this={tableComponent}></div>
+                    
                     </TabItem>
                    
                   

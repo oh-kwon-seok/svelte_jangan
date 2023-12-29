@@ -6,8 +6,14 @@
     import { Button,Input,Label,Select,Search} from 'flowbite-svelte';
     import { SearchOutline } from 'flowbite-svelte-icons';
     import {common_search_state} from '$lib/store/common/state';
-	  import { select_query } from '$lib/store/common/function';
+	  import { select_query,selectCustomQuery } from '$lib/store/common/function';
     export let title;
+    export let custom;
+    export let query;
+  
+    
+    console.log('custom : ',custom);
+    console.log('query : ',query);
     
     
 </script>
@@ -43,7 +49,7 @@
     <SearchOutline slot="left" class="w-6 h-6 text-gray-500 dark:text-gray-400" />
 
 
-    <Button slot="right" size="sm" type="submit" on:click={()=> select_query(title)}>검색</Button>
+    <Button slot="right" size="sm" type="submit" on:click={()=> custom === true ? selectCustomQuery(title,query) : select_query(title)}>검색</Button>
   
   </Input>
   </div>

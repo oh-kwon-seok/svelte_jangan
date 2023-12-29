@@ -1078,10 +1078,10 @@ const TABLE_HEADER_CONFIG : any = {
       },
 },
 
-        {title:"출력", field:"print", width:150,  
+        {title:"인쇄", field:"print", width:150,  
         formatter:function(cell : any){
-            var value = cell.getValue();
-        return "<span style='color:#3FB449; font-weight:bold;'>출력</span>";
+           
+        return "<span style='color:#1E90FF; font-weight:bold;'>인쇄</span>";
         },
         cellClick:function(e : any, cell:any){
             let row = cell.getRow();

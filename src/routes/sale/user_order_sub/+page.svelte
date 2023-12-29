@@ -63,7 +63,7 @@
         if(data.title === 'redirect'){
             window.location.href = '/';
             alert('잘못된 주소거나 요청시간이 만료되었습니다.');
-        }else if($url_state['path'] === '/user_order'){
+        }else if($url_state['path'] === '/user_order_sub'){
          
             makeTable(table_state,"user_order_sub",tableComponent);
         }

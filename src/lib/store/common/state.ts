@@ -41,6 +41,15 @@ const url_state : any = writable({ path : '', query : ''});
   });
 
 
+  const dashboard_state : any = writable({
+    new_order_count : 0,
+    cancel_order_count : 0,
+    pay_count : 0,
+    suppy_price : 0,
+    
+  });
+
+
   const login_state : any = writable({
     user_idx : "",
     id : "",
@@ -82,4 +91,4 @@ const url_state : any = writable({ path : '', query : ''});
   
   const common_selected_state : any = writable([]); // 삭제용 데이터
 
-  export {menu_state,cookie_state,load_state,common_alert_state,common_search_state,login_state,url_state,common_product_state,common_toast_state,table_state,common_car_state,common_company_state,common_selected_state,common_user_state,common_user_order_state,common_user_order_sub_state};
+  export {menu_state,cookie_state,load_state,common_alert_state,common_search_state,login_state,url_state,common_product_state,common_toast_state,table_state,common_car_state,common_company_state,common_selected_state,common_user_state,common_user_order_state,common_user_order_sub_state,dashboard_state};
