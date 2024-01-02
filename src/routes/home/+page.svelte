@@ -25,6 +25,7 @@
     
 
 	import { afterUpdate, onMount } from 'svelte';
+  import {commaNumber} from '$lib/module/common/function';
 
   
     // import {TabulatorFull as Tabulator} from 'tabulator-tables';
@@ -67,7 +68,7 @@
                 return item['order_status'] === "주문취소";
             });
             let filtered_pay_data = res.data.filter((item)=> {
-                return item['order_status'] !== "주문취소" && item['price_status'] === "미수금";
+                return item['order_status'] !== "주문취소" && item['price_status'] === "수금완료";
             });
 
 
@@ -198,10 +199,28 @@
                 
                   <div class="flex flex-col items-center pb-4">
               
+                    <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">결제자수</h5>
+                   
+                    <div class="flex justify-between items-center">
+                      <span class="text-3xl font-bold text-gray-900 dark:text-white">{$dashboard_state['pay_count']}</span>
+                  
+                    </div>
+                  </div>
+                </Card>
+
+        
+          </div>
+
+            <div class='m-5'>
+
+              <Card padding="sm ">
+                
+                  <div class="flex flex-col items-center pb-4">
+              
                     <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">결제금액</h5>
                    
                     <div class="flex justify-between items-center">
-                      <span class="text-3xl font-bold text-gray-900 dark:text-white">{$dashboard_state['supply_price']}</span>
+                      <span class="text-3xl font-bold text-gray-900 dark:text-white">{commaNumber($dashboard_state['supply_price'])}</span>
                   
                     </div>
                   </div>
