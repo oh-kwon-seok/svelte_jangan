@@ -46,9 +46,12 @@ const url_state : any = writable({ path : '', query : ''});
     cancel_order_count : 0,
     pay_count : 0,
     supply_price : 0,
+    humi : [],
+    temp : [],  
     
   });
 
+  
 
   const login_state : any = writable({
     user_idx : "",

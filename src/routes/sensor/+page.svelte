@@ -38,72 +38,16 @@
 
     let dashboard_data ;
 
-    const select_query = (type:any,title:any) => {
-   
-   const url = `${api}/${type}/${title}_select`; 
-         
-   let basic_date = moment().subtract(90,'days');
-   
- 
-   
-   let start_date = basic_date.format('YYYY-MM-DDTHH:mm:ss');
-   let end_date = basic_date.add(150,'days').format('YYYY-MM-DDTHH:mm:ss');
- 
- 
- 
-   let params = 
-   {
-     start_date : start_date,
-     end_date  : end_date
-   };
-   const config = {
-     params : params,
-     headers:{
-       "Content-Type": "application/json",
-       
-     }
-   }
-     axios.get(url,config).then(res=>{
-      if(res.data.length > 0){
-        
-        let data = res.data.map((item:any) => item.data);
-        let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
-        
-        if(title === 'temp'){
-          dashboard_data['temp'] = data;
-          dashboard_data['temp_date'] = created;
-          
-
-
-        }else{
-          dashboard_data['humi'] = data;
-          dashboard_data['humi_date'] = created;
-        }
-        
-
-        console.log(' dashboard_dat : ',  dashboard_data);
-        console.log(' res_data : ',  res.data);
-        dashboard_state.update(()=> dashboard_data);
-      }
-      
-    })
-   
- }
-
-
-
-
-
     dashboard_state.subscribe((data : any) => {
         dashboard_data = data;
     })
 
    
     onMount(()=>{
-      select_query('sensor','temp');
-      select_query('sensor','humi');
         
     const url = `${api}/user_order/info_select`; 
+    console.log();
+
     const config = {
         headers:{
         "Content-Type": "application/json",
@@ -137,12 +81,14 @@
             }, 0); 
             dashboard_data['supply_price'] =  total;
 
-         
+            console.log('total : ', total);
 
 
             dashboard_state.update(()=> dashboard_data);
 
-       
+         console.log('res.data : ',res.data);
+        
+
         }else {
         
         }
@@ -157,7 +103,7 @@
     afterUpdate(()=> {
 
      
-    
+       
 
     })
 
@@ -282,20 +228,18 @@
 
         
           </div>
-        
+              </div>
+              
 
-        </div>
-      
-      
-        <div class="flex flex-row"> 
-          {#if dashboard_data['humi'].length > 0 && dashboard_data['temp'].length > 0}
-          <SaleChart dashboard_data={dashboard_data}/>
-        {/if}
-      </div>     
+
+          
+            
+
+                
                
               
               </TabItem>
-           
+             
             
     
             </Tabs>
