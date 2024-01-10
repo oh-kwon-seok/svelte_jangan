@@ -18,7 +18,7 @@ import {TabulatorFull as Tabulator} from 'tabulator-tables';
 
 
 const api = import.meta.env.VITE_API_BASE_URL;
-
+const client_url = import.meta.env.VITE_CLIENT_BASE_URL;
 
 
 
@@ -114,6 +114,20 @@ common_user_order_sub_state.subscribe((data : any) => {
 })
 
 
+const init_login_data : any = {
+  user_idx : "",
+  id : "",
+  name : "",
+  password : "",
+  token :"",
+
+  status : false,
+  
+};
+
+
+
+
 
 const infoCallApi = (title) => {
 
@@ -164,7 +178,26 @@ const infoCallApi = (title) => {
  
 
 
+  const logout = () => {
+    var confirmLogout = confirm("로그아웃하시겠습니까?");
 
+    if (confirmLogout) {
+        // 여기에 로그아웃 로직을 추가하세요.
+        login_data = init_login_data;
+        
+        removeCookie('my-cookie');
+        removeCookie('password');
+        removeCookie('autoSave');
+      
+        window.location.href = client_url;
+
+        login_state.update(()=> login_data);
+    
+    } else {
+        // 사용자가 '취소'를 선택한 경우
+      
+    }
+    }
 
 
 const changeUrl = (obj) => {
@@ -667,8 +700,8 @@ const excelDownload = (type,config) => {
               height:TABLE_TOTAL_CONFIG['height'],
               layout:TABLE_TOTAL_CONFIG['layout'],
               pagination:TABLE_TOTAL_CONFIG['pagination'],
-              paginationSize:TABLE_TOTAL_CONFIG['paginationSize'],
-              paginationSizeSelector:TABLE_TOTAL_CONFIG['paginationSizeSelector'],
+              paginationSize: type==='user_order' ? 500 : TABLE_TOTAL_CONFIG['paginationSize'],
+              paginationSizeSelector: TABLE_TOTAL_CONFIG['paginationSizeSelector'],
               movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
               paginationCounter: TABLE_TOTAL_CONFIG['paginationCounter'],
               paginationAddRow:TABLE_TOTAL_CONFIG['paginationAddRow'], //add rows relative to the table
@@ -768,10 +801,12 @@ const excelDownload = (type,config) => {
         search_data['filter'] = TABLE_FILTER[type];
         
         common_search_state.update(() => search_data);
-
-        let start_date = moment(search_data['start_date']).format('YYYY-MM-DDTHH:mm:ss');
-
-        let end_date = moment(search_data['end_date']).format('YYYY-MM-DDTHH:mm:ss');
+       let start_date= moment(search_data['start_date']).format('YYYY-MM-DDTHH:mm:ss');
+       let end_date= moment(search_data['end_date']).format('YYYY-MM-DDTHH:mm:ss');;
+       
+      
+       
+       
         let search_text = search_data['search_text'];
         let filter_title = search_data['filter_title'];
       
@@ -972,5 +1007,6 @@ export {handleToggle,
   makeCustomTable,
   tokenChange,
   select_query,
-  selectCustomQuery
+  selectCustomQuery,
+  logout
 }

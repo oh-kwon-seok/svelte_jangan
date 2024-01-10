@@ -65,6 +65,7 @@
 		"svelte-spa-router": "^3.3.0",
 		"tabulator-tables": "5.5.2",
 		"uuid": "^9.0.0",
+		"vite-plugin-remove-console": "^2.2.0",
 		"vite-plugin-style-import": "2.0.0"
 	}
 }

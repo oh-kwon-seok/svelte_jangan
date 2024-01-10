@@ -24,4 +24,4 @@ RUN npm run build
 EXPOSE 3001
 
 # 프로그램 실행
-CMD ["npm","run","preview"]
+CMD ["npm","run","preview","--","--host"]

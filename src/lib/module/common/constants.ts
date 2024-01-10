@@ -723,13 +723,21 @@ const DATA_SELECT_ALERT = {
 
 const MENU = {
     info : [
-        {name: '품목 관리', help: " 품목관리란, 원자재,부자재,반제품,부분품,완제품 등 제품생산 및 출하에 필요한 모든 재료를 말합니다."},
+        {url : "/info/product",name: '품목 관리', help: " 품목관리란, 취급하는 상품에 대한 관리 메뉴를 뜻합니다."},
+        {url : "/info/car",name: '차량 관리', help: " 차량관리란, 상품을 배송하는 차량에 대한 관리 메뉴를 뜻합니다."},
     
-        {name: 'BOM 관리', help: "BOM 관리란, 제품 생산 및 출하에 필요한 모든 원자재/부자재/반제품/부분품 등을 리스트로 관리하여 필요시 생산 및 출하메뉴에서 불러오는 메뉴입니다."},
-        {name: '거래처 관리', help: "업체에서 거래하는 거래처 관리 메뉴입니다. 영업처 또는 제조사가 될 수도 있습니다."},
-        {name: '회원 관리', help: "MES 프로그램을 사용하는 사용자를 관리하는 메뉴입니다."},
-        {name: '창고 관리', help: "원자재,부자재,반제품,부분품,완제품 등을 관리하는 메뉴입니다."},
-        {name: 'Excel 관리', help: "기준정보를 Excel에 작성하여 업로드하기 위한 메뉴입니다."},
+      ],
+
+      customer : [
+        {url : "/customer/company",name: '매입처 관리', help: " 매입처 관리란, 매입하는 상품에 대한 매입처 관리 메뉴를 뜻합니다. 품목별 관리메뉴에도 관여합니다."},
+        {url : "/customer/user",name: '회원 관리', help: " 회원관리란, 주문자에 대한 회원정보를 관리하는 메뉴이며, 선호하는 품목을 사전에 즐겨찾기로 설정하는 메뉴입니다."},
+    
+      ],
+      sale : [
+        {url : "/sale/user_order",name: '주문 관리', help: " 주문관리란, 회원이 주문한 것에 대해 거래명세서 및 주문을 확인하는 메뉴를 뜻합니다."},
+        {url : "/sale/user_order_sub",name: '매입 현황', help: " 매입현황이란, 관리자가 매입한 품목의 현황을 확인하는 메뉴입니다."},
+        {url : "/sale/user_price_history",name: '상품단가 이력 조회', help: " 상품단가 이력조회란, 상품의 단가에 대한 현황을 볼 수 있는 메뉴를 뜻합니다."},
+    
       ],
 }
 
@@ -924,7 +932,7 @@ const TABLE_HEADER_CONFIG : any = {
          },
         },
         
-        {title:"매입처명", field:"name", width:150, headerFilter:"input", 
+        {title:"매입처명", field:"name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
         return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -967,7 +975,7 @@ const TABLE_HEADER_CONFIG : any = {
         return businessNumber(value);
          },
         },
-        {title:"상호명", field:"customer_name", width:150, headerFilter:"input", 
+        {title:"상호명", field:"customer_name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
             
@@ -1036,7 +1044,7 @@ const TABLE_HEADER_CONFIG : any = {
     return businessNumber(value);
      },
     },
-    {title:"거래처명", field:"user.customer_name", width:150, headerFilter:"input", 
+    {title:"거래처명", field:"user.customer_name", width:500, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -1165,7 +1173,7 @@ const TABLE_HEADER_CONFIG : any = {
        
         {title:"분류", field:"product.type", width:150, headerFilter:"input"},
       
-        {title:"상품명", field:"product.name", width:150, headerFilter:"input", 
+        {title:"상품명", field:"product.name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
         return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -1216,11 +1224,13 @@ let TABLE_COMPONENT : any = "example-table-theme";
 
 
 const TABLE_TOTAL_CONFIG : any = {
-    layout: "fitDataTable",
+    //layout: "fitDataTable",
+    layout:"fitData",
+    
     pagination:"local",
   
     paginationSize:10,
-    paginationSizeSelector:[10, 50, 100,5000],
+    paginationSizeSelector:[10,50,100,500,5000],
 
     movableColumns:true,
     paginationCounter:"rows",

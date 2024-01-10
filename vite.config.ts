@@ -1,7 +1,8 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import  { defineConfig } from 'vite';
-
+import removeConsole from "vite-plugin-remove-console";
 export default defineConfig({
+	
 	// build: {
 	// 	rollupOptions: {
 	// 	  // 외부 모듈을 번들링합니다.

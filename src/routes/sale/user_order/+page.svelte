@@ -63,7 +63,7 @@
             alert('잘못된 주소거나 요청시간이 만료되었습니다.');
         }else if($url_state['path'] === '/sale/user_order'){
          
-            makeTable(table_state,"user_order",tableComponent);
+          makeTable(table_state,"user_order",tableComponent);
         }
       
     })
@@ -128,6 +128,11 @@
                           엑셀다운
                       </Button>
 
+                      <Button  color='light' on:click={() => userOrderModalOpen('','print')}>
+                        <Icon.PrintSolid class='mr-2' size="20" />
+                        주문서 출력
+                    </Button>
+
                       
 
                         {#if $user_order_modal_state['title'] === 'add'}
@@ -136,6 +141,8 @@
                           <Util  title="update"/>
                           {:else if $user_order_modal_state['title'] === 'check_delete'}
                           <Util  title="check_delete"/>
+                          {:else if $user_order_modal_state['title'] === 'print'}
+                          <Util  title="print"/>
                         {/if}
                         
 

@@ -12,7 +12,7 @@ import {common_alert_state, common_toast_state,common_search_state,login_state,t
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
-import { businessNumber,phoneNumber} from '$lib/module/common/function';
+import { businessNumber,phoneNumber,commaNumber} from '$lib/module/common/function';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
 import { user_form_state } from '../user/state';
@@ -138,6 +138,23 @@ const userOrderModalOpen = (data : any, title : any) => {
         }
       }
   }
+  if(title === 'print'){
+    let data =  table_data['user_order'].getSelectedData();
+
+    common_selected_state.update(() => data);
+    
+    let uid_array = [];
+    if(data.length === 0){
+      alert['value'] = true;
+      common_alert_state.update(() => alert);
+
+    }else{
+      for(let i=0; i<data.length; i++){
+        uid_array.push(data[i]);
+      }
+    }
+
+  }
 }
 
 
@@ -182,13 +199,34 @@ const save = (param,title) => {
 
   update_modal['title'] = 'add';
   update_modal['add']['use'] = true;
- 
+  
+   
     if(title === 'add'){
-      let data = table_data['user_order_sub_list'].getSelectedData();
+      let data;
+      if(table_data['user_order_sub_list']){
+        data = table_data['user_order_sub_list'].getSelectedData();
+      }else{
+        alert['type'] = 'save';
+        alert['value'] = true;
+
+        return common_alert_state.update(() => alert);
+      }
+    
+   
+
+      for(let i=0; i<data.length; i++){
+        Object.keys(data[i]).map((item)=> {    
+          if(data[i][item] === undefined){
+            data[i][item] = 0;
+          }
+        }); 
+
+      }
 
       let checked_data = data.filter(item => {
         return parseInt(item.qty) > 0 && item.qty !== undefined 
       })
+      console.log('checked_data : ', checked_data);
 
     
       if( param['user'] === '' || param['car'] === '' || checked_data.length === 0 || checked_data.length === undefined ){
@@ -356,6 +394,25 @@ const save = (param,title) => {
           };
     
         }
+
+        update_modal[title]['use'] = !update_modal[title]['use'];
+        user_order_modal_state.update(() => update_modal);
+        user_order_form_state.update(()=> init_form_data);
+    }
+    if(title === 'print'){
+      let data =  selected_data;
+
+      if(data.length === 0){
+        alert['value'] = true;
+        common_alert_state.update(() => alert);
+
+      }else{
+        printContent(data);    
+      }
+    
+
+
+
 
         update_modal[title]['use'] = !update_modal[title]['use'];
         user_order_modal_state.update(() => update_modal);
@@ -670,14 +727,167 @@ const userTable = (table_state,type,tableComponent) => {
         
 }
 
-function base64Decode(base64String) {
-  var byteCharacters = atob(base64String);
-  var byteNumbers = new Array(byteCharacters.length);
-  for (var i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  return new Uint8Array(byteNumbers);
+
+
+
+const printContentSub = () => {
+  const url = `${api}/user_order_sub/info_select`;
+    const params = { user_order_uid : item['uid']};
+    const config = {
+        params : params,
+        headers:{
+          "Content-Type": "application/json",
+          
+        }
+      }
+
+
+    axios.get(url,config).then(res=>{
+    
+      let user_order_checked_data =  res.data;
+    
+   const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2,index2) => `
+   
+   <tr>
+    
+     <td >${index2+1}</td>
+     <td >${item2.product.name}</td>
+     <td >${commaNumber(item2.qty)}</td>
+     <td >${commaNumber(item2.price)}</td>
+     <td >${commaNumber(item2.supply_price)}</td>
+   </tr>
+ `).join('');
+
+    });
+
 }
+
+const printContent = (data : any) => {
+  
+
+
+  
+  const generateA4Pages = (data) => {
+    const pages = data.map((item, index) => {
+      const url = `${api}/user_order_sub/info_select`;
+      const params = { user_order_uid: item['uid'] };
+      const config = {
+        params: params,
+        headers: {
+          "Content-Type": "application/json",
+        }
+      };
+  
+      return axios.get(url, config).then(res => {
+        let user_order_checked_data = res.data;
+        const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2, index2) => `
+          <tr>
+            <td>${index2 + 1}</td>
+            <td>${item2.product.name}</td>
+            <td>${commaNumber(item2.qty)}</td>
+            <td>${commaNumber(item2.price)}</td>
+            <td>${commaNumber(item2.supply_price)}</td>
+          </tr>
+        `).join('');
+  
+        return `
+          <html>
+            <head>
+              <style>
+                @media print {
+                  @page {
+                    size: A4;
+                    margin: 0.5cm;
+                  }
+                  body {
+                    font-family: 'Nanum Gothic', sans-serif;
+                    margin: 0;
+                    padding: 0px 30px 0px 5px;
+                    box-sizing: border-box;
+                    background-color: #fff;
+                    display: flex;
+                    flex-direction: column;
+                  }
+                  .container {
+                    width: 100%;
+                    height: 100%;
+                  }
+                }
+              </style>
+            </head>
+            <body class="page">
+              <div class="container">
+                후호후호
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Product Name</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Supply Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${productDetails}
+                  </tbody>
+                </table>
+              </div>
+            </body>
+          </html>
+        `;
+      });
+    });
+  
+    // pages는 Promise 객체의 배열이므로 Promise.all을 사용하여 모든 페이지의 HTML을 얻은 뒤 반환합니다.
+    return Promise.all(pages).then(htmlPages => htmlPages.join(''));
+   
+  }
+  
+ 
+  const originalContent = document.body.innerHTML;
+
+  const closePopup = () => {
+    document.body.innerHTML = originalContent;
+    printWindow.close();
+    
+  };
+  
+ 
+  const printWindow: any = window.open('', '_blank');
+
+  generateA4Pages(data)
+    .then(content => {
+      printWindow.document.write(content);
+      printWindow.document.close();
+      // 프린트 다이얼로그 호출
+      printWindow.print();
+    })
+    .catch(error => {
+      console.error(error);
+    });
+
+
+  // 팝업이 열린 후에 프린트 다이얼로그가 뜨면서 팝업이 닫히지 않도록 설정
+  printWindow.onbeforeunload = (event) => {
+    // 이벤트를 취소하여 팝업이 닫히지 않도록 함
+    // event.preventDefault();
+    closePopup();
+    
+  };
+
+
+
+  // 프린트 다이얼로그가 닫힐 때 현재 창의 내용을 원복
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  };
+
+ 
+};
+
+
+
 
 
 

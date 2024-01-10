@@ -2,7 +2,7 @@
 <script>
 
     // @ts-nocheck
-    import { Hr, Button ,Modal, Label, Select, Input, Helper} from 'flowbite-svelte'
+    import { Hr, Button ,Modal, Label, Select, Input, Helper,Img} from 'flowbite-svelte'
     
     import * as Icon from 'svelte-awesome-icons';
     
@@ -51,9 +51,27 @@
       label_title = '삭제';
     }else if(title === 'check_delete'){
       label_title = '선택 삭제';
+    }else if(title === 'print'){
+      label_title = '출력';
     }
 
-    let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
+    let color;
+
+
+    if(title === 'add' ||  title === 'update'){
+      color = "blue";
+
+    }else if(title === 'check_delete'){
+      color = "red";
+
+    }else{
+      color = "light";
+
+    }
+    // let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
+    
+    
+    
     let tableComponent = "example-table-theme";
     let tableComponent1 = "example-table-theme1";
  
@@ -197,17 +215,23 @@
 
           <div class="flex flex-row">
             <div id="example-table-theme1" bind:this={tableComponent1}></div>
-            {#if $user_order_form_state['image_url']}
-            <!-- svelte-ignore missing-declaration -->
-            <img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['image_url']} alt="Selected Image" on:click={() => openModal()}/>
+            {#if $user_order_form_state['image_url'] !== "null"}
+          
+            
 
+            <Img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['image_url']} alt="sample 1" caption="사진 주문" on:click={()=>openModal()}/>
+         
 
             {#if showModal}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div class="modal" on:click={closeModal}>
         
-                <!-- svelte-ignore a11y-img-redundant-alt -->
-                <img src={$user_order_form_state['image_url']} alt="Zoomed Image">
+
+           
+                
+                <Img  src={$user_order_form_state['image_url']} alt="Zoomed Image" />
+         
+
               </div>
             {/if}
 
@@ -224,15 +248,19 @@
            
 
             <!-- svelte-ignore missing-declaration -->
-            <img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['ship_image_url']} alt="Selected Image" on:click={() => openModal()}/>
 
+
+            <Img style="max-width: 100%; height : 40vh;" src={$user_order_form_state['ship_image_url']} alt="배송완료 사진" caption="배송완료 사진" on:click={()=>openModal()}/>
+         
 
             {#if showModal}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div class="modal" on:click={closeModal}>
         
                 <!-- svelte-ignore a11y-img-redundant-alt -->
-                <img src={$user_order_form_state['ship_image_url']} alt="Zoomed Image">
+           
+                <Img src={$user_order_form_state['ship_image_url']} alt="배송완료 사진" caption="배송완료 사진" />
+        
               </div>
             {/if}
 
@@ -256,7 +284,7 @@
           </Button>
 
             {#if $user_order_form_state['ship_image_url']}   
-              <Button id="download"class="mt-5"  color='blue' on:click={()=> shipImageDownload()}>
+              <Button id="download" class="mt-5"  color='blue' on:click={()=> shipImageDownload()}>
                이미지 다운로드
             </Button>
             {/if}
@@ -284,10 +312,10 @@
            
           </div>
             {:else }
-              {#if title === 'delete'}
-              <div>삭제하시겠습니까?</div>
-              {:else }
+              {#if title === 'check_delete'}
               <div>선택한 항목을 삭제하시겠습니까?</div>
+              {:else if title === 'print'}
+              <div>선택한 항목을 출력하시겠습니까?</div>
               
               {/if}
           {/if}
@@ -303,7 +331,7 @@
         
         </svelte:fragment> -->
         
-        <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($user_order_form_state,title)}>{label_title}</Button>
+        <Button  color={color}   class="w-full" on:click={save($user_order_form_state,title)}>{label_title}</Button>
        
        
         {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}

@@ -287,7 +287,7 @@
         </div>
       
       
-        <div class="flex flex-row"> 
+        <div class="flex flex-row p-8"> 
           {#if dashboard_data['humi'].length > 0 && dashboard_data['temp'].length > 0}
           <SaleChart dashboard_data={dashboard_data}/>
         {/if}

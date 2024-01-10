@@ -9,9 +9,10 @@ import {v4 as uuid} from 'uuid';
     title : 'add',
     add : { use : false, title: ''},
     update : { use : false, title: ''},
-    delete : { use : false, title: ''},
-
+    
     check_delete : { use : false, title: ''},
+    print : { use : false, title: ''},
+    
    
      
    });

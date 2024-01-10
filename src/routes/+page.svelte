@@ -8,17 +8,44 @@
 	import Loading from '$lib/components/button/Loading.svelte';
 	
 	import {LOGIN_ALERT} from '$lib/module/common/constants';
-	import src_url from '$lib/images/sea.jpeg';
+	import login_url from '$lib/images/login_url.jpg';
+	import bg_url from '$lib/images/main_bg.jpg';
+
 	import {common_alert_state,login_state, load_state} from '$lib/store/common/state';
 
 	import {onChangeHandler,loadChange,tokenChange} from '$lib/store/common/function';
 
 
 	import { setCookie, getCookie, removeCookie } from '$lib/cookies';
-	import naver from 'naver-id-login'
 
-	import naver_login_button from '$lib/images/naver_login_white.png';
 	import { onMount } from 'svelte';
+	const api = import.meta.env.VITE_API_BASE_URL;
+	
+	
+	let autoSave : any = false; // 자동저장유무
+
+	let test_style= `background-image: url('${bg_url}');`
+
+
+	onMount(async () => {
+		
+		const storedUsername = getCookie('my-cookie');
+		const storedPassword = getCookie('password');
+		const storedAutoSave = getCookie('autoSave');
+		
+	
+		if(storedUsername){
+			$login_state['id'] = storedUsername;
+		}
+		if(storedPassword){
+			$login_state['password'] = storedPassword;
+		}
+		if(storedAutoSave){
+			autoSave = storedAutoSave === 'true'; // 쿠키는 문자열로 저장되므로 boolean으로 변환
+		}
+	
+  	});
+
 
 
 	const login = async(e : any) => {
@@ -26,7 +53,7 @@
 		$common_alert_state = {type : 'login', value : false};
 		
 	
-		const url = `http://localhost:8081/user/sign-in`
+		const url = `${api}/user/sign-in`
 
 		try {
 			await performAsyncTask();
@@ -52,6 +79,13 @@
 					// 	// 쿠키 설정
 
 				setCookie('my-cookie', $login_state['id'], { expires: 3600 });
+				if(autoSave === true){
+					setCookie('my-cookie', $login_state['id'], { expires: 21 * 24 * 60 * 60  });
+					setCookie('password', $login_state['password'], { expires: 21 * 24 * 60 * 60  });
+					setCookie('autoSave', autoSave, { expires: 21 * 24 * 60 * 60 }); // 21일 보관
+
+				}
+				
 				tokenChange(res.data['token']);
 
 		
@@ -102,26 +136,29 @@
 	
   
 
-</script>
+</script>	
+
 		
-		<div class="flex justify-center items-center ">
-		<Card class="w-full mt-16 "  padding='xl' img={src_url}   reverse={false} horizontal>	
+		<div class="flex justify-center items-center h-screen bg-cover" style={test_style}>
+		<!-- <Card  size="xl"  img={login_url}   reverse={false} horizontal>	 -->
+		<Card  size="md"  img={login_url}   reverse={false} >	
+
 		<form class="flex flex-col space-y-6" >
-				<h3 class="text-xl font-medium text-gray-700 dark:text-white p-0 w-80">장안유통 식자재유통서비스</h3>
+				<h3 class="text-xl font-medium text-gray-700 dark:text-white p-0 w-80">신선식품 유통 서비스</h3>
 				<Label class="space-y-2">
 					<span>ID</span>
-					<Input   type="text" name="id" placeholder="ID를 입력하세요" required vind:value={$login_state.id} on:change={(e)=> onChangeHandler(e)} />
+					<Input  type="text" name="id" placeholder="ID를 입력하세요" required bind:value={$login_state.id} />
 				</Label>
 				<Label class="space-y-2 justify-center">
 					<span>Password</span>
-					<Input  type="password" name="password" placeholder="•••••" required vind:value={$login_state.password} on:change={(e)=> onChangeHandler(e)}/>
+					<Input  type="password" name="password" placeholder="•••••" required bind:value={$login_state.password} />
 				</Label>
 				<div class="flex items-start">
-					<Checkbox>자동 저장</Checkbox>
+					<Checkbox bind:checked={autoSave}>자동 저장</Checkbox>
 					
 				</div>
 				{#if $load_state === false}
-					<Button  type="submit" class="w-full" on:click={(e) => login(e)} >Login</Button>
+					<Button  type="submit" class="w-full" on:click={(e) => login(e)} >로그인</Button>
 				{:else if $load_state === true}
 					<Loading />
 				{/if}
