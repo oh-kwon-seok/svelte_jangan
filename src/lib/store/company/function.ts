@@ -108,21 +108,24 @@ const companyModalOpen = (data : any, title : any) => {
       let data =  table_data['company'].getSelectedData();
 
       common_selected_state.update(() => data);
-      
-      console.log('companyModalOpen : ', data);
-      let uid_array = [];
-      if(data.length === 0){
-        alert['value'] = true;
-        common_alert_state.update(() => alert);
-
-      }else{
-        for(let i=0; i<data.length; i++){
-          uid_array.push(data[i]['uid']);
-        }
-      }
+   
+   
   }
 }
 
+
+
+const modalClose = (title) => {
+  update_modal['title'] = '';
+  update_modal[title]['use'] = !update_modal[title]['use'];
+
+  alert['type'] = 'save';
+  alert['value'] = false;
+  common_alert_state.update(() => alert);
+  company_modal_state.update(() => update_modal);
+
+
+}
 
 
 
@@ -235,6 +238,7 @@ const save = (param,title) => {
 
       console.log('deleted_data : ', data);
       if(data.length === 0){
+        alert['type'] = 'check_delete';
         alert['value'] = true;
         common_alert_state.update(() => alert);
 
@@ -262,8 +266,8 @@ const save = (param,title) => {
               
               toast['type'] = 'success';
               toast['value'] = true;
-              update_modal['title'] = '';
-              update_modal['update']['use'] = false;
+              update_modal['title'] = title;
+              update_modal[title]['use'] = false;
               company_modal_state.update(() => update_modal);
               company_form_state.update(()=> init_form_data);
 
@@ -273,26 +277,22 @@ const save = (param,title) => {
     
             }else{
             
-              return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+              alert['type'] = 'error';
+              alert['value'] = true;
+              
+              return common_alert_state.update(() => alert);
             }
           })
           }catch (e:any){
-            return console.log('에러 : ',e);
+            alert['type'] = 'error';
+            alert['value'] = true;
+            return common_alert_state.update(() => alert);
           };
     
-
-
 
         }
 
 
-     
-     
-        
-
-        update_modal[title]['use'] = !update_modal[title]['use'];
-        company_modal_state.update(() => update_modal);
-        company_form_state.update(()=> init_form_data);
     }
 
 
@@ -372,4 +372,4 @@ const save = (param,title) => {
 
 
 
-export {companyModalOpen,save}
+export {companyModalOpen,save,modalClose}

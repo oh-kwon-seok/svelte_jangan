@@ -127,32 +127,13 @@ const userOrderModalOpen = (data : any, title : any) => {
 
       common_selected_state.update(() => data);
       
-      let uid_array = [];
-      if(data.length === 0){
-        alert['value'] = true;
-        common_alert_state.update(() => alert);
-
-      }else{
-        for(let i=0; i<data.length; i++){
-          uid_array.push(data[i]['uid']);
-        }
-      }
+    
   }
   if(title === 'print'){
     let data =  table_data['user_order'].getSelectedData();
 
     common_selected_state.update(() => data);
-    
-    let uid_array = [];
-    if(data.length === 0){
-      alert['value'] = true;
-      common_alert_state.update(() => alert);
 
-    }else{
-      for(let i=0; i<data.length; i++){
-        uid_array.push(data[i]);
-      }
-    }
 
   }
 }
@@ -191,6 +172,19 @@ const select_query = (type) => {
       table_state.update(() => table_data);
      
    })
+
+}
+
+
+const modalClose = (title) => {
+  update_modal['title'] = '';
+  update_modal[title]['use'] = !update_modal[title]['use'];
+
+  alert['type'] = 'save';
+  alert['value'] = false;
+  common_alert_state.update(() => alert);
+  user_order_modal_state.update(() => update_modal);
+
 
 }
 
@@ -348,11 +342,16 @@ const save = (param,title) => {
      
     }if(title === 'check_delete'){
       let data =  selected_data;
+
+
       let uid_array = [];
 
       if(data.length === 0){
+        alert['type'] = 'check_delete';
         alert['value'] = true;
-        common_alert_state.update(() => alert);
+        
+        return common_alert_state.update(() => alert);
+   
 
       }else{
         for(let i=0; i<data.length; i++){
@@ -375,8 +374,8 @@ const save = (param,title) => {
               
               toast['type'] = 'success';
               toast['value'] = true;
-              update_modal['title'] = '';
-              update_modal['update']['use'] = false;
+              update_modal['title'] = 'check_delete';
+              update_modal[title]['use'] = false;
               user_order_modal_state.update(() => update_modal);
               user_order_form_state.update(()=> init_form_data);
 
@@ -386,37 +385,37 @@ const save = (param,title) => {
     
             }else{
             
-              return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+              alert['type'] = 'error';
+              alert['value'] = true;
+              
+              return common_alert_state.update(() => alert);
             }
           })
           }catch (e:any){
-            return console.log('에러 : ',e);
+            
+            
+            alert['type'] = 'error';
+            alert['value'] = true;
+            return common_alert_state.update(() => alert);
           };
-    
         }
-
-        update_modal[title]['use'] = !update_modal[title]['use'];
-        user_order_modal_state.update(() => update_modal);
-        user_order_form_state.update(()=> init_form_data);
+  
     }
     if(title === 'print'){
       let data =  selected_data;
 
       if(data.length === 0){
+        alert['type'] = 'print';
         alert['value'] = true;
-        common_alert_state.update(() => alert);
 
+        return common_alert_state.update(() => alert);
+   
+      
       }else{
         printContent(data);    
       }
     
-
-
-
-
-        update_modal[title]['use'] = !update_modal[title]['use'];
-        user_order_modal_state.update(() => update_modal);
-        user_order_form_state.update(()=> init_form_data);
+        
     }
   }
 
@@ -904,4 +903,4 @@ const shipImageDownload = () => {
 
 
 
-export {userOrderModalOpen,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload}
+export {userOrderModalOpen,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose}

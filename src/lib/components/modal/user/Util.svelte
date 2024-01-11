@@ -11,7 +11,7 @@
     import {user_modal_state, user_form_state} from '$lib/store/user/state';
     import {common_alert_state, common_toast_state,common_car_state,table_state} from '$lib/store/common/state';
     
-    import {save,userProductTable} from '$lib/store/user/function';
+    import {save,userProductTable,modalClose} from '$lib/store/user/function';
 
     
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
@@ -59,7 +59,7 @@
 
  
 
-    <Modal title={`회원 ${label_title}`} color={color} bind:open={$user_modal_state[title]['use']} size="xl" placement={title === 'add' || title === 'check_delete'  ? 'center' : 'center-right'}   class="w-full">
+    <Modal title={`회원 ${label_title}`}  permanent={true} color={color} bind:open={$user_modal_state[title]['use']} size="xl" placement={ 'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
         <form action="#">
@@ -180,31 +180,6 @@
         
        
 
-
-<!-- 
-          <div class="grid grid-cols-6 gap-4">
-            <P class="col-span-3 text-bold" align='center'>BOM 리스트</P>
-            <Button color="blue" class="gap-4" on:click={() => bomRowUtil('add')}>
-              행추가
-              
-              
-              <Indicator color="none" class="bg-red-500 text-xs text-primary-800 font-semibold" size="lg">{$info_item_form_state['child'].length > 0 ? $info_item_form_state['child'].length : 0}</Indicator>
-            
-            </Button>
-            <Button color="red" class="gap-4" on:click={() => bomRowUtil('check_delete')}>
-              선택삭제
-             </Button>
-             <Button color="red" class="gap-4" on:click={() => bomRowUtil('delete')}>
-              행삭제
-             </Button>
-          </div> -->
-
-
-
-          <!-- {#if $common_toast_state['value'] === true}
-          <Toast />
-         {/if} -->
-
          {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
             
          <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
@@ -235,22 +210,27 @@
       
       
         </form>
-        <!-- <svelte:fragment slot='footer'>
-          <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($user_form_state,title)}>{label_title}</Button>
-       
-          
+        <svelte:fragment slot='footer'>
         
-        </svelte:fragment> -->
-        <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($user_form_state,title)}>{label_title}</Button>
+        <Button  class="w-1/2" color={title === 'add' || title === 'update'  ? 'blue' : 'red'}    on:click={save($user_form_state,title)}>{label_title}</Button>
        
+        <Button  class="w-1/2" color='red' on:click={modalClose(title)}>닫기</Button>
        
+        
         {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
-     
-        
-        <!-- <div class="mt-12">
-               <Alert  color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT[title].title} content={DATA_FAIL_ALERT[title].content}/>
-           </div> -->
+              
+        <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
+
         {/if}
+        {#if $common_alert_state['type'] === 'check_delete' && $common_alert_state['value'] === true}
+              
+        <Alert  state={'check_delete'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['check_delete'].title} content={DATA_FAIL_ALERT['check_delete'].content} />
+
+        {/if}
+      
+        
+        </svelte:fragment>
+      
 
       </Modal>
 

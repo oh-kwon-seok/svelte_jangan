@@ -124,18 +124,7 @@ const userModalOpen = (data : any, title : any) => {
       let data =  table_data['user'].getSelectedData();
 
       common_selected_state.update(() => data);
-      
-      console.log('modalOpen : ', data);
-      let uid_array = [];
-      if(data.length === 0){
-        alert['value'] = true;
-        common_alert_state.update(() => alert);
-
-      }else{
-        for(let i=0; i<data.length; i++){
-          uid_array.push(data[i]['id']);
-        }
-      }
+    
   }
 }
 
@@ -177,14 +166,30 @@ const select_query = (type) => {
 
 }
 
+
+
+const modalClose = (title) => {
+  update_modal['title'] = '';
+  update_modal[title]['use'] = !update_modal[title]['use'];
+
+  alert['type'] = 'save';
+  alert['value'] = false;
+  common_alert_state.update(() => alert);
+  user_modal_state.update(() => update_modal);
+
+
+}
+
+
+
 const save = (param,title) => {
 
-
+  console.log('param : ', param);
   update_modal['title'] = 'add';
   update_modal['add']['use'] = true;
  
     if(title === 'add'){
-      console.log('param : ', param);
+  
     
       if( param['code'] === '' || param['car'] === ''){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
@@ -259,7 +264,7 @@ const save = (param,title) => {
      
       try {
 
-        console.log('params : ', param);
+      
         let params = {
           id : param.id,
           code : param.code,
@@ -310,8 +315,9 @@ const save = (param,title) => {
 
       console.log('deleted_data : ', data);
       if(data.length === 0){
+        alert['type'] = 'check_delete';
         alert['value'] = true;
-        common_alert_state.update(() => alert);
+        return common_alert_state.update(() => alert);
 
       }else{
         for(let i=0; i<data.length; i++){
@@ -337,8 +343,8 @@ const save = (param,title) => {
               
               toast['type'] = 'success';
               toast['value'] = true;
-              update_modal['title'] = '';
-              update_modal['update']['use'] = false;
+              update_modal['title'] = 'check_delete';
+              update_modal[title]['use'] = false;
               user_modal_state.update(() => update_modal);
               user_form_state.update(()=> init_form_data);
 
@@ -348,7 +354,10 @@ const save = (param,title) => {
     
             }else{
             
-              return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+              alert['type'] = 'error';
+              alert['value'] = true;
+              
+              return common_alert_state.update(() => alert);
             }
           })
           }catch (e:any){
@@ -555,4 +564,4 @@ const save = (param,title) => {
 
 
 
-export {userModalOpen,save,userProductTable}
+export {userModalOpen,save,userProductTable,modalClose}

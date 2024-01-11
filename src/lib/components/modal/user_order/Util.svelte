@@ -13,7 +13,7 @@
 
     import {fileButtonClick} from '$lib/store/common/function';
     
-    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload} from '$lib/store/user_order/function';
+    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload,modalClose} from '$lib/store/user_order/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     
     import {onMount,afterUpdate } from 'svelte';
@@ -119,7 +119,7 @@
 
  
 
-    <Modal title={`주문 ${label_title}`}  color={color} {size} bind:open={$user_order_modal_state[title]['use']}  placement={title === 'add' || title === 'check_delete'  ? 'center' : 'center'}   class="w-full">
+    <Modal title={`주문 ${label_title}`} permanent={true} color={color} {size} bind:open={$user_order_modal_state[title]['use']}  placement={'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
         <form action="#">
@@ -291,16 +291,6 @@
  
           {/if}
          
-
-
-
-         {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
-            
-         <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
-
-       {/if}
-       
-        
           {#if $common_alert_state['type'] === 'select' && $common_alert_state['value'] === true}
             
             <Alert  state={'select'} color={DATA_SELECT_ALERT.color} title={DATA_SELECT_ALERT['select'].title} content={DATA_SELECT_ALERT['select'].content} />
@@ -324,24 +314,32 @@
       
       
         </form>
-        <!-- <svelte:fragment slot='footer'>
-          <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($user_order_form_state,title)}>{label_title}</Button>
-       
-          
+      
         
-        </svelte:fragment> -->
         
-        <Button  color={color}   class="w-full" on:click={save($user_order_form_state,title)}>{label_title}</Button>
-       
+        <svelte:fragment slot="footer">
+
+        <Button  color={color}   class="w-1/2" on:click={save($user_order_form_state,title)}>{label_title}</Button>
+        <Button  color='red'  class="w-1/2" on:click={modalClose(title)}>닫기</Button>
        
         {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
-     
-        
-        <!-- <div class="mt-12">
-               <Alert  color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT[title].title} content={DATA_FAIL_ALERT[title].content}/>
-           </div> -->
+              
+        <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
 
         {/if}
+        {#if $common_alert_state['type'] === 'check_delete' && $common_alert_state['value'] === true}
+              
+        <Alert  state={'check_delete'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['check_delete'].title} content={DATA_FAIL_ALERT['check_delete'].content} />
+
+        {/if}
+        {#if $common_alert_state['type'] === 'print' && $common_alert_state['value'] === true}
+              
+        <Alert  state={'print'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['print'].title} content={DATA_FAIL_ALERT['print'].content} />
+
+        {/if}
+    
+        </svelte:fragment>
+  
 
       </Modal>
 

@@ -712,7 +712,9 @@ const DATA_FAIL_ALERT = {
 
     update : {title : '수정', content : '데이터 수정에 실패했습니다.'},
     delete : {title : '삭제', content : '데이터 삭제에 실패했습니다.'},
-    check_delete : {title : '선택 삭제', content : '데이터 선택 삭제에 실패했습니다.'},
+    check_delete : {title : '선택 삭제', content : '데이터 삭제에 실패했습니다. 데이터를 1개 이상 선택해주세요.'},
+    error : {title : '통신에러', content : '에러가 발생했습니다.관리자에게 문의해주십시오.'},
+    print : {title : '출력', content : '데이터 출력에 실패했습니다. 데이터를 1개 이상 선택해주세요.'},
     
 }
 
@@ -801,6 +803,15 @@ const TABLE_FILTER : any = {
     ],
 }
 
+
+const TABLE_HEADER_LIST_FILTER : any = {
+    type : {"채소류" : "채소류","김치":"김치","수산물":"수산물","육류":"육류","젓갈":"젓갈","건어물":"건어물","냉동":"냉동","일회용품":"일회용품","공산품":"공산품","기타":"기타"}
+    
+   
+}
+
+
+
 const EXCEL_CONFIG : any = {
     product : [
     {header: '번호코드', key: 'uid', width: 30},
@@ -860,7 +871,7 @@ const TABLE_HEADER_CONFIG : any = {
             cell.getRow().toggleSelect()
         }},
         {title:"ID", field:"uid", width:150, headerFilter:"input"},
-        {title:"분류", field:"type", width:150, headerFilter:"input"},
+        {title:"분류", field:"type", width:150, headerFilter:"list",headerFilterParams:{values:TABLE_HEADER_LIST_FILTER['type']}, clearable:true},
       
         {title:"상품명", field:"name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
@@ -1022,7 +1033,7 @@ const TABLE_HEADER_CONFIG : any = {
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
      },
     },
-    {title:"상품명", field:"name", width:150, headerFilter:"input", 
+    {title:"상품명", field:"name", width:500, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -1122,7 +1133,7 @@ const TABLE_HEADER_CONFIG : any = {
         {title:"ID", field:"uid", width:150, headerFilter:"input"},
         {title:"분류", field:"type", width:150, headerFilter:"input"},
       
-        {title:"상품명", field:"name", width:150, headerFilter:"input", 
+        {title:"상품명", field:"name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
         return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -1301,7 +1312,8 @@ export {
     TABLE_HEADER_CONFIG,
     TABLE_COMPONENT,
     TABLE_FILTER,
-    EXCEL_CONFIG
+    EXCEL_CONFIG,
+    TABLE_HEADER_LIST_FILTER
 }
 
 

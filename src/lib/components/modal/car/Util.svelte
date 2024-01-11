@@ -11,7 +11,7 @@
     import {car_modal_state, car_form_state} from '$lib/store/car/state';
     import {common_alert_state, common_toast_state,common_car_state } from '$lib/store/common/state';
     
-    import {save} from '$lib/store/car/function';
+    import {save,modalClose} from '$lib/store/car/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     
     export let title;
@@ -43,7 +43,7 @@
 
  
 
-    <Modal title={`차량 ${label_title}`} color={color} bind:open={$car_modal_state[title]['use']} size="xl" placement={title === 'add' || title === 'check_delete'  ? 'center' : 'center-right'}   class="w-full">
+    <Modal title={`차량 ${label_title}`} permanent={true} color={color} bind:open={$car_modal_state[title]['use']} size="xl" placement={'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
         <form action="#">
@@ -74,10 +74,7 @@
           </div>
          
 
-          <div class="grid grid-cols-1 gap-4">
-                <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
-         
-          </div>
+        
 
          {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
             
@@ -109,14 +106,21 @@
       
       
         </form>
-    
-        <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-full" on:click={save($car_form_state,title)}>{label_title}</Button>
-        {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
-     
-        <div class="mt-12">
-               <Alert  color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT[title].title} content={DATA_FAIL_ALERT[title].content}/>
-           </div>
-        {/if}
+        <svelte:fragment slot='footer'> 
+          <Button  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}   class="w-1/2" on:click={save($car_form_state,title)}>{label_title}</Button>
+          <Button  color='red'  class="w-1/2" on:click={modalClose(title)}>닫기</Button>
+          {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
+        
+          <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
+      
+          {/if}
+          {#if $common_alert_state['type'] === 'check_delete' && $common_alert_state['value'] === true}
+                
+          <Alert  state={'check_delete'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['check_delete'].title} content={DATA_FAIL_ALERT['check_delete'].content} />
+      
+          {/if}
+              
+        </svelte:fragment>
 
       </Modal>
 

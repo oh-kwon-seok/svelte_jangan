@@ -1,6 +1,7 @@
 
 
 <script>
+
 	
     // @ts-nocheck
     import '../../../app.postcss';
@@ -44,6 +45,14 @@
             
   
     export let data;
+
+  let table_data;
+
+    // @ts-ignore
+    table_state.subscribe((item) => {
+      table_data = item;
+  });
+
 
  
     let tableComponent = "example-table-theme";
