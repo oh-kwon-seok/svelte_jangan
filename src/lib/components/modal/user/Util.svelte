@@ -113,8 +113,8 @@
 
               <!-- 사업장 ID는 사업자등록번호로 연결시켜놓음 -->
               
-              {#if $user_modal_state['title'] === 'add'}
-              <Label class="space-y-2"> 
+              {#if $user_modal_state['title'] === 'add' || ($user_modal_state['title'] === 'update' && $user_form_state['auth'] === 'ROLE_ADMIN' )  }
+              <Label class="space-y-2">  
                 <span>비밀번호</span>
                 <Input id="show-password" type={show ? 'text' : 'password'} placeholder="비밀번호를 입력하세요"  bind:value={$user_form_state['password']}>
                   <button slot="left" on:click={() => (show = !show)} class="pointer-events-auto">

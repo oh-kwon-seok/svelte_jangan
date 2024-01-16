@@ -43,6 +43,8 @@ let init_form_data = {
     password : '1111',
     car : '',
     used : 1,
+    auth:'',
+
 
 }
 
@@ -109,6 +111,10 @@ const userModalOpen = (data : any, title : any) => {
         Object.keys(update_form).map((item)=> {    
             if(item === 'car'){
               update_form[item] = data[item]['uid'];
+            }else if(item === 'auth'){
+              update_form[item] = data[item][0];
+            
+            
             }else{
               update_form[item] = data[item];
             }
@@ -117,7 +123,7 @@ const userModalOpen = (data : any, title : any) => {
 
             user_form_state.update(() => update_form);
             user_modal_state.update(() => update_modal);
-            console.log('update_modal : ', update_modal);
+            console.log('update_form : ', update_form);
 
     }
     if(title === 'check_delete'){
@@ -253,6 +259,14 @@ const save = (param,title) => {
     if(title === 'update'){
       const url = `${api}/user/update`
       
+      let auth ;
+
+      if(param.auth === 'ROLE_ADMIN'){
+        auth= 'admin';
+
+      }else{
+        auth = 'user';
+      }
       
       let data =  table_data['user_product'].getSelectedData();
 
@@ -276,7 +290,7 @@ const save = (param,title) => {
           
           car_uid : param.car,
           used : param.used,
-          auth : 'user',
+          auth : auth,
           token : login_data['token'],
           user_product : checked_data,
 
@@ -366,9 +380,7 @@ const save = (param,title) => {
     
         }
 
-        update_modal[title]['use'] = !update_modal[title]['use'];
-        user_modal_state.update(() => update_modal);
-        user_form_state.update(()=> init_form_data);
+      
     }
   }
 
@@ -443,7 +455,7 @@ const save = (param,title) => {
                     
                     product_data[i]['qty'] = user_checked_data[j]['qty'].toString(); 
                     
-                    console.log(user_checked_data[j]['qty']);
+           
                     user_checked_data.splice(j,1);
                     break;
                   }
@@ -456,7 +468,7 @@ const save = (param,title) => {
   
 
             
-              console.log('total_data : ', total_data);
+            
               
               // table_data['user_product'].setData(res.data);
               // table_state.update(() => table_data);

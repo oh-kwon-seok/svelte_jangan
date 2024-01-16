@@ -48,6 +48,15 @@ const url_state : any = writable({ path : '', query : ''});
     supply_price : 0,
     humi : [],
     temp : [],  
+    temp_date : [],
+    humi_date : [],
+
+    special_temp : [],
+    special_humi : [],
+    
+    special_temp_date : [],
+    special_humi_date : [],
+
     
   });
 

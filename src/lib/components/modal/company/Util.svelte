@@ -16,11 +16,6 @@
     import {businessNumber,phoneNumber,validEmail} from '$lib/module/common/function';
     
     export let title;
-
-
-
-  
-    console.log('title',title);
     
     let label_title = '';
    

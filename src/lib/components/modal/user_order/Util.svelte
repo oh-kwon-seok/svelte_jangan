@@ -88,7 +88,11 @@
       
         if($user_order_form_state['user'] !== ''){
          
+         
           userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
+          
+                      
+
         }
       })
 
@@ -214,8 +218,8 @@
            
 
           <div class="flex flex-row">
-            <div id="example-table-theme1" bind:this={tableComponent1}></div>
-            {#if $user_order_form_state['image_url'] !== "null"}
+            <div id="example-table-theme1" bind:this={tableComponent1} />
+            {#if $user_order_form_state['image_url'] !== "null" &&  $user_order_form_state['image_url'] !== "" && $user_order_modal_state['title'] === 'update'}
           
             
 

@@ -35,6 +35,7 @@
     );
     const humi_color = "#00C3FF"; // 습도색깔
     const temp_color = "#FF8200"; // 온도색깔
+    const special_temp_color = "red"; // 이상온도색깔
     
   const humi_data : any = {
     labels: dashboard_data['humi_date'],
@@ -92,10 +93,39 @@
     ],
   };
 
+  const special_temp_data : any = {
+    labels: dashboard_data['special_temp_date'],
+    datasets: [
+     
+      {
+        label: '이상온도',
+        fill: true,
+        lineTension: 0.3,
+        backgroundColor: special_temp_color,
+        borderColor: special_temp_color,
+        borderCapStyle: 'butt',
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: '#FF0000',
+        pointBackgroundColor: special_temp_color,
+        pointBorderWidth: 10,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: special_temp_color,
+        pointHoverBorderColor: special_temp_color,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        data: dashboard_data['special_temp'],
+      }
+    ],
+  };
+
 
   </script>
      <Line style="height:30vh; width:30vw" data={temp_data}  />
       <Line style="height:30vh; width:30vw" data={humi_data}  />
+      <Line style="height:30vh; width:30vw" data={special_temp_data}  />
    
  
   

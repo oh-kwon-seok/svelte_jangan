@@ -66,16 +66,31 @@
      axios.get(url,config).then(res=>{
       if(res.data.length > 0){
         
-        let data = res.data.map((item:any) => item.data);
-        let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
         
         if(title === 'temp'){
-          dashboard_data['temp'] = data;
-          dashboard_data['temp_date'] = created;
+          
+          let temp = res.data.map((item:any) => item.data);
+          let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
+     
+          let special_temp = res.data.filter((item:any) => item.data < -5 || item.data >5).map((item:any) => item.data);
+          let special_created = res.data.filter((item:any) => item.data < -5 || item.data >5).map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
           
 
 
+          dashboard_data['temp'] = temp;
+          dashboard_data['temp_date'] = created;
+          
+          dashboard_data['special_temp'] = special_temp;
+          dashboard_data['special_temp_date'] = special_created;
+          
+
+
+
         }else{
+          let data = res.data.map((item:any) => item.data);
+          let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
+     
+
           dashboard_data['humi'] = data;
           dashboard_data['humi_date'] = created;
         }

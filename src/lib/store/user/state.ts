@@ -26,6 +26,7 @@ import {v4 as uuid} from 'uuid';
     phone : '',
     password : '1111',
     car : '',
+    auth:'',
     used : 1,
     
   })

@@ -57,8 +57,7 @@
             </MegaMenu>
 
             <NavLi class={styles['nav_link_style']} on:click={() => logout()}>로그아웃</NavLi>
-
-
+          
          
           
             
