@@ -370,17 +370,17 @@ const printContent = (data : any) => {
                             <div style="text-align : left; text-decoration: underline; ">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;귀하</div>
 
                         </div>
-                    <div class="table_row">
-                            
-                        <div style="text-align : left; text-decoration : underline; color : red; font-weight: bold; font-size : 16px;">아래와 같이 거래합니다.</div>
-                    
-                    </div>
+                        <div class="table_row">
+                                
+                            <div style="text-align : left; text-decoration : underline; color : red; font-weight: bold; font-size : 16px;">아래와 같이 거래합니다.</div>
+                        
+                        </div>
 
-                    <div class="table_row">
-                            
-                        <div style="text-align : left; color : red; font-weight: bold; font-size : 20px;">합계금</div>
-                        <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}</div>
-                    </div>
+                        <div class="table_row">
+                                
+                            <div style="text-align : left; color : red; font-weight: bold; font-size : 20px;">합계금</div>
+                            <div style="text-align : left;  font-weight: bold; font-size : 24px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${commaNumber(data.totalSupplyPrice)}<br/></div>
+                        </div>
                           
                     </div>
                     <div style="display:flex; flex-direction : row; justify-content: flex-end; width : 60%;" class="table-container">
@@ -1070,7 +1070,7 @@ const TABLE_HEADER_CONFIG : any = {
        }
     }
     },
-
+    {title:"배송희망일", field:"req_date", width:150, headerFilter:"input"},
     {title:"주문상태", field:"order_status", width:150, headerFilter:"input"},
     {title:"수금유무", field:"price_status", width:150, headerFilter:"input"},
 
@@ -1097,20 +1097,21 @@ const TABLE_HEADER_CONFIG : any = {
       },
 },
 
-        {title:"인쇄", field:"print", width:150,  
-        formatter:function(cell : any){
+        // {title:"인쇄", field:"print", width:150,  
+        // formatter:function(cell : any){
            
-        return "<span style='color:#1E90FF; font-weight:bold;'>인쇄</span>";
-        },
-        cellClick:function(e : any, cell:any){
-            let row = cell.getRow();
-        if(row){
-            printContent(row.getData());
-        }else{
+        // return "<span style='color:#1E90FF; font-weight:bold;'>인쇄</span>";
+        // },
+        // cellClick:function(e : any, cell:any){
+        //     let row = cell.getRow();
+        // if(row){
+        //     printContent(row.getData());
+        // }else{
         
-        }
-        }
-        },
+        // }
+        // }
+        // },
+        // 용지 이슈로 잠시 주석처리함(2024-01-22)
 
 
 
@@ -1313,7 +1314,8 @@ export {
     TABLE_COMPONENT,
     TABLE_FILTER,
     EXCEL_CONFIG,
-    TABLE_HEADER_LIST_FILTER
+    TABLE_HEADER_LIST_FILTER,
+    CLIENT_INFO
 }
 
 

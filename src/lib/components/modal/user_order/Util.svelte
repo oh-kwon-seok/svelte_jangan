@@ -2,7 +2,7 @@
 <script>
 
     // @ts-nocheck
-    import { Hr, Button ,Modal, Label, Select, Input, Helper,Img} from 'flowbite-svelte'
+    import { Hr, Button ,Modal, Label, Select, Input, Helper,Img,Textarea} from 'flowbite-svelte'
     
     import * as Icon from 'svelte-awesome-icons';
     
@@ -185,7 +185,20 @@
           </Label>
     
          
+         
+
+          <Label class="space-y-2">
+            <span>안내사항</span>
+            <Input type="textarea"   id="last_name" placeholder="안내사항을 적어주세요" required bind:value={$user_order_form_state['description']}/>
+          </Label>
           
+          <Label class="space-y-2">
+            <span>배송희망일자</span>
+            <Input type="date"   id="last_name" placeholder="배송희망일자룰 입력하세요" required bind:value={$user_order_form_state['req_date']}/>
+          </Label>
+
+
+           
           {#if $user_order_modal_state['title'] === 'update'}
             <Label class="space-y-2">
               <span>사용유무</span>
@@ -195,20 +208,14 @@
 
                 </Select>
             </Label>
+            <Label class="space-y-2">
+              <span>요청사항</span>
+              <Textarea id="textarea-id" placeholder="요청사항이 있다면 입력해주세요" rows="4" name="message" bind:value={$user_order_form_state['req_des']}/>
+            </Label>
           {/if}
 
-          <Label class="space-y-2">
-            <span>안내사항</span>
-            <Input type="textarea"   id="last_name" placeholder="업체룰 선택하세요" required bind:value={$user_order_form_state['description']}/>
-            
-            
-          </Label>
-       
+
           </div>
-
-
-
-
          
           <div class="grid grid-cols-1 gap-4">
                 <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
@@ -229,13 +236,7 @@
             {#if showModal}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div class="modal" on:click={closeModal}>
-        
-
-           
-                
                 <Img  src={$user_order_form_state['image_url']} alt="Zoomed Image" />
-         
-
               </div>
             {/if}
 

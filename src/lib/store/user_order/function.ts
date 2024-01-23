@@ -14,7 +14,7 @@ import moment from 'moment';
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
 import { businessNumber,phoneNumber,commaNumber} from '$lib/module/common/function';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
-import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
+import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER,CLIENT_INFO} from '$lib/module/common/constants';
 import { user_form_state } from '../user/state';
 
 const api = import.meta.env.VITE_API_BASE_URL;
@@ -43,7 +43,8 @@ let init_form_data = {
   description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
   image_url:'',
   ship_image_url:'',
-  
+  req_date : moment().format('YYYY-MM-DD'),
+  req_des : '',
   car : '',
   used : 1,
 
@@ -233,6 +234,8 @@ const save = (param,title) => {
   
       }else {
       
+
+         console.log('param : ', param);
         const url = `${api}/user_order/save`
         try {
   
@@ -246,6 +249,8 @@ const save = (param,title) => {
             car_uid : param.car,
             used : param.used,
             auth : 'user',
+            req_date : param.req_date,
+            req_des : param.req_des,
             user_order_sub : checked_data,
             token : login_data['token'],
           };
@@ -303,7 +308,9 @@ const save = (param,title) => {
           order_status : param.order_status,
           price_status : param.price_status,
           description : param.description,
-         
+          req_date : param.req_date,
+          req_des : param.req_des,
+
           ship_image_url : param['ship_image_url'],  
           user_id : param.user,
           car_uid : param.car,
@@ -729,43 +736,11 @@ const userTable = (table_state,type,tableComponent) => {
 
 
 
-const printContentSub = () => {
-  const url = `${api}/user_order_sub/info_select`;
-    const params = { user_order_uid : item['uid']};
-    const config = {
-        params : params,
-        headers:{
-          "Content-Type": "application/json",
-          
-        }
-      }
 
-
-    axios.get(url,config).then(res=>{
-    
-      let user_order_checked_data =  res.data;
-    
-   const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2,index2) => `
-   
-   <tr>
-    
-     <td >${index2+1}</td>
-     <td >${item2.product.name}</td>
-     <td >${commaNumber(item2.qty)}</td>
-     <td >${commaNumber(item2.price)}</td>
-     <td >${commaNumber(item2.supply_price)}</td>
-   </tr>
- `).join('');
-
-    });
-
-}
 
 const printContent = (data : any) => {
   
 
-
-  
   const generateA4Pages = (data) => {
     const pages = data.map((item, index) => {
       const url = `${api}/user_order_sub/info_select`;
@@ -780,13 +755,20 @@ const printContent = (data : any) => {
       return axios.get(url, config).then(res => {
         let user_order_checked_data = res.data;
         const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2, index2) => `
-          <tr>
-            <td>${index2 + 1}</td>
-            <td>${item2.product.name}</td>
-            <td>${commaNumber(item2.qty)}</td>
-            <td>${commaNumber(item2.price)}</td>
-            <td>${commaNumber(item2.supply_price)}</td>
-          </tr>
+         
+
+
+          <div style="padding : 1px;" class="table_row">
+            <div style="width:10%; text-align : center; ">${index2 + 1}</div>
+            <div style="width:38%; text-align : left; ">${item2.product.name}</div>
+            <div style="width:7%; text-align : right; ">${commaNumber(item2.qty)}</div>
+            <div style="width:2%; text-align : left; "></div>
+   
+            <div style="width:15%; text-align : right; ">${commaNumber(item2.price)}</div>
+            <div style="width:15%; text-align : right; ">${commaNumber(item2.supply_price)}</div>
+            <div style="width:13%; text-align : left; "></div>
+          </div>
+
         `).join('');
   
         return `
@@ -805,33 +787,266 @@ const printContent = (data : any) => {
                     box-sizing: border-box;
                     background-color: #fff;
                     display: flex;
+                    font-size : 12px;
                     flex-direction: column;
                   }
                   .container {
                     width: 100%;
-                    height: 100%;
+                    height: 49%;
                   }
+                  .table-container table, .table-container th, .table-container td {
+                    border: none;
+                  }
+              
+                  .table-container th, .table-container td {
+                    padding: 3px; /* 원하는 패딩 값 설정 */
+                  }
+    
+                  .table_row {
+                    padding: 5px; 
+    
+                    display:flex; flex-direction : row;
+                  }
+
+
                 }
               </style>
             </head>
             <body class="page">
               <div class="container">
-                후호후호
-                <table>
-                  <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Product Name</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Supply Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${productDetails}
-                  </tbody>
-                </table>
+            <div style="margin-top : 38px; display:flex; flex-direction : row; width : 100%;" >
+                <div style="display:flex; flex-direction : column; width : 60%;" class="table-container">
+                    <div class="table_row">
+                        
+                        <div style="width : 20%; text-align : right;  ">${item['uid']}</div>
+                    
+                    </div>
+                   
+                    <div style="margin-top : 7px;"class="table_row">
+                        
+                      <div style="width :22%;  "></div>
+                      <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('YYYY')}</div>
+                      <div style="width :2%;"></div>
+                      <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('MM')}</div>
+                 
+                      <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('DD')}</div>
+                    
+                    </div>
+                  <div class="table_row">
+                        
+                    <div style="width :15%;  "></div>
+                    <div style="width :85%; text-align : left;  font-size:20px; letter-spacing: 3px;">${item['user']['customer_name']}</div>
+                   
+                  </div>
+                  <div style="margin-top : 20px;">
+                  </div>
+                <div style="padding : 5px 5px 0px 5px"class="table_row">
+                        
+                  <div style="width :40%;  "></div>
+                  <div style="width :60%; text-align : left; font-size:18px;font-weight : bold; ">${commaNumber(item['totalSupplyPrice'])}</div>
+                
+  
+                </div>
+              
+                <div >
+                        
+                  <div style="width :22%;  "></div>
+                  <div style="width :78%; text-align : right; font-size:16px; ">[농협 김옥병(453103-56-019411)]</div>
+                
+  
+                </div>
+                
+                </div>
+                <div style="display:flex; flex-direction : column; width : 40%;" class="table-container">
+                <div style="margin-top : 3px;">
+                </div>  
+                <div class="table_row">
+
+                      <div style="width:35%;  "></div>
+                      <div style="width:50%; text-align : right; ">${CLIENT_INFO.fax}</div>
+                      <div style="width:15%; "></div>
+                  </div>
+                  <div class="table_row">
+
+                      <div style="width:17%; "></div>
+                      <div style="width:83%; text-align : left;  font-size:14px; letter-spacing: 3px;">${CLIENT_INFO.code}</div>
+                    
+                  </div>
+                <div  style="padding : 10px 5px 0px 5px;" class="table_row">
+                  <div style="width:17%; text-align : center; "></div>
+                  <div style="width:58%; text-align : left; ">${CLIENT_INFO.company_name}</div>
+                  <div style="width:25%; text-align : center; ">${CLIENT_INFO.name}</div>
+                
+                </div>
+                <br/>
+                <div style="padding : 0px 5px 0px 5px;"class="table_row">
+                  <div style="width:17%;  "></div>
+                  <div style="width:83%; text-align : left; ">${CLIENT_INFO.address}</div>
+                 
+                </div>
+                
+                <br/>
+                <div class="table_row">
+                  <div style="width:17%; "></div>
+                  <div style="width:48%; text-align : left; ">${CLIENT_INFO.type}</div>
+                  <div style="width:35%; text-align : left; ">${CLIENT_INFO.type2}</div>
+                  
+                </div>
               </div>
+            </div>
+              
+              
+              
+              
+              
+              
+            <div style="margin-top:10px;min-height: 20vh; max-height: 20vh;  "class="table-container">
+                
+
+            ${productDetails}
+
+
+              
+              </div>
+              <div style="margin : 25px 0px 0px 40px; text-align: left;">
+              ${item['description']}
+              </div>
+           
+              </div>
+
+
+              <div class="container">
+              <div style="margin-top : 48px; display:flex; flex-direction : row; width : 100%;" >
+                  <div style="display:flex; flex-direction : column; width : 60%;" class="table-container">
+                      <div class="table_row">
+                          
+                          <div style="width : 20%; text-align : right;  ">${item['uid']}</div>
+                      
+                      </div>
+                     
+                      <div style="margin-top : 7px;"class="table_row">
+                          
+                        <div style="width :22%;  "></div>
+                        <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('YYYY')}</div>
+                        <div style="width :2%;"></div>
+                        <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('MM')}</div>
+                   
+                        <div style="width :10%; text-align : left;  ">${moment(item['req_date']).format('DD')}</div>
+                      
+                      </div>
+                    <div class="table_row">
+                          
+                      <div style="width :15%;  "></div>
+                      <div style="width :85%; text-align : left;  font-size:20px; letter-spacing: 3px;">${item['user']['customer_name']}</div>
+                     
+                    </div>
+                    <div style="margin-top : 20px;">
+                    </div>
+                  <div style="padding : 5px 5px 0px 5px"class="table_row">
+                          
+                    <div style="width :40%;  "></div>
+                    <div style="width :60%; text-align : left; font-size:18px;font-weight : bold; ">${commaNumber(item['totalSupplyPrice'])}</div>
+                  
+    
+                  </div>
+                
+                  <div >
+                          
+                    <div style="width :22%;  "></div>
+                    <div style="width :78%; text-align : right; font-size:16px; ">[농협 김옥병(453103-56-019411)]</div>
+                  
+    
+                  </div>
+                  
+                  </div>
+
+                  <div style="display:flex; flex-direction : column; width : 40%;" class="table-container">
+                <div style="margin-top : 3px;">
+                </div>  
+                <div class="table_row">
+
+                      <div style="width:35%;  "></div>
+                      <div style="width:50%; text-align : right; ">${CLIENT_INFO.fax}</div>
+                      <div style="width:15%; "></div>
+                  </div>
+                  <div class="table_row">
+
+                      <div style="width:17%; "></div>
+                      <div style="width:83%; text-align : left;  font-size:14px; letter-spacing: 3px;">${CLIENT_INFO.code}</div>
+                    
+                  </div>
+                <div style="padding : 10px 5px 0px 5px;" class="table_row">
+                  <div style="width:17%; text-align : center; "></div>
+                  <div style="width:58%; text-align : left; ">${CLIENT_INFO.company_name}</div>
+                  <div style="width:25%; text-align : center; ">${CLIENT_INFO.name}</div>
+                
+                </div>
+                <br/>
+                <div style="padding : 0px 5px 0px 5px;"class="table_row">
+                  <div style="width:17%;  "></div>
+                  <div style="width:83%; text-align : left; ">${CLIENT_INFO.address}</div>
+                 
+                </div>
+                
+                <br/>
+                <div class="table_row">
+                  <div style="width:17%; "></div>
+                  <div style="width:48%; text-align : left; ">${CLIENT_INFO.type}</div>
+                  <div style="width:35%; text-align : left; ">${CLIENT_INFO.type2}</div>
+                  
+                </div>
+              </div>
+
+              
+
+
+
+
+
+              
+              </div>
+                
+                
+                
+                
+                
+                
+              <div style="margin-top:15px;min-height: 20vh; max-height: 20vh;  "class="table-container">
+                  
+  
+              ${productDetails}
+  
+  
+                
+                </div>
+                <div style="margin : 25px 0px 0px 40px; text-align: left;">
+               
+
+                <span style="text-align : left;">전미수금 : ${item.totalUnpaidPrice-item.totalSupplyPrice > 0? commaNumber(item.totalUnpaidPrice-item.totalSupplyPrice) : 0}</span>
+    
+                <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(item.totalUnpaidPrice-item.totalSupplyPrice+item.totalSupplyPrice)}</span>
+    
+    
+                <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 :        </span>
+                <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 :        </span>
+            
+                <br/>
+           
+             
+                ${item.description}
+
+                </div>
+             
+                </div>
+
+
+          
+  
+          
+
+        
+
+
             </body>
           </html>
         `;

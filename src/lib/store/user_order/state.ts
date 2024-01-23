@@ -29,7 +29,8 @@ import {v4 as uuid} from 'uuid';
   
     car : '',
     description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
-    
+    req_date : '',
+    req_des : '',
     used : 1,
     
   })
