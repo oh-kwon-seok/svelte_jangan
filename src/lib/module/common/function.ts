@@ -46,6 +46,34 @@ function validEmail(email: string): boolean {
     return emailPattern.test(email);
 }
 
+function getDayOfWeek(day: string) {
+    let korDay = "";
+    switch (day) {
+        case "Monday":
+            korDay = "월";
+            break;
+        case "Tuesday":
+            korDay = "화";
+            break;
+        case "Wednesday":
+            korDay = "수";
+            break;
+        case "Thursday":
+            korDay = "목";
+            break;
+        case "Friday":
+            korDay = "금";
+            break;
+        case "Saturday":
+            korDay = "토";
+            break;
+        case "Sunday":
+            korDay = "일";
+            break;
+    }
+    return korDay;
+}
+
 
 // tabulator에서만 사용가능한 함수임
 function updateSupplyPrice(cell:any) {
@@ -77,5 +105,6 @@ export {
     businessNumber,
     phoneNumber,
     validEmail,
-    updateSupplyPrice,commaNumber
+    updateSupplyPrice, commaNumber,
+    getDayOfWeek
 }

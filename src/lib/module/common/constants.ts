@@ -715,7 +715,7 @@ const DATA_FAIL_ALERT = {
     check_delete : {title : '선택 삭제', content : '데이터 삭제에 실패했습니다. 데이터를 1개 이상 선택해주세요.'},
     error : {title : '통신에러', content : '에러가 발생했습니다.관리자에게 문의해주십시오.'},
     print : {title : '출력', content : '데이터 출력에 실패했습니다. 데이터를 1개 이상 선택해주세요.'},
-    
+    printInvoice : {title : '출력', content : '데이터 출력에 실패했습니다. 데이터를 1개 이상 선택해주세요.'},    
 }
 
 const DATA_SELECT_ALERT = {
@@ -853,6 +853,12 @@ const EXCEL_CONFIG : any = {
         {header: '개수', key: 'qty', width: 30},
 
         {header: '등록일', key: 'created', width: 30},
+    ],
+    user_order : [
+        {header: '배송희망일', key: 'req_date', width: 30},
+        {header: '주문상태', key: 'order_status', width: 150},  
+      
+    
         ],
         user_order_sub : [
             {header: '매입처', key: 'company', width: 30},

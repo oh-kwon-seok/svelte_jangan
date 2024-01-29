@@ -52,7 +52,9 @@
     }else if(title === 'check_delete'){
       label_title = '선택 삭제';
     }else if(title === 'print'){
-      label_title = '출력';
+      label_title = '주문서 출력';
+    }else if(title === 'printInvoice'){
+      label_title = '송장 출력';
     }
 
     let color;
@@ -309,7 +311,7 @@
             {:else }
               {#if title === 'check_delete'}
               <div>선택한 항목을 삭제하시겠습니까?</div>
-              {:else if title === 'print'}
+              {:else if title === 'print' || title === 'printInvoice'}
               <div>선택한 항목을 출력하시겠습니까?</div>
               
               {/if}
@@ -337,12 +339,15 @@
         <Alert  state={'check_delete'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['check_delete'].title} content={DATA_FAIL_ALERT['check_delete'].content} />
 
         {/if}
-        {#if $common_alert_state['type'] === 'print' && $common_alert_state['value'] === true}
-              
-        <Alert  state={'print'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['print'].title} content={DATA_FAIL_ALERT['print'].content} />
 
+        {#if $common_alert_state['type'] === 'print' && $common_alert_state['value'] === true}
+          <Alert  state={'print'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['print'].title} content={DATA_FAIL_ALERT['print'].content} />
         {/if}
     
+        {#if $common_alert_state['type'] === 'printInvoice' && $common_alert_state['value'] === true}  
+          <Alert  state={'printInvoice'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['printInvoice'].title} content={DATA_FAIL_ALERT['printInvoice'].content} />
+        {/if}
+
         </svelte:fragment>
   
 

@@ -21,7 +21,7 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {userOrderModalOpen} from '$lib/store/user_order/function';
+    import {userOrderModalOpen,userOrderExcelDownload} from '$lib/store/user_order/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {user_order_form_state,user_order_modal_state} from '$lib/store/user_order/state';
@@ -132,7 +132,7 @@
                           선택삭제
                         </Button>
 
-                        <Button  color='green' on:click={() =>excelDownload('user_order',EXCEL_CONFIG['user_order'])}>
+                        <Button  color='green' on:click={() =>userOrderExcelDownload('user_order',EXCEL_CONFIG['user_order'])}>
                           <Icon.FileCsvSolid class='mr-2' size="20" />
                           엑셀다운
                       </Button>
@@ -142,16 +142,21 @@
                         주문서 출력
                     </Button>
 
-                      
+                      <Button  color='light' on:click={() => userOrderModalOpen('','printInvoice')}>
+                        <Icon.PrintSolid class='mr-2' size="20" />
+                        송장 출력
+                    </Button>
 
                         {#if $user_order_modal_state['title'] === 'add'}
                           <Util title="add" />
                         {:else if $user_order_modal_state['title'] === 'update'}
                           <Util  title="update"/>
-                          {:else if $user_order_modal_state['title'] === 'check_delete'}
+                        {:else if $user_order_modal_state['title'] === 'check_delete'}
                           <Util  title="check_delete"/>
-                          {:else if $user_order_modal_state['title'] === 'print'}
+                        {:else if $user_order_modal_state['title'] === 'print'}
                           <Util  title="print"/>
+                        {:else if $user_order_modal_state['title'] === 'printInvoice'}
+                          <Util  title="printInvoice"/>
                         {/if}
                         
 

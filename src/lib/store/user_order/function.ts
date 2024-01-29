@@ -12,11 +12,11 @@ import {common_alert_state, common_toast_state,common_search_state,login_state,t
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
-import { businessNumber,phoneNumber,commaNumber} from '$lib/module/common/function';
+import { businessNumber,phoneNumber,commaNumber, getDayOfWeek} from '$lib/module/common/function';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER,CLIENT_INFO} from '$lib/module/common/constants';
 import { user_form_state } from '../user/state';
-
+import Excel from 'exceljs';
 const api = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -136,6 +136,10 @@ const userOrderModalOpen = (data : any, title : any) => {
     common_selected_state.update(() => data);
 
 
+  }
+  if(title === 'printInvoice'){
+    let data =  table_data['user_order'].getSelectedData();
+    common_selected_state.update(() => data);
   }
 }
 
@@ -409,7 +413,7 @@ const save = (param,title) => {
   
     }
     if(title === 'print'){
-      let data =  selected_data;
+      let data = selected_data;
 
       if(data.length === 0){
         alert['type'] = 'print';
@@ -423,6 +427,19 @@ const save = (param,title) => {
       }
     
         
+    } //
+    if (title === 'printInvoice') {
+      let data = selected_data;
+
+      if (data.length === 0) {
+        alert['type'] = 'printInvoice';
+        alert['value'] = true;
+
+        return common_alert_state.update(() => alert);
+      } //
+      else {
+        printInvoice(data);
+      }
     }
   }
 
@@ -733,6 +750,310 @@ const userTable = (table_state,type,tableComponent) => {
         
 }
 
+
+
+const printInvoice = async (data) => {
+  data.sort((a, b) => moment(b.req_date) - moment(a.req_date));
+  let page;
+  let user_order_checked_data = [];
+  let obj = {};
+  const hasKey = (array, targetKey) => array.some(obj => targetKey in obj);
+
+  if (Array.isArray(data) && data.length > 0) {
+    for (const item of data) {
+      const url = `${api}/user_order_sub/info_select`;
+      const params = { user_order_uid: item['uid'] };
+      const config = {
+        params: params,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      try {
+        const res = await axios.get(url, config);
+
+        res.data.forEach((element) => {
+          let company = element.userOrder.user.customer_name;
+          let product = element.product.name;
+          let qty = parseInt(element.qty);
+            
+          if (!obj[item.req_date]) {
+            obj[item.req_date] = {
+              [company]: [
+                {[product]: qty}
+              ]
+            }
+          } //
+          else {
+            if (!obj[item.req_date][company]) {
+              obj[item.req_date][company] = [
+                {[product]: qty}
+              ]
+            } //
+            else {
+
+              let p = false;
+              obj[item.req_date][company].forEach(element => {
+                if (product in element) {
+                  element[product] += qty;
+                  p = true;
+                }
+              });
+
+              if (!p) {
+                obj[item.req_date][company].push({ [product]: qty });
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
+
+  console.log(obj);
+
+  page = `
+            <html>
+            <head>
+                <style>
+                    @media print {
+                        @page {
+                            size: A4;
+                            margin: 0.5cm;
+                        }
+
+                        body {
+                            font-family: 'Nanum Gothic', sans-serif;
+                            margin: 0;
+                            padding: 0px 30px 0px 5px;
+                            box-sizing: border-box;
+                            background-color: #fff;
+                            display: flex;
+                            font-size: 15px;
+                            flex-direction: column;
+                        }
+
+                        .table-container table,
+                        .table-container th,
+                        .table-container td {
+                            border: none;
+                        }
+
+                        .table-container th,
+                        .table-container td {
+                            padding: 3px;
+                        }
+
+                        .table_row {
+                            padding: 5px;
+                            display: flex;
+                            flex-direction: row;
+                        }
+                    }
+                </style>
+            </head>
+            <body class="page">
+        `;
+
+  for (const req_date in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, req_date)) {
+      const companys = obj[req_date];
+
+      page += `
+              <div class="container">
+                <div style="margin-top : 38px; display:flex; flex-direction : row; width : 100%;">
+                  <div class="table_row">
+                    <div style="font-size: 17px;">${moment(req_date).format('YY. MM. DD')} (${getDayOfWeek(moment(req_date).format('dddd'))})</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:15px;" class="table-container">
+            `;
+
+      let index = 1;
+  
+      for (const company in companys) {
+        if (Object.prototype.hasOwnProperty.call(companys, company)) {
+          // 객체 배열 element
+          const element = companys[company];
+          
+          page += `
+                  <div  class="table_row">
+                    <div style="width:5%;">${index++}.</div>
+                    <div style="width:15%; font-weight: bold;">${company}</div>
+                    <div style="width:85%; white-space: pre-wrap;">`;
+          
+          element.forEach(object => {
+
+            console.log(object);
+            for (const product in object) {
+              if (Object.prototype.hasOwnProperty.call(object, product)) {
+                const qty = object[product];
+                
+                page += `${product} : ${qty}개,    `;
+              }
+            }
+          
+          });
+          page += `</div></div>`;
+        }
+      }
+      
+
+      page += `
+                </div>
+              </div>
+            `;
+    }
+  }
+
+  page += `</body></html>`;
+
+  console.log(page);
+
+  // 프린트 다이얼로그가 열리기 전에 현재 창의 내용을 변경하지 않도록
+  const printWindow : any = window.open('', '_blank');          
+
+  printWindow.document.write(page);
+  printWindow.document.close();
+
+  // 프린트 다이얼로그가 열릴 때 현재 창의 내용을 복원
+  printWindow.onload = () => {
+    document.body.innerHTML = originalContent;
+     
+    // 프린트 다이얼로그 호출
+    printWindow.print();
+  };
+
+  // 프린트 다이얼로그가 닫힐 때 현재 창의 내용을 원복
+  printWindow.onafterprint = () => {
+    printWindow.close();
+  }; 
+
+  // 프린트 다이얼로그 호출
+  printWindow.print();
+};
+
+
+
+
+const userOrderExcelDownload = (type,config) => {
+  
+  let data =  table_data[type].getSelectedData();
+  console.log('data  : ', table_data[type].getSelectedData());
+
+  
+  if(data.length > 0){
+    // 모든 객체에서 공통된 키(key) 이름을 찾기 위한 반복문
+    for (let i = 0; i <  data.length; i++) {
+      let currentObject =  data[i];
+
+      Object.keys(currentObject).map((key)=> {    
+      
+       
+          data[i][key] = data[i][key];
+        
+
+        if(typeof currentObject[key] === "object"){
+          data[i][key] = data[i][key]['name'];
+        } else {
+          data[i][key] = data[i][key];
+        }
+      
+      }); 
+    }
+
+    try {
+
+      let text_title : any= '';
+      switch(type){
+          case 'user_order': 
+              text_title = '주문 관리';
+          break;
+          
+          default:
+              text_title = '제목 없음';
+          break;
+    }
+
+    const workbook = new Excel.Workbook();
+      // 엑셀 생성
+
+      // 생성자
+      workbook.creator = '작성자';
+     
+      // 최종 수정자
+      workbook.lastModifiedBy = '최종 수정자';
+     
+      // 생성일(현재 일자로 처리)
+      workbook.created = new Date();
+     
+      // 수정일(현재 일자로 처리)
+      workbook.modified = new Date();
+
+      let file_name = text_title + moment().format('YYYY-MM-DD HH:mm:ss') + '.xlsx';
+      let sheet_name = moment().format('YYYYMMDDHH:mm:ss');
+   
+    
+      workbook.addWorksheet(text_title);
+         
+
+      const sheetOne = workbook.getWorksheet(text_title);
+           
+           
+            
+      // 컬럼 설정
+      // header: 엑셀에 표기되는 이름
+      // key: 컬럼을 접근하기 위한 key
+      // hidden: 숨김 여부
+      // width: 컬럼 넓이
+      sheetOne.columns = config;
+   
+      const sampleData = data;
+      const borderStyle = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+     
+      sampleData.map((item, index) => {
+        sheetOne.addRow(item);
+     
+        // 추가된 행의 컬럼 설정(헤더와 style이 다를 경우)
+        
+        for(let loop = 1; loop <= 6; loop++) {
+          const col = sheetOne.getRow(index + 2).getCell(loop);
+          col.border = borderStyle;
+          col.font = {name: 'Arial Black', size: 10};
+        }
+      
+    });
+
+
+        
+   
+      workbook.xlsx.writeBuffer().then((data) => {
+        const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = file_name;
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      })
+    } catch(error) {
+      console.error(error);
+    }
+
+  }else{
+    alert('데이터를 선택해주세요');
+  }
+
+}
 
 
 
@@ -1118,4 +1439,4 @@ const shipImageDownload = () => {
 
 
 
-export {userOrderModalOpen,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose}
+export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose}

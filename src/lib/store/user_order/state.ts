@@ -12,7 +12,7 @@ import {v4 as uuid} from 'uuid';
     
     check_delete : { use : false, title: ''},
     print : { use : false, title: ''},
-    
+    printInvoice: { use : false, title: ''},
    
      
    });
