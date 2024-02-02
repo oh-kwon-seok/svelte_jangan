@@ -21,12 +21,12 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {userOrderModalOpen,userOrderExcelDownload} from '$lib/store/user_order/function';
+    import {userOrderModalOpen,userOrderExcelDownload, userOrderDelivery} from '$lib/store/user_order/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {user_order_form_state,user_order_modal_state} from '$lib/store/user_order/state';
 
-    import {url_state,cookie_state,common_user_order_state,table_state,common_toast_state,common_search_state,load_state} from '$lib/store/common/state';
+    import {url_state,cookie_state,common_user_order_state,table_state,common_toast_state,common_search_state,load_state, common_alert_state} from '$lib/store/common/state';
     import {TABLE_COMPONENT,EXCEL_CONFIG} from '$lib/module/common/constants';
 
     import SearchBar from '$lib/components/layout/SearchBar.svelte'
@@ -42,6 +42,7 @@
 
   
 	import moment from 'moment';
+	import Modal from '$lib/components/alert/Modal.svelte';
             
   
     export let data;
@@ -136,6 +137,11 @@
                           <Icon.FileCsvSolid class='mr-2' size="20" />
                           엑셀다운
                       </Button>
+                      
+                      <Button  color='green' on:click={() => userOrderDelivery('user_order')}>
+                        <Icon.PrintSolid class='mr-2' size="20" />
+                        업체 전달
+                    </Button>
 
                       <Button  color='light' on:click={() => userOrderModalOpen('','print')}>
                         <Icon.PrintSolid class='mr-2' size="20" />
@@ -147,17 +153,27 @@
                         송장 출력
                     </Button>
 
-                        {#if $user_order_modal_state['title'] === 'add'}
-                          <Util title="add" />
-                        {:else if $user_order_modal_state['title'] === 'update'}
-                          <Util  title="update"/>
-                        {:else if $user_order_modal_state['title'] === 'check_delete'}
-                          <Util  title="check_delete"/>
-                        {:else if $user_order_modal_state['title'] === 'print'}
-                          <Util  title="print"/>
-                        {:else if $user_order_modal_state['title'] === 'printInvoice'}
-                          <Util  title="printInvoice"/>
-                        {/if}
+
+                    {#if $common_alert_state['title'] === 'user_order_delivery_no_content' && $common_alert_state['value']}
+                      <Modal title="user_order_delivery_no_content" content="선택된 데이터가 없습니다. 하나 이상의 데이터를 선택해주세요."></Modal>
+                    {/if}
+
+                    {#if $common_alert_state['title'] === 'user_order_delivery' && $common_alert_state['value']}
+                      <Modal title="user_order_delivery" content="두 개 이상의 거래처를 선택할 수 없습니다. 하나만 선택해주세요."></Modal>
+                    {/if}
+
+
+                    {#if $user_order_modal_state['title'] === 'add'}
+                      <Util title="add" />
+                    {:else if $user_order_modal_state['title'] === 'update'}
+                      <Util  title="update"/>
+                    {:else if $user_order_modal_state['title'] === 'check_delete'}
+                      <Util  title="check_delete"/>
+                    {:else if $user_order_modal_state['title'] === 'print'}
+                      <Util  title="print"/>
+                    {:else if $user_order_modal_state['title'] === 'printInvoice'}
+                      <Util  title="printInvoice"/>
+                    {/if}
                         
 
                       </div>

@@ -17,6 +17,7 @@ import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER,CLIENT_INFO} from '$lib/module/common/constants';
 import { user_form_state } from '../user/state';
 import Excel from 'exceljs';
+import { end } from '@popperjs/core';
 const api = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -755,9 +756,7 @@ const userTable = (table_state,type,tableComponent) => {
 const printInvoice = async (data) => {
   data.sort((a, b) => moment(b.req_date) - moment(a.req_date));
   let page;
-  let user_order_checked_data = [];
   let obj = {};
-  const hasKey = (array, targetKey) => array.some(obj => targetKey in obj);
 
   if (Array.isArray(data) && data.length > 0) {
     for (const item of data) {
@@ -936,6 +935,251 @@ const printInvoice = async (data) => {
   // 프린트 다이얼로그 호출
   printWindow.print();
 };
+
+
+/**
+ * 업체 전달 메소드
+ */
+const userOrderDelivery = async (type) => {
+	let data = table_data[type].getSelectedData();
+
+	if (data.length <= 0) {
+		alert['title'] = 'user_order_delivery_no_content';
+		alert['value'] = true;
+		return common_alert_state.update(() => alert);
+	}
+
+	let prevCompany: string = '';
+	data.forEach((item) => {
+		if (prevCompany === '') {
+			prevCompany = item.user.customer_name;
+		} //
+		else {
+			if (prevCompany !== item.user.customer_name) {
+				alert['title'] = 'user_order_delivery';
+				alert['value'] = true;
+				return common_alert_state.update(() => alert);
+			}
+		}
+	});
+
+	let obj = {};
+	let company = '';
+
+	for (const item of data) {
+		const url = `${api}/user_order_sub/info_select`;
+		const params = { user_order_uid: item['uid'] };
+		const config = {
+			params: params,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		};
+
+		try {
+			const res = await axios.get(url, config);
+
+			let resData = res.data;
+
+			resData.forEach((object) => {
+				let reqDate = object.userOrder.req_date;
+				let price = parseInt(object.price);
+				let product = object.product.name;
+				let qty = parseInt(object.qty);
+				let supplyPrice = parseInt(object.supply_price);
+				company = object.userOrder.user.customer_name;
+
+				if (!obj[reqDate]) {
+					obj[reqDate] = {
+						[product]: {
+							qty: qty,
+							price: price,
+							supplyPrice: supplyPrice
+						}
+					};
+				} //
+				else {
+					if (obj[reqDate][product]) {
+						let element = obj[reqDate][product];
+						element.qty += qty;
+						element.price = element.price > price ? element.price : price;
+						element.supply_price = element.price * element.qty;
+						obj[reqDate][product] = element;
+					} //
+					else {
+						obj[reqDate][product] = {
+							qty: qty,
+							price: price,
+							supplyPrice: supplyPrice
+						};
+					}
+				}
+			});
+		} catch (error) {
+			//
+			console.error('Error fetching data:', error);
+		}
+	}
+
+	// 엑셀 생성
+	const workbook = new Excel.Workbook();
+	// 생성자
+	workbook.creator = '작성자';
+	// 최종 수정자
+	workbook.lastModifiedBy = '최종 수정자';
+	// 생성일(현재 일자로 처리)
+	workbook.created = new Date();
+	// 수정일(현재 일자로 처리)
+	workbook.modified = new Date();
+
+	let startDate = search_state.start_date;
+	let endDate = search_state.end_date;
+	let searchDate =
+		moment(startDate).format('YYYY.MM.DD') + '~' + moment(endDate).format('YYYY.MM.DD');
+
+	let file_name = company + '(' + searchDate + ').xlsx';
+
+	workbook.addWorksheet(company);
+
+	const worksheet = workbook.getWorksheet(company);
+
+	worksheet.getCell('A1').value = company;
+  worksheet.mergeCells('A1:H1');
+  worksheet.getRow(1).height = 60;
+	worksheet.getCell(`A1`).alignment = { vertical: 'middle', horizontal: 'center' };
+	worksheet.getCell('A2').value = searchDate;
+	worksheet.getCell('D2').value = '거 래 처 원 장';
+	worksheet.getCell('F2').value = '장안유통(대청 254번)';
+	worksheet.getCell('H2').value = moment().format('YYYY.MM.DD');
+
+	let columns = [
+		{ name: '날짜' },
+		{ name: '품명[적요]' },
+		{ name: '수량' },
+		{ name: '단가' },
+		{ name: '차변' },
+		{ name: '대변' },
+		{ name: '참조' },
+		{ name: '잔액' }
+	];
+
+	let totalSupplyPrice = 0;
+	let totalQty = 0;
+	let rows = [];
+	Object.keys(obj).forEach((date) => {
+		let sumSupplyPrice = 0;
+		let sumQty = 0;
+
+		Object.keys(obj[date]).forEach((productName) => {
+			const data = obj[date][productName];
+
+			// 데이터 행 추가
+			rows.push([
+				date,
+				productName,
+				parseInt(data.qty).toLocaleString(),
+				parseInt(data.price).toLocaleString(),
+				parseInt(data.supplyPrice).toLocaleString(),
+				0,
+				0,
+				0
+			]);
+
+			sumQty += parseInt(data.qty);
+			totalQty += parseInt(data.qty);
+			sumSupplyPrice += parseInt(data.supplyPrice);
+			totalSupplyPrice += parseInt(data.supplyPrice);
+		});
+
+		// 소계 행 추가
+		rows.push([
+			'소 계',
+			'',
+			sumQty.toLocaleString(),
+			'',
+			sumSupplyPrice.toLocaleString(),
+			'',
+			'',
+			''
+		]);
+	});
+
+	// 총계 행 추가
+	rows.push([
+		'총 계',
+		'',
+		totalQty.toLocaleString(),
+		'',
+		totalSupplyPrice.toLocaleString(),
+		'',
+		'',
+		''
+	]);
+
+	worksheet.addTable({
+		name: 'OrderDelivery',
+		ref: 'A3',
+		style: {
+			theme: 'none'
+		},
+		columns: columns,
+		rows: rows
+  });
+
+  const table = worksheet.getTable('OrderDelivery');
+
+  const [startCell, endCell] = table.table.tableRef.split(':');
+  // 시작점과 끝점의 행과 열 얻기
+  const [startCol, startRow] = startCell.match(/[A-Z]+|\d+/g).map((v, i) => (i === 0 ? columnToNumber(v) : parseInt(v)));
+  const [endCol, endRow] = endCell.match(/[A-Z]+|\d+/g).map((v, i) => (i === 0 ? columnToNumber(v) : parseInt(v)));
+
+  // 각 셀에 대해 테두리 적용
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
+      const cell = worksheet.getCell(row, col);
+      const border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' },
+      };
+      cell.border = border;
+    }
+  }
+
+  worksheet.getRow(1).font = {bold: true, size: 14};
+  worksheet.getColumn(1).width = 13;
+  worksheet.getColumn(2).width = 45;
+  worksheet.getColumn(3).width = 7;
+  worksheet.getColumn(4).width = 13;
+  worksheet.getColumn(5).width = 13;
+  worksheet.getColumn(6).width = 13;
+  worksheet.getColumn(7).width = 13;
+  worksheet.getColumn(8).width = 13;
+
+  workbook.xlsx.writeBuffer().then((data) => {
+		const blob = new Blob([data], {
+			type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		});
+		const url = window.URL.createObjectURL(blob);
+		const anchor = document.createElement('a');
+		anchor.href = url;
+		anchor.download = file_name;
+		anchor.click();
+		window.URL.revokeObjectURL(url);
+	});
+};
+
+// 열 문자를 숫자로 변환하는 함수
+function columnToNumber(column) {
+  let result = 0;
+  for (let i = 0; i < column.length; i++) {
+    result *= 26;
+    result += column.charCodeAt(i) - 'A'.charCodeAt(0) + 1;
+  }
+  return result;
+}
+
 
 
 
@@ -1439,4 +1683,4 @@ const shipImageDownload = () => {
 
 
 
-export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose}
+export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery}
