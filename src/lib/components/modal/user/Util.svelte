@@ -180,11 +180,7 @@
         
        
 
-         {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
-            
-         <Alert  state={'add'} color={DATA_FAIL_ALERT.color} title={DATA_FAIL_ALERT['add'].title} content={DATA_FAIL_ALERT['add'].content} />
-
-       {/if}
+   
        
         
           {#if $common_alert_state['type'] === 'select' && $common_alert_state['value'] === true}

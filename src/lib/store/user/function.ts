@@ -8,6 +8,9 @@ import {user_modal_state,user_form_state} from './state';
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
 import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state} from '$lib/store/common/state';
+
+import {select_query} from '$lib/store/common/function';
+
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
@@ -139,38 +142,7 @@ const userModalOpen = (data : any, title : any) => {
 
 
 
-const select_query = (type) => {
-   
-  const url = `${api}/${type}/select`; 
-        
-  let basic_date = moment().subtract(90,'days');
-  
 
-  
-  let start_date = basic_date.format('YYYY-MM-DDTHH:mm:ss');
-  let end_date = basic_date.add(150,'days').format('YYYY-MM-DDTHH:mm:ss');
-
-
-  let params = 
-  {
-    start_date : start_date,
-    end_date  : end_date
-  };
-  const config = {
-    params : params,
-    headers:{
-      "Content-Type": "application/json",
-      
-    }
-  }
-    axios.get(url,config).then(res=>{
-      console.log('table_state : ', table_state['user']);
-      table_data[type].setData(res.data);
-      table_state.update(() => table_data);
-      console.log('table_data : ', table_data);
-   })
-
-}
 
 
 
@@ -190,7 +162,7 @@ const modalClose = (title) => {
 
 const save = (param,title) => {
 
-  console.log('param : ', param);
+ 
   update_modal['title'] = 'add';
   update_modal['add']['use'] = true;
  
@@ -228,7 +200,7 @@ const save = (param,title) => {
           params,
         ).then(res => {
           console.log('res',res);
-          if(res.data !== undefined && res.data !== null && res.data !== '' ){
+          if(res.data !== undefined && res.data !== null && res.data !== '' && res.data['success'] === true){
             console.log('실행');
             console.log('res:data', res.data);
             
@@ -237,14 +209,17 @@ const save = (param,title) => {
             update_modal['title'] = '';
             update_modal['add']['use'] = !update_modal['add']['use'];
             user_modal_state.update(() => update_modal);
-
+            select_query('user');
             
 
             return common_toast_state.update(() => toast);
 
           }else{
-          
-            return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+            alert['type'] = 'save';
+            alert['value'] = true;
+
+        
+            return common_alert_state.update(() => alert);
           }
         })
         }catch (e:any){
