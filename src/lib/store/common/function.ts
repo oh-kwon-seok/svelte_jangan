@@ -2,7 +2,7 @@
 
 
 import { writable } from 'svelte/store';
-import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state } from './state';
+import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state,common_type_state } from './state';
 
 // import {item_data,item_form_state} from '$lib/store/info/item/state';
 
@@ -38,6 +38,9 @@ let table_data : any;
 let product_data : any;
 
 let car_data : any;
+
+let type_data : any;
+
 
 let company_data : any;
 
@@ -94,6 +97,10 @@ common_product_state.subscribe((data : any) => {
 common_car_state.subscribe((data : any) => {
   car_data = data;
 })
+common_type_state.subscribe((data : any) => {
+  type_data = data;
+})
+
 
 common_company_state.subscribe((data) => {
   company_data = data;
@@ -156,8 +163,13 @@ const infoCallApi = (title) => {
           common_user_state.update(()=> user_data);
         
         }else if(title === 'company'){
+          console.log('resdata : ', res.data);
           company_data = res.data;
           common_company_state.update(()=> company_data);
+        
+        }else if(title === 'type'){
+          type_data = res.data;
+          common_type_state.update(()=> type_data);
         
         }
       

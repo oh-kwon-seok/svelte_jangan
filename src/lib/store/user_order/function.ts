@@ -35,21 +35,7 @@ let user_data : any;
 let selected_data : any;
 
 
-let init_form_data = {
-  uid : 0,
-  user : '',
-  
-  price_status : '미수금',
-  order_status : '주문완료',
-  description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
-  image_url:'',
-  ship_image_url:'',
-  req_date : moment().format('YYYY-MM-DD'),
-  req_des : '',
-  car : '',
-  used : 1,
 
-}
 
 
 user_order_modal_state.subscribe((data) => {
@@ -104,7 +90,23 @@ const userOrderModalOpen = (data : any, title : any) => {
 
     
     if(title === 'add'){
-      user_order_form_state.update(() => init_form_data);
+      update_form = {
+        uid : 0,
+        user : '',
+        
+        price_status : '미수금',
+        order_status : '주문완료',
+        description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+        image_url:'',
+        ship_image_url:'',
+        req_date : moment().format('YYYY-MM-DD'),
+        amount : 0,
+        req_des : '',
+        car : '',
+        used : 1,
+      
+      }
+      user_order_form_state.update(() => update_form);
      
     }
     if(title === 'update' ){
@@ -252,6 +254,7 @@ const save = (param,title) => {
             description : param.description,
             user_id : param.user,
             car_uid : param.car,
+            amount : parseInt(param.amount),
             used : param.used,
             auth : 'user',
             req_date : param.req_date,
@@ -315,7 +318,8 @@ const save = (param,title) => {
           description : param.description,
           req_date : param.req_date,
           req_des : param.req_des,
-
+          amount : parseInt(param.amount),
+          
           ship_image_url : param['ship_image_url'],  
           user_id : param.user,
           car_uid : param.car,
@@ -339,7 +343,23 @@ const save = (param,title) => {
           update_modal['title'] = '';
           update_modal['update']['use'] = false;
           user_order_modal_state.update(() => update_modal);
-          user_order_form_state.update(()=> init_form_data);
+          update_form = {
+            uid : 0,
+            user : '',
+            
+            price_status : '미수금',
+            order_status : '주문완료',
+            description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+            image_url:'',
+            ship_image_url:'',
+            req_date : moment().format('YYYY-MM-DD'),
+            amount : 0,
+            req_des : '',
+            car : '',
+            used : 1,
+          
+          }
+          user_order_form_state.update(()=> update_form);
           select_query('user_order');
           return common_toast_state.update(() => toast);
 
@@ -389,7 +409,24 @@ const save = (param,title) => {
               update_modal['title'] = 'check_delete';
               update_modal[title]['use'] = false;
               user_order_modal_state.update(() => update_modal);
-              user_order_form_state.update(()=> init_form_data);
+              update_form = {
+                uid : 0,
+                user : '',
+                
+                price_status : '미수금',
+                order_status : '주문완료',
+                description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+                image_url:'',
+                ship_image_url:'',
+                req_date : moment().format('YYYY-MM-DD'),
+                amount : 0,
+                req_des : '',
+                car : '',
+                used : 1,
+              
+              }
+
+              user_order_form_state.update(()=> update_form);
 
               select_query('user_order');
     

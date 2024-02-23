@@ -17,6 +17,7 @@ import {v4 as uuid} from 'uuid';
 
   const company_form_state : any = writable({
     uid : 0,
+    type: '',
     code : '',
     name : '',
     phone : '',

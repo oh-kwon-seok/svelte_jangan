@@ -9,7 +9,7 @@
     import Toast from '$lib/components/toast/Toast.svelte';
     import Alert from '$lib/components/alert/Alert.svelte';
     import {company_modal_state, company_form_state} from '$lib/store/company/state';
-    import {common_alert_state, common_toast_state, common_company_state} from '$lib/store/common/state';
+    import {common_alert_state, common_toast_state, common_type_state,common_company_state} from '$lib/store/common/state';
     
     import {save,modalClose} from '$lib/store/company/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
@@ -46,7 +46,17 @@
           {#if title === 'add' || title === 'update'}
    
         <div class="grid grid-cols-2 gap-4">
-          
+
+          <Label class="space-y-2">
+            <span>분류</span>
+            <Select id="countrie" class="mt-2" bind:value={$company_form_state['type']} placeholder="">
+                {#each $common_type_state as item}
+                  <option value={item.uid}>{item.name}</option>
+                {/each}
+              </Select>
+          </Label>
+
+
           <Label class="space-y-2">
             <span>사업자번호 {businessNumber($company_form_state.code)}</span>
             <Input maxlength="10" type="text" placeholder="매입처를 입력하세요" required bind:value={$company_form_state['code']} on:input={businessNumber($company_form_state.code)}/>
@@ -127,7 +137,7 @@
         
         <svelte:fragment slot="footer">
           <Button  class="w-1/2"  color={title === 'add' || title === 'update'  ? 'blue' : 'red'}    on:click={save($company_form_state,title)}>{label_title}</Button>
-          <Button  color='red'  class="w-1/2" on:click={modalClose(title)}>닫기</Button>
+          <Button  color='red'  class="w-1/2" on:click={()=> modalClose(title)}>닫기</Button>
          
           {#if $common_alert_state['type'] === 'save' && $common_alert_state['value'] === true}
               

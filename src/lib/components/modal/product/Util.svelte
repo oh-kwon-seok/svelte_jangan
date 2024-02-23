@@ -9,7 +9,7 @@
     import Toast from '$lib/components/toast/Toast.svelte';
     import Alert from '$lib/components/alert/Alert.svelte';
     import {product_modal_state, product_form_state} from '$lib/store/product/state';
-    import {common_alert_state, common_toast_state,common_company_state} from '$lib/store/common/state';
+    import {common_alert_state, common_toast_state,common_company_state,common_type_state} from '$lib/store/common/state';
     
     import {save,modalClose} from '$lib/store/product/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT,TABLE_HEADER_LIST_FILTER} from '$lib/module/common/constants';
@@ -37,6 +37,18 @@
     let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
 
 
+    let filteredCompanies = [];
+
+    const handleTypeChange = (e) => {
+
+      console.log('e : ',e.target.value);
+      console.log('e1 : ',$common_company_state.filter(item => item.type['uid'] == e.target.value));
+
+    // 선택한 type_uid에 해당하는 회사 필터링
+      filteredCompanies = $common_company_state.filter(item => item.type['uid'] == e.target.value);
+      $product_form_state['company'] = filteredCompanies[0]['uid'];
+
+  }
   
 
     </script>
@@ -52,17 +64,14 @@
         <div class="grid grid-cols-2 gap-4">
           <Label class="space-y-2">
             <span>분류</span>
-            <Select id="countries" class="mt-2" bind:value={$product_form_state['type']} placeholder="">
+            <Select id="countries" class="mt-2" bind:value={$product_form_state['type']} placeholder="" on:change={handleTypeChange}>
               
               
               
-              {#each Object.entries(TABLE_HEADER_LIST_FILTER['type']) as [key, value]}
-              
-              <option value={key}>{value}</option>
+              {#each $common_type_state as item}
+              <option value={item.uid}>{item.name}</option>
               {/each}
-              
-        
-              
+           
           </Select>
           </Label>
           <Label class="space-y-2">
@@ -78,7 +87,7 @@
           <Label class="space-y-2">
             <span>매입처</span>
             <Select id="countrie" class="mt-2" bind:value={$product_form_state['company']} placeholder="">
-                {#each $common_company_state as item}
+                {#each filteredCompanies as item}
                   <option value={item.uid}>{item.name}</option>
                 {/each}
               </Select>

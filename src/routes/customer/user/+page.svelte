@@ -17,6 +17,8 @@
 
     import Util from '$lib/components/modal/user/Util.svelte';
     
+    import AlertModal from '$lib/components/alert/Modal.svelte';
+    
 
     import * as Icon from 'svelte-awesome-icons';
 
@@ -136,6 +138,10 @@
                           {:else if $user_modal_state['title'] === 'check_delete'}
                           <Util  title="check_delete"/>
                         {/if}
+
+
+                     
+
                         
 
                       </div>

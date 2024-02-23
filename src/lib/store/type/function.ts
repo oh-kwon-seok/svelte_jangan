@@ -3,7 +3,7 @@
 //@ts-nocheck
 
 import { writable } from 'svelte/store';
-import {car_modal_state,car_form_state} from './state';
+import {type_modal_state,type_form_state} from './state';
 
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
@@ -28,11 +28,15 @@ let table_data : any;
 
 let selected_data : any;
 
-car_modal_state.subscribe((data) => {
+
+
+
+
+type_modal_state.subscribe((data) => {
     update_modal = data;
 })
 
-car_form_state.subscribe((data) => {
+type_form_state.subscribe((data) => {
     update_form = data;
 })
 
@@ -63,7 +67,7 @@ common_selected_state.subscribe((data) => {
 
 
 
-const carModalOpen = (data : any, title : any) => {
+const typeModalOpen = (data : any, title : any) => {
   console.log('data : ', data);
 
   console.log('title : ', title);
@@ -74,7 +78,7 @@ const carModalOpen = (data : any, title : any) => {
     common_alert_state.update(() => alert);
     update_modal['title'] = title;
     update_modal[title]['use'] = true;
-    car_modal_state.update(() => update_modal);
+    type_modal_state.update(() => update_modal);
 
     console.log('update_modal : ', update_modal);
 
@@ -86,7 +90,8 @@ const carModalOpen = (data : any, title : any) => {
         used : 1,
       
       }
-      car_form_state.update(() => update_form);
+      
+      type_form_state.update(() => update_form);
      
     }
     if(title === 'update' ){
@@ -95,12 +100,12 @@ const carModalOpen = (data : any, title : any) => {
             update_form[item] = data[item];
         
           }); 
-            car_form_state.update(() => update_form);
-            car_modal_state.update(() => update_modal);
+            type_form_state.update(() => update_form);
+            type_modal_state.update(() => update_modal);
            
     }
     if(title === 'check_delete'){
-      let data =  table_data['car'].getSelectedData();
+      let data =  table_data['type'].getSelectedData();
 
       common_selected_state.update(() => data);
       
@@ -116,7 +121,7 @@ const modalClose = (title) => {
   alert['type'] = 'save';
   alert['value'] = false;
   common_alert_state.update(() => alert);
-  car_modal_state.update(() => update_modal);
+  type_modal_state.update(() => update_modal);
 
 
 }
@@ -136,13 +141,13 @@ const save = (param,title) => {
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
-        car_modal_state.update(() => update_modal);
+        type_modal_state.update(() => update_modal);
  
         return common_alert_state.update(() => alert);
   
       }else {
       
-        const url = `${api}/car/save`
+        const url = `${api}/type/save`
         try {
   
           
@@ -165,10 +170,10 @@ const save = (param,title) => {
             toast['value'] = true;
             update_modal['title'] = '';
             update_modal['add']['use'] = !update_modal['add']['use'];
-            car_modal_state.update(() => update_modal);
+            type_modal_state.update(() => update_modal);
 
             
-            select_query('car');
+            select_query('type');
             return common_toast_state.update(() => toast);
 
           }else{
@@ -186,7 +191,7 @@ const save = (param,title) => {
     }
     
     if(title === 'update'){
-      const url = `${api}/car/update`
+      const url = `${api}/type/update`
       try {
 
         let params = {
@@ -208,7 +213,7 @@ const save = (param,title) => {
           toast['value'] = true;
           update_modal['title'] = '';
           update_modal['update']['use'] = false;
-          car_modal_state.update(() => update_modal);
+          type_modal_state.update(() => update_modal);
           update_form = {
             uid : 0,
             code : '',
@@ -216,8 +221,9 @@ const save = (param,title) => {
             used : 1,
           
           }
-          car_form_state.update(()=> update_form);
-          select_query('car');
+          
+          type_form_state.update(()=> update_form);
+          select_query('type');
           return common_toast_state.update(() => toast);
 
         }else{
@@ -249,7 +255,7 @@ const save = (param,title) => {
 
         if(uid_array.length > 0){
 
-          const url = `${api}/car/delete`
+          const url = `${api}/type/delete`
           try {
     
             let params = {
@@ -267,7 +273,7 @@ const save = (param,title) => {
               toast['value'] = true;
               update_modal['title'] = 'check_delete';
               update_modal[title]['use'] = false;
-              car_modal_state.update(() => update_modal);
+              type_modal_state.update(() => update_modal);
               update_form = {
                 uid : 0,
                 code : '',
@@ -275,9 +281,10 @@ const save = (param,title) => {
                 used : 1,
               
               }
-              car_form_state.update(()=> update_form);
+              
+              type_form_state.update(()=> update_form);
 
-              select_query('car');
+              select_query('type');
     
               return common_toast_state.update(() => toast);
     
@@ -292,11 +299,24 @@ const save = (param,title) => {
           }catch (e:any){
             return console.log('에러 : ',e);
           };
+    
+
+
+
         }
        
     }
+
+
+
+
+  
   }
+  
 
 
 
-export {carModalOpen,save,modalClose}
+
+
+
+export {typeModalOpen,save,modalClose}

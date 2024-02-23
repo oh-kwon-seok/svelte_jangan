@@ -173,8 +173,6 @@
                
               </Select>
           </Label>
-
-          
           <Label class="space-y-2">
             <span>수금 상태</span>
             <Select id="countrie" class="mt-2" bind:value={$user_order_form_state['price_status']} placeholder="">
@@ -185,10 +183,11 @@
               
               </Select>
           </Label>
+          <Label class="space-y-2">
+            <span>입금액</span>
+            <Input type="number"  id="last_name" placeholder="금액을 입력하세요" required bind:value={$user_order_form_state['amount']}/>
+          </Label>
     
-         
-         
-
           <Label class="space-y-2">
             <span>안내사항</span>
             <Input type="textarea"   id="last_name" placeholder="안내사항을 적어주세요" required bind:value={$user_order_form_state['description']}/>

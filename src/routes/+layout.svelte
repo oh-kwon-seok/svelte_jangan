@@ -27,6 +27,7 @@
 		
 		infoCallApi('company');
 		infoCallApi('car');
+		infoCallApi('type');
 		infoCallApi('user');
 		
 		

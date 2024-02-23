@@ -33,7 +33,7 @@ let selected_data : any;
 let init_form_data = {
   uid : 0,
   name : '',
-  type : '기타',
+  type : '',
   company : '',
   used : 1,
 
@@ -91,14 +91,22 @@ const productModalOpen = (data : any, title : any) => {
     console.log('update_modal : ', update_modal);
 
     if(title === 'add'){
-      product_form_state.update(() => init_form_data);
+        update_form = {
+          uid : 0,
+          name : '',
+          type : '',
+          company : '',
+          used : 1,
+        }
+      product_form_state.update(() => update_form);
      
     }
+
     if(title === 'update' ){
        
    
         Object.keys(update_form).map((item)=> {    
-            if(item === 'company' ){
+            if(item === 'company' || item === 'type' ){
               update_form[item] = data[item]['uid'];
             }else{
               update_form[item] = data[item];
@@ -106,10 +114,10 @@ const productModalOpen = (data : any, title : any) => {
            
         }); 
 
+
             product_form_state.update(() => update_form);
             product_modal_state.update(() => update_modal);
-            console.log('update_modal : ', update_modal);
-
+       
     }
     if(title === 'check_delete'){
       let data =  table_data['product'].getSelectedData();
@@ -194,7 +202,7 @@ const save = (param,title) => {
           
           let params = {
             name : param.name,
-            type : param.type,
+            type_uid : param.type,
             company_uid : param.company,
             used : param.used,
             
@@ -346,79 +354,17 @@ const save = (param,title) => {
 
   
   }
-  // const bomRowUtil = (title) => {
-  //   if(title === 'add'){
-  //     let new_id = update_form['child'].length + 1;
-  //     let new_bom_data = {
-       
-  //       id : new_id,
-  //       maker : update_form['maker'],
-  //       code : '',
-  //       name : '',
-  //       unit : 'BOX',
-  //       type : '완제품',
-  //       check : false,
-  //       use_qty : 0,
-
-  //     };
-  
-  //     update_form['child'].push(new_bom_data);
-  //   }else if(title === 'check_delete'){
-  //     alert = {type : 'select', value : false}
-      
-  //     console.log('alert : ', alert);
-
- 
-  //     let delete_count = update_form['child'].filter(data => data.check === true).length;
-  //     update_form['child'] = update_form['child'].filter(data => data.check === false) 
 
 
-
-  //     console.log('child : ',delete_count);
-  //     if(delete_count === 0 || delete_count === undefined){
-  //       alert = {type : 'select', value : true}
-
-  //       common_alert_state.update(() => alert);
-       
-
-  //     }
-
-      
-      
-
-  //   }else {
-  //     update_form['child'].pop();
-  //   }
-  
-  //   product_form_state.update(() => update_form);
-    
-  // }
-
-
-  // const bomRowCellClick = (title,id) => {
-  //   if(title === 'check' ){
-  //     for(let i =0; i<update_form['child'].length; i++){
-  //       if(id === update_form['child'][i]['id']){
-          
-  //         update_form['child'][i][title] = !update_form['child'][i][title];
-  //         break;
-  //       }
-  //     }
-  
-  //   }
-    
-  //   product_form_state.update(() => update_form);
-    
-
-
-  // }
 
   const productExcelUpload = (e) => {
   
     const product_config : any = [
       {header: '제품명', key: 'name', width: 30},
-      {header: '품목분류', key: 'type', width: 30},
+      {header: '품목분류', key: 'type_name', width: 30},
+      {header: '매입처', key: 'company_name', width: 30},
   
+
     ]; 
 
 
@@ -457,47 +403,43 @@ const save = (param,title) => {
 
           console.log('product_upload_data',product_upload_data);
 
-            const url = `${api}/product/excel_upload`
-            try {
-      
-              let params = {
-                data :  product_upload_data,
-                
-              };
-            axios.post(url,
-              params,
-            ).then(res => {
-              console.log('res',res);
-              if(res.data !== undefined && res.data !== null && res.data !== '' ){
-                console.log('실행');
-                console.log('res:data', res.data);
-                
-                toast['type'] = 'success';
-                toast['value'] = true;
-                update_modal['title'] = '';
-                update_modal['update']['use'] = false;
-                select_query('product');
-                return common_toast_state.update(() => toast);
-      
-              }else{
-              
-                return common_toast_state.update(() => TOAST_SAMPLE['fail']);
-              }
-            })
-            }catch (e:any){
-              return console.log('에러 : ',e);
-            };
-      
-      
-           
           
-
-
-
-        
   
 
         })
+
+        const url = `${api}/product/excel_upload`
+        try {
+  
+          let params = {
+            data :  product_upload_data,
+            
+          };
+        axios.post(url,
+          params,
+        ).then(res => {
+          console.log('res',res);
+          if(res.data !== undefined && res.data !== null && res.data !== '' ){
+            console.log('실행');
+            console.log('res:data', res.data);
+            
+            toast['type'] = 'success';
+            toast['value'] = true;
+            update_modal['title'] = '';
+            update_modal['update']['use'] = false;
+            select_query('product');
+            return common_toast_state.update(() => toast);
+  
+          }else{
+          
+            return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+          }
+        })
+        }catch (e:any){
+          return console.log('에러 : ',e);
+        };
+
+
       })
 
     }
@@ -505,9 +447,116 @@ const save = (param,title) => {
   }
 
 
+  const productExcelFormDownload = () => {
+
+    const data = [{
+
+      name : "천년/천년의맛 포기김치/10키로/중국산/박스",
+      type_name : "김치",
+      company_name : "천년식품(김치)",
+
+
+    },
+    {
+      name : "찜콩나물",
+      type_name : "채소류",
+      company_name : "49번 나물",
+    },
+  ]; 
+
+
+  
+    const config : any = [
+      {header: '제품명', key: 'name', width: 100},
+      {header: '품목분류', key: 'type_name', width: 70},
+      {header: '매입처', key: 'company_name', width: 70},
+      
+    ]; 
+
+
+      try {
+
+        let text_title : any= '품목 업로드 형식';
+       
+
+      const workbook = new Excel.Workbook();
+        // 엑셀 생성
+  
+        // 생성자
+        workbook.creator = '작성자';
+       
+        // 최종 수정자
+        workbook.lastModifiedBy = '최종 수정자';
+       
+        // 생성일(현재 일자로 처리)
+        workbook.created = new Date();
+       
+        // 수정일(현재 일자로 처리)
+        workbook.modified = new Date();
+
+        let file_name = text_title + moment().format('YYYY-MM-DD HH:mm:ss') + '.xlsx';
+        let sheet_name = moment().format('YYYYMMDDHH:mm:ss');
+     
+      
+        workbook.addWorksheet(text_title);
+           
+
+        const sheetOne = workbook.getWorksheet(text_title);
+             
+             
+              
+        // 컬럼 설정
+        // header: 엑셀에 표기되는 이름
+        // key: 컬럼을 접근하기 위한 key
+        // hidden: 숨김 여부
+        // width: 컬럼 넓이
+        sheetOne.columns = config;
+     
+        const sampleData = data;
+        const borderStyle = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+       
+        sampleData.map((item, index) => {
+          sheetOne.addRow(item);
+       
+          // 추가된 행의 컬럼 설정(헤더와 style이 다를 경우)
+          
+          for(let loop = 1; loop <= 3; loop++) {
+            const col = sheetOne.getRow(index + 2).getCell(loop);
+            col.border = borderStyle;
+            col.font = {name: 'Arial Black', size: 10};
+          }
+        
+      });
+  
+  
+          
+     
+        workbook.xlsx.writeBuffer().then((data) => {
+          const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+          const url = window.URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = file_name;
+          anchor.click();
+          window.URL.revokeObjectURL(url);
+        })
+      } catch(error) {
+        console.error(error);
+      }
+
+   
+}
 
 
 
 
 
-export {productModalOpen,save,productExcelUpload,modalClose}
+
+
+
+export {productModalOpen,save,productExcelUpload,modalClose,productExcelFormDownload}

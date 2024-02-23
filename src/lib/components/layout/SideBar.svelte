@@ -67,6 +67,9 @@
                 </svelte:fragment>
               <SidebarDropdownItem class={text_style} label="품목 관리" href='/info/product' active={activeUrl === '/info/product'} on:click={handleToggle('product')} />
               <SidebarDropdownItem class={text_style} label="차량 관리" href='/info/car' active={activeUrl === 'info/car'} on:click={handleToggle('car')} />
+              <SidebarDropdownItem class={text_style} label="분류 관리" href='/info/type' active={activeUrl === 'info/type'} on:click={handleToggle('type')} />
+
+
               <SidebarDropdownItem class={text_style} label="차량관제 서비스" on:click={()=>  window.open("https://car.uplus.co.kr/security/login", "_blank")} />
             </SidebarDropdownWrapper>
  

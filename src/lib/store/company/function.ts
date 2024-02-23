@@ -29,15 +29,7 @@ let table_data : any;
 let selected_data : any;
 
 
-let init_form_data = {
-  uid : 0,
-  code : '',
-  name : '',
-  phone : '',
-  email : '',
-  used : 1,
 
-}
 
 
 company_modal_state.subscribe((data) => {
@@ -91,13 +83,28 @@ const companyModalOpen = (data : any, title : any) => {
     console.log('update_modal : ', update_modal);
 
     if(title === 'add'){
-      company_form_state.update(() => init_form_data);
+
+      update_form = {
+        uid : 0,
+        type : '',
+        code : '',
+        name : '',
+        phone : '',
+        email : '',
+        used : 1,
+      
+      };
+      company_form_state.update(() => update_form);
      
     }
     if(title === 'update' ){
           Object.keys(update_form).map((item)=> {    
             
-            update_form[item] = data[item];
+            if(item === 'type'){
+              update_form[item] = data[item]['uid'];
+            }else{
+              update_form[item] = data[item];
+            }
         
           }); 
             company_form_state.update(() => update_form);
@@ -119,8 +126,24 @@ const modalClose = (title) => {
   update_modal['title'] = '';
   update_modal[title]['use'] = !update_modal[title]['use'];
 
+
+
   alert['type'] = 'save';
   alert['value'] = false;
+
+
+  update_form = {
+        uid : 0,
+        type : '',
+        code : '',
+        name : '',
+        phone : '',
+        email : '',
+        used : 1,
+      
+      };
+  company_form_state.update(() => update_form);
+
   common_alert_state.update(() => alert);
   company_modal_state.update(() => update_modal);
 
@@ -137,7 +160,7 @@ const save = (param,title) => {
  
     if(title === 'add'){
     
-      if(param['name'] === '' || param['code'] === ''){
+      if(param['name'] === '' || param['code'] === '' || param['type'] === ''){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
@@ -151,6 +174,7 @@ const save = (param,title) => {
         try {
   
           let params = {
+            type_uid : param.type,
             code : param.code,
             phone : param.phone,
             name : param.name,
@@ -172,7 +196,18 @@ const save = (param,title) => {
             update_modal['add']['use'] = !update_modal['add']['use'];
         
             company_modal_state.update(() => update_modal);
-            company_form_state.update(()=> init_form_data);
+            update_form = {
+        uid : 0,
+        type : '',
+        code : '',
+        name : '',
+        phone : '',
+        email : '',
+        used : 1,
+      
+      };
+            company_form_state.update(()=> update_form);
+
             select_query('company');
             return common_toast_state.update(() => toast);
 
@@ -195,6 +230,7 @@ const save = (param,title) => {
       try {
 
         let params = {
+          type : param.type_uid,
           uid : param.uid,
           code : param.code,
           phone : param.phone,
@@ -217,7 +253,20 @@ const save = (param,title) => {
           update_modal['title'] = '';
           update_modal['update']['use'] = false;
           company_modal_state.update(() => update_modal);
-          company_form_state.update(()=> init_form_data);
+
+
+          update_form = {
+            uid : 0,
+            type : '',
+            code : '',
+            name : '',
+            phone : '',
+            email : '',
+            used : 1,
+          
+          };
+
+          company_form_state.update(()=> update_form);
           select_query('company');
           return common_toast_state.update(() => toast);
 
@@ -269,7 +318,17 @@ const save = (param,title) => {
               update_modal['title'] = title;
               update_modal[title]['use'] = false;
               company_modal_state.update(() => update_modal);
-              company_form_state.update(()=> init_form_data);
+              update_form = {
+                uid : 0,
+                type : '',
+                code : '',
+                name : '',
+                phone : '',
+                email : '',
+                used : 1,
+              
+              };
+              company_form_state.update(()=> update_form);
 
               select_query('company');
     
