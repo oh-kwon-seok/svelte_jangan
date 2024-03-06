@@ -13,11 +13,15 @@
 
     import {fileButtonClick} from '$lib/store/common/function';
     
-    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload,modalClose} from '$lib/store/user_order/function';
+    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload,modalClose,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow} from '$lib/store/user_order/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     
     import {onMount,afterUpdate } from 'svelte';
     export let title;
+
+
+
+
 
 
 
@@ -76,25 +80,37 @@
     
     let tableComponent = "example-table-theme";
     let tableComponent1 = "example-table-theme1";
- 
+    $: amountArray = $user_order_form_state.amount_array;
+    
 
     onMount(()=>{
         if(title === 'add'){
-          userTable(table_state,"user",tableComponent);
+      
+          console.log('마운트됌',table_state['user']);
+          if(table_state['user']){
+           
+          }else{
+            userTable(table_state,"user",tableComponent);
+          }
+         
        
         }
       });
 
       afterUpdate(()=> {
-        userTable(table_state,"user",tableComponent);
-      
+          if(table_state['user']){
+           
+          }else{
+            console.log('user정보 업데이트');
+            userTable(table_state,"user",tableComponent);
+          }
+        
+
         if($user_order_form_state['user'] !== ''){
-         
-         
+          console.log('업데이트됌',);
+          amountArray = $user_order_form_state.amount_array;
           userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
           
-                      
-
         }
       })
 
@@ -120,7 +136,6 @@
         max-height: 80%;
       }
 
-
     </style>
 
  
@@ -128,7 +143,8 @@
     <Modal title={`주문 ${label_title}`} permanent={true} color={color} {size} bind:open={$user_order_modal_state[title]['use']}  placement={'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
-        <form action="#">
+        <!-- <form on:submit={(event)=> event.preventDefault()}> -->
+          <form >
           {#if title === 'add' || title === 'update'}
           
 
@@ -183,10 +199,13 @@
               
               </Select>
           </Label>
-          <Label class="space-y-2">
-            <span>입금액</span>
-            <Input type="number"  id="last_name" placeholder="금액을 입력하세요" required bind:value={$user_order_form_state['amount']}/>
-          </Label>
+          
+          
+          
+       
+
+
+
     
           <Label class="space-y-2">
             <span>안내사항</span>
@@ -197,8 +216,6 @@
             <span>배송희망일자</span>
             <Input type="date"   id="last_name" placeholder="배송희망일자룰 입력하세요" required bind:value={$user_order_form_state['req_date']}/>
           </Label>
-
-
            
           {#if $user_order_modal_state['title'] === 'update'}
             <Label class="space-y-2">
@@ -217,6 +234,48 @@
 
 
           </div>
+
+          <div class="grid grid-cols-1 gap-4">
+            <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
+            <p class="mb-4 font-semibold text-xl dark:text-white">입금 목록</p>
+          </div>
+
+        
+    
+          {#if $user_order_form_state['user'] !== ''}
+          <div class="grid grid-cols-3 gap-4">
+          <!-- <Button color="blue" on:click={amountAddRow}>입금 추가</Button> -->
+          <button  on:click={amountAddRow}>입금 추가</button>
+          <button on:click={amountDeleteRow}>입금 삭제</button>
+          <button on:click={amountAllDeleteRow}>전체 삭제</button>
+         
+       
+            {#each amountArray as item,i} 
+        
+              <Label class="space-y-1">
+                <span>입금날짜</span>
+                <Input type="date"  id="last_name" placeholder="금액을 입력하세요" required bind:value={item['amount_date']}/>
+              
+              
+              </Label>
+              <Label class="space-y-1">
+                <span>입금액</span>
+                <Input type="number"  id="last_name" placeholder="금액을 입력하세요" required bind:value={item['amount']}/>
+              
+              
+              </Label>    
+              <Label class="space-y-1">
+                  <button on:click={()=> amountSelectDeleteRow(i)}>삭제</button>
+              
+              </Label>    
+        
+                
+            {/each}
+            </div>
+            {/if}
+
+
+
          
           <div class="grid grid-cols-1 gap-4">
                 <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>

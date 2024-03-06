@@ -17,7 +17,7 @@ import { typeModalOpen } from '$lib/store/type/function';
 import { companyModalOpen } from '$lib/store/company/function';
 import { phoneNumber,businessNumber,updateSupplyPrice ,commaNumber} from './function';
 
-import { userModalOpen} from '$lib/store/user/function';
+import { userModalOpen,updateUserProduct} from '$lib/store/user/function';
 
 import { userOrderModalOpen} from '$lib/store/user_order/function';
 import moment from 'moment';
@@ -854,6 +854,8 @@ const EXCEL_CONFIG : any = {
         {header: '회사명', key: 'customer_name', width: 30},
         {header: '대표자명', key: 'name', width: 30},
         {header: '연락처', key: 'phone', width: 30},
+        {header: '담당자명', key: 'staff_name', width: 30},
+        {header: '담당자연락처', key: 'staff_phone', width: 30},
         {header: '이메일', key: 'email', width: 30},
         {header: '등록일', key: 'created', width: 30},
     ],
@@ -1056,8 +1058,13 @@ const TABLE_HEADER_CONFIG : any = {
            }
         }
         },
+        {title:"대표자", field:"name", width:500, headerFilter:"input"},
         {title:"지정차량", field:"car.name", width:150, headerFilter:"input"},
-        {title:"연락처", field:"phone", width:150, headerFilter:"input", formatter:function(cell : any){
+        {title:"대표 연락처", field:"phone", width:150, headerFilter:"input", formatter:function(cell : any){
+            var value = cell.getValue();
+        return phoneNumber(value);
+         },},
+         {title:"담당자 연락처", field:"staff_phone", width:150, headerFilter:"input", formatter:function(cell : any){
             var value = cell.getValue();
         return phoneNumber(value);
          },},
@@ -1075,19 +1082,43 @@ const TABLE_HEADER_CONFIG : any = {
    ],
 
    user_product : [
-    {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
-    cellClick:function(e : any, cell:any){
-        cell.getRow().toggleSelect();
-        console.log(cell.getRow());
-    }},
-    {title:"ID", field:"uid", width:150, headerFilter:"input"},
+    // {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
+    // cellClick:function(e : any, cell:any){
+    //     // cell.getRow().toggleSelect();
+    //     console.log(cell.getRow());
+    //     console.log('로그로그');
+    // }},
+   
+    // {title:"ID", field:"uid", width:150, headerFilter:"input"},
+    {title:"분류", field:"type.name", width:150, headerFilter:"input", 
+   
+    },
+    {title:"상품명", field:"name", width:500, headerFilter:"input", 
+    formatter:function(cell : any){
+        var value = cell.getValue();
+    return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+     },
+     cellClick:function(e : any, cell:any){
+       
+        updateUserProduct(cell);
+        
+    },
+
+   },
+    {title:"수량", field:"qty", width:150, editor : "input"},
+
+   ],
+
+   user_product_list : [
+   
+    // {title:"ID", field:"uid", width:150, headerFilter:"input"},
     {title:"분류", field:"type.name", width:150, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
      },
     },
-    {title:"상품명", field:"name", width:500, headerFilter:"input", 
+    {title:"상품명", field:"product.name", width:500, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
@@ -1209,13 +1240,7 @@ const TABLE_HEADER_CONFIG : any = {
             symbolAfter:"p",
             precision:false,
         },cellEdited: updateSupplyPrice},
-        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
-            
-            thousand:",",
-            symbol:"원",
-          symbolAfter:"p",
-          precision:false,
-      }},
+      
 
 
         {title:"공급가액", field:"supply_price", width:150, editor : "input",formatter: "money",  formatterParams: {
@@ -1225,6 +1250,13 @@ const TABLE_HEADER_CONFIG : any = {
             symbolAfter:"p",
             precision:false,
         }},
+        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
+            
+            thousand:",",
+            symbol:"원",
+          symbolAfter:"p",
+          precision:false,
+      }},
         
 
     
@@ -1261,13 +1293,7 @@ const TABLE_HEADER_CONFIG : any = {
             symbolAfter:"p",
             precision:false,
         }},
-        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
-            
-            thousand:",",
-            symbol:"원",
-          symbolAfter:"p",
-          precision:false,
-      }},
+       
 
 
         {title:"공급가액", field:"supply_price", width:150, editor : "input",formatter: "money",  formatterParams: {
@@ -1277,6 +1303,13 @@ const TABLE_HEADER_CONFIG : any = {
             symbolAfter:"p",
             precision:false,
         }},
+        {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
+            
+            thousand:",",
+            symbol:"원",
+          symbolAfter:"p",
+          precision:false,
+      }},
         
 
     

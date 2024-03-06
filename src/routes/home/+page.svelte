@@ -9,8 +9,14 @@
     import SideBar from '$lib/components/layout/SideBar.svelte';
     import Footer from '$lib/components/layout/Footer.svelte';
     import Title from '$lib/components/layout/Title.svelte';
+
+
     
     import SaleChart from './SaleChart.svelte';
+    import Temp from './sensor/Temp.svelte';
+    import SpecialTemp from './sensor/SpecialTemp.svelte';
+    import Humi from './sensor/Humi.svelte';
+    
     import { Tabs, TabItem, Timeline, TimelineItem, Button,Card,Dropdown,DropdownItem } from 'flowbite-svelte';
 
     import axios from 'axios';
@@ -69,30 +75,26 @@
         
         if(title === 'temp'){
           
-          let temp = res.data.map((item:any) => item.data);
-          let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
-     
-          let special_temp = res.data.filter((item:any) => item.data < -5 || item.data >5).map((item:any) => item.data);
-          let special_created = res.data.filter((item:any) => item.data < -5 || item.data >5).map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
+          let temp = res.data;
+        
+          let special_temp = res.data.filter((item:any) => item.data < -5 || item.data >5);
           
 
 
           dashboard_data['temp'] = temp;
-          dashboard_data['temp_date'] = created;
+
           
           dashboard_data['special_temp'] = special_temp;
-          dashboard_data['special_temp_date'] = special_created;
-          
+ 
 
 
 
         }else{
-          let data = res.data.map((item:any) => item.data);
-          let created = res.data.map((item:any) => moment(item.created).format('YYYY-MM-DD HH:mm:ss'));
-     
+          let data = res.data;
+         
 
           dashboard_data['humi'] = data;
-          dashboard_data['humi_date'] = created;
+       
         }
         
 
@@ -302,20 +304,45 @@
         </div>
       
       
-        <div class="flex flex-row p-8"> 
-          {#if dashboard_data['humi'].length > 0 && dashboard_data['temp'].length > 0}
-          <SaleChart dashboard_data={dashboard_data}/>
-        {/if}
-      </div>     
+       
                
               
               </TabItem>
            
-            
-    
+          
             </Tabs>
+            {#if dashboard_data['humi'].length > 0 && dashboard_data['temp'].length > 0}
+            <div class="flex flex-row m-8"> 
+            
+              <div class="w-2/6 m-8">
+              
+                <Temp dashboard_data={dashboard_data}/>
+              </div>
+              <div class="w-2/6 m-8">
+                <Humi dashboard_data={dashboard_data}/>
+              </div>
+              <div class="w-2/6 m-8">
+                <SpecialTemp dashboard_data={dashboard_data}/>
+              </div>
+
+              <!-- <SaleChart dashboard_data={dashboard_data}/> -->
+              
+            
+              <!-- <Temp dashboard_data={dashboard_data}/> -->
+              
+
+              
+           
+          </div>   
+         
+          {/if}
+           
+
           <Footer />
-      </div>
+            
+        
+
+        </div>
    
     </div>
 

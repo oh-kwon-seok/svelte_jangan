@@ -16,7 +16,12 @@ const businessNumber = (number: string): string => {
 
 }
 const phoneNumber = (number: string): string => {
-    // 입력된 문자열에서 숫자만 추출
+
+    if(number === null || number === '' || number === undefined){ 
+
+        return "";
+    }else{
+         // 입력된 문자열에서 숫자만 추출
     const numericString = number.replace(/\D/g, '');
 
     // 패턴에 따라 전화번호를 형식화
@@ -36,6 +41,8 @@ const phoneNumber = (number: string): string => {
         // 그 외의 경우, 숫자만 그대로 반환
         return numericString;
     }
+    }
+   
 }
 
 function validEmail(email: string): boolean {

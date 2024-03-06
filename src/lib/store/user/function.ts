@@ -7,7 +7,7 @@ import {user_modal_state,user_form_state} from './state';
 
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
-import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state} from '$lib/store/common/state';
+import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state} from '$lib/store/common/state';
 
 import {select_query} from '$lib/store/common/function';
 
@@ -30,6 +30,7 @@ let toast : any;
 let search_state : any;
 let login_data : any;
 let table_data : any;
+let table_real_data : any;
 let user_data : any;
 
 let selected_data : any;
@@ -43,6 +44,8 @@ let init_form_data = {
     name : '',
     email : '',
     phone : '',
+    staff_name : '',
+    staff_phone : '',
     password : '1111',
     car : '',
     used : 1,
@@ -78,6 +81,11 @@ login_state.subscribe((data) => {
 table_state.subscribe((data) => {
   table_data = data;
 })
+
+table_real_state.subscribe((data) => {
+  table_real_data = data;
+})
+
 common_user_state.subscribe((data) => {
   user_data = data;
 })
@@ -103,10 +111,26 @@ const userModalOpen = (data : any, title : any) => {
     update_modal[title]['use'] = true;
     user_modal_state.update(() => update_modal);
 
-    console.log('update_modal : ', update_modal);
+   
+  
 
     if(title === 'add'){
-      user_form_state.update(() => init_form_data);
+      update_form = {
+        uid : 0,
+          id : '',
+          code : '',
+          customer_name : '',
+          name : '',
+          email : '',
+          phone : '',
+          staff_name : '',
+          staff_phone : '',
+          password : '1111',
+          car : '',
+          used : 1,
+          auth:'',
+      }
+      user_form_state.update(() => update_form);
      
     }
     if(title === 'update' ){
@@ -152,8 +176,28 @@ const modalClose = (title) => {
 
   alert['type'] = 'save';
   alert['value'] = false;
+
+  update_form = {
+    uid : 0,
+      id : '',
+      code : '',
+      customer_name : '',
+      name : '',
+      email : '',
+      phone : '',
+      staff_name : '',
+      staff_phone : '',
+      password : '1111',
+      car : '',
+      used : 1,
+      auth:'',
+  
+  
+  }
+
   common_alert_state.update(() => alert);
   user_modal_state.update(() => update_modal);
+  user_form_state.update(()=>update_form);
 
 
 }
@@ -190,6 +234,9 @@ const save = (param,title) => {
             customer_name : param.customer_name,
             email : param.email,
             phone : param.phone,
+            staff_name : param.staff_name,
+            staff_phone : param.staff_phone,
+
             password : param.password,
             car_uid : param.car,
             used : param.used,
@@ -209,6 +256,26 @@ const save = (param,title) => {
             update_modal['title'] = '';
             update_modal['add']['use'] = !update_modal['add']['use'];
             user_modal_state.update(() => update_modal);
+
+            update_form = {
+              uid : 0,
+                id : '',
+                code : '',
+                customer_name : '',
+                name : '',
+                email : '',
+                phone : '',
+                staff_name : '',
+                staff_phone : '',
+                password : '1111',
+                car : '',
+                used : 1,
+                auth:'',
+            
+            
+            }
+            user_form_state.update(() => update_form);
+
             select_query('user');
             
 
@@ -246,11 +313,15 @@ const save = (param,title) => {
       let data =  table_data['user_product'].getSelectedData();
 
       let checked_data = data.filter(item => {
-        return parseInt(item.qty) > 0 && item.qty !== undefined 
+        if(item['qty'] === "" || item['qty'] === undefined || item['qty'] === null){
+          item['qty'] = 0; 
+
+        }
+        return item;
       })
 
-     
-     
+
+    
       try {
 
       
@@ -262,7 +333,8 @@ const save = (param,title) => {
           customer_name : param.customer_name,
           email : param.email,
           phone : param.phone,
-          
+          staff_name : param.staff_name,
+          staff_phone : param.staff_phone,
           car_uid : param.car,
           used : param.used,
           auth : auth,
@@ -283,7 +355,25 @@ const save = (param,title) => {
           update_modal['title'] = '';
           update_modal['update']['use'] = false;
           user_modal_state.update(() => update_modal);
-          user_form_state.update(()=> init_form_data);
+          update_form = {
+            uid : 0,
+              id : '',
+              code : '',
+              customer_name : '',
+              name : '',
+              email : '',
+              phone : '',
+              staff_name : '',
+              staff_phone : '',
+              password : '1111',
+              car : '',
+              used : 1,
+              auth:'',
+          
+          
+          }
+          
+          user_form_state.update(()=> update_form);
           select_query('user');
           return common_toast_state.update(() => toast);
 
@@ -335,7 +425,25 @@ const save = (param,title) => {
               update_modal['title'] = 'check_delete';
               update_modal[title]['use'] = false;
               user_modal_state.update(() => update_modal);
-              user_form_state.update(()=> init_form_data);
+              update_form = {
+                uid : 0,
+                  id : '',
+                  code : '',
+                  customer_name : '',
+                  name : '',
+                  email : '',
+                  phone : '',
+                  staff_name : '',
+                  staff_phone : '',
+                  password : '1111',
+                  car : '',
+                  used : 1,
+                  auth:'',
+              
+              
+              }
+
+              user_form_state.update(()=> update_form);
 
               select_query('user');
     
@@ -417,7 +525,13 @@ const save = (param,title) => {
             axios.get(url,config).then(res=>{
               
               let user_checked_data =  res.data;
-          
+
+              table_real_data['user_product_list'] = user_checked_data;
+
+              console.log('table : ', product_data);
+              table_real_state.update(()=> table_real_data);
+           
+
 
               for(let i=0; i < product_data.length; i++){
                 let product_uid = product_data[i]['uid'];
@@ -437,16 +551,31 @@ const save = (param,title) => {
 
                 }
 
+              
+                let new_obj = {
+                  uid : parseInt(product_data[i]['uid']),
+                  name : product_data[i]['name'],
+                 
+                  
+                }
+               
+                product_data[i]['product'] = new_obj; 
+
 
               }
 
-  
 
-            
-            
+              console.log('product_data : ', product_data);
+
+
+              table_real_data['user_product_list'] = product_data.filter(item=> {
+                return item['selected'] === true;
+              });
               
-              // table_data['user_product'].setData(res.data);
-              // table_state.update(() => table_data);
+
+      
+              table_real_data['user_product'] = product_data;
+              table_real_state.update(() => table_real_data);
 
               table_data['user_product'] =   new Tabulator(tableComponent, {
                 height:TABLE_TOTAL_CONFIG['height'],
@@ -463,10 +592,13 @@ const save = (param,title) => {
                
       
                 rowClick:function(e, row){
+                  
+                  
+               
                   //e - the click event object
                   //row - row component
-               
-                  row.toggleSelect(); //toggle row selected state on row click
+                  
+                  row.toggleSelect(); //toggle row selected state on row click,
               },
       
                 rowFormatter:function(row){
@@ -474,8 +606,10 @@ const save = (param,title) => {
                       let selected = row.getData().selected;
 
                       if(selected){
+                        console.log('selected : ', selected);
                         row.getElement().classList.add("tabulator-selected");
                         row.toggleSelect();
+                        console.log('selected : ', row.getData());
                       }
                 },
              
@@ -517,7 +651,7 @@ const save = (param,title) => {
         rowClick:function(e, row){
           //e - the click event object
           //row - row component
-       
+        console.log('로우클릭');
           row.toggleSelect(); //toggle row selected state on row click
       },
 
@@ -544,6 +678,171 @@ const save = (param,title) => {
 }
 
 
+// 즐겨찾기 선택된 것
+const userProduct2Table = (table_state,tableComponent) => {
+
+  
+  const url = `${api}/user_product/info_select`;
+           
+          
+  let params = 
+  {
+  user_id : update_form.id
+  };
+ 
+  const config = {
+    params : params,
+    headers:{
+      "Content-Type": "application/json",
+      
+    }
+  }
+    axios.get(url,config).then(res=>{
+      let data = res.data;
+
+
+  
+      table_data['user_product_list'] =   new Tabulator(tableComponent, {
+        tooltips: true, // 전역 설정: 모든 열에 툴팁 적용
+        height:TABLE_TOTAL_CONFIG['height'],
+        layout:TABLE_TOTAL_CONFIG['layout'],
+        movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
+        locale: TABLE_TOTAL_CONFIG['locale'],
+        langs: TABLE_TOTAL_CONFIG['langs'],
+       
+        placeholder:"데이터 없음",
+        rowClick:function(e, row){
+          //e - the click event object
+          //row - row component
+      
+          row.toggleSelect(); //toggle row selected state on row click
+      },
+  
+        rowFormatter:function(row){
+              row.getElement().classList.add("table-primary"); //mark rows with age greater than or equal to 18 as successful;
+              let selected = row.getData().selected;
+  
+              if(selected){
+                row.getElement().classList.add("tabulator-selected");
+                row.toggleSelect();
+              }
+        },
+        cellEdited:function(cell){
+          // 행이 업데이트될 때 실행되는 코드
+          var updatedData = cell.getData();
+          console.log("Updated Data:", updatedData);
+          // 여기에서 데이터를 처리하면 됩니다.
+      },
+        data : res.data.length > 0 ? data : [],
+        columns: TABLE_HEADER_CONFIG['user_product_list'],
+        
+        });
+  
+        table_state.update(()=> table_data);
+        table_real_state.update(()=> table_real_data);
+
+
+
+    });
+      
+
+}
+
+const userProductTabClick = (title) => {
+  
+  console.log(title);
+
+ 
+  if(table_real_data['user_product'].length > 0){
+   
+  
+    let check_data = [];
+    if(title === "전체"){
+      check_data = table_real_data['user_product'];
+    }else {
+
+      check_data = table_real_data['user_product'].filter(item=> {
+        return item['type']['name'] === title;
+      })
+    }
+    
+    table_data['user_product'].setData(check_data);
+    table_state.update(()=> table_data);
+    
+
+  }
+}
+
+
+function updateUserProduct(cell:any) {
+
+
+    let new_data = cell.getData();
+    console.log('new_data : ', new_data);
+    console.log('getData : ', table_data['user_product_list'].getData());
+    
+
+    let checkData = table_data['user_product_list'].getData().find(item => item['product']['uid'] === new_data['product']['uid']);
+
+
+
+    if(checkData){
+
+      console.log('checkData : ', checkData);
+      
+  
+    }else{
+      table_real_data['user_product_list'].push(new_data);
+      table_real_state.update(()=> table_real_data);
+  
+    }
+  
+    table_data['user_product_list'].setData(table_real_data['user_product_list']);
+  
+    table_state.update(()=> table_data);
+
+  
+}
+
+function deleteUserOrder(cell:any) {
+
+  let new_data = cell.getData();
+  
+  
+  let checkData = table_real_data['user_order_sub_list'].find(item => item['product']['uid'] === new_data['product']['uid']);
+
+
+  if(checkData){
+    checkData['qty'] = 0;
+    
+
+  
+  let newData = table_data['user_order_sub2_list'].getData().filter(item => item['product']['uid'] !== checkData['product']['uid']);
+
+  table_data['user_order_sub2_list'].setData(newData);
+
+
+
+  table_real_data['user_order_sub2_list'] = newData; 
+
+  table_state.update(()=> table_data);
+
+  table_real_state.update(()=> table_real_data);
+
+  
+
+    
+  }else{
+    
+
+  }
+
+ 
+
+ 
+ 
+   
+}
 
 
 
@@ -551,4 +850,9 @@ const save = (param,title) => {
 
 
 
-export {userModalOpen,save,userProductTable,modalClose}
+
+
+
+
+
+export {userModalOpen,save,userProductTable,modalClose,userProductTabClick,userProduct2Table,updateUserProduct}

@@ -264,7 +264,7 @@ const onChangeHandler = (e) => {
     login_data['token'] = token;
     login_state.update(()=> login_data);
   
-    console.log(login_data);
+  
     }
 
 
@@ -378,10 +378,18 @@ const excelDownload = (type,config) => {
           let currentObject =  data[i];
 
           Object.keys(currentObject).map((key)=> {    
-          
-            if(typeof currentObject[key] === "object"){
-              data[i][key] = data[i][key]['name'];
+
+            if(typeof currentObject[key] === 'object' && currentObject[key] !== null){
+            
+              data[i][key] = currentObject[key]['name'];
             }
+
+            // console.log(typeof currentObject[key], key,currentObject[key]);
+
+            // if(typeof currentObject[key] === "object"){
+            //   console.log('currentObject : ',currentObject[key]);
+            //   data[i][key] = currentObject[key]['name'];
+            // }
           
           }); 
         }

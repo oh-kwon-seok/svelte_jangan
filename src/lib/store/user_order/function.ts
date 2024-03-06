@@ -100,7 +100,7 @@ const userOrderModalOpen = (data : any, title : any) => {
         image_url:'',
         ship_image_url:'',
         req_date : moment().format('YYYY-MM-DD'),
-        amount : 0,
+        amount_array : [], 
         req_des : '',
         car : '',
         used : 1,
@@ -116,6 +116,15 @@ const userOrderModalOpen = (data : any, title : any) => {
               update_form[item] = data[item]['uid'];
             }else if(item === 'user'){
               update_form[item] = data[item]['id'];
+            }else if(item === 'amount_array'){
+              
+              if(data[item] !== null){
+                update_form[item] = JSON.parse(data[item]);
+              }else{
+                update_form[item] = [];
+              }
+             
+            
             }else{
               update_form[item] = data[item];
             }
@@ -240,13 +249,16 @@ const save = (param,title) => {
         return common_alert_state.update(() => alert);
   
       }else {
-      
+        
 
-         console.log('param : ', param);
+       
+        
+
+         
         const url = `${api}/user_order/save`
         try {
   
-          
+         
           let params = {
             
             order_status : param.order_status,
@@ -254,12 +266,15 @@ const save = (param,title) => {
             description : param.description,
             user_id : param.user,
             car_uid : param.car,
-            amount : parseInt(param.amount),
+         
+            amount_array : JSON.stringify(param.amount_array),
+
             used : param.used,
             auth : 'user',
             req_date : param.req_date,
             req_des : param.req_des,
             user_order_sub : checked_data,
+            user_order_amount : param.amount_array,
             token : login_data['token'],
           };
         axios.post(url,
@@ -318,20 +333,22 @@ const save = (param,title) => {
           description : param.description,
           req_date : param.req_date,
           req_des : param.req_des,
-          amount : parseInt(param.amount),
-          
+        
+          amount_array : JSON.stringify(param.amount_array),
+
           ship_image_url : param['ship_image_url'],  
           user_id : param.user,
           car_uid : param.car,
           used : param.used,
           auth : 'user',
           user_order_sub : checked_data,
+          user_order_amount : param.amount_array,
           token : login_data['token'],
 
         
         };
 
-        console.log('param : ', param);
+       
 
       axios.post(url,
         params,
@@ -353,7 +370,7 @@ const save = (param,title) => {
             image_url:'',
             ship_image_url:'',
             req_date : moment().format('YYYY-MM-DD'),
-            amount : 0,
+            amount_array : [],
             req_des : '',
             car : '',
             used : 1,
@@ -419,7 +436,7 @@ const save = (param,title) => {
                 image_url:'',
                 ship_image_url:'',
                 req_date : moment().format('YYYY-MM-DD'),
-                amount : 0,
+                amount_array : [],
                 req_des : '',
                 car : '',
                 used : 1,
@@ -453,6 +470,7 @@ const save = (param,title) => {
     if(title === 'print'){
       let data = selected_data;
 
+      console.log('data : ', data);
       if(data.length === 0){
         alert['type'] = 'print';
         alert['value'] = true;
@@ -480,6 +498,11 @@ const save = (param,title) => {
       }
     }
   }
+
+
+
+
+
 
 
   const userOrderSubTable = (table_state,type,tableComponent) => {
@@ -977,8 +1000,44 @@ const printInvoice = async (data) => {
 /**
  * 업체 전달 메소드
  */
+
+
+
+const test = async() => {
+    
+ 
+
+    const url = `${api}/user_order_amount/select`;
+		const params = { user_id : 'ohjin999',  end_date : '2024-03-31'};
+		const config = {
+			params: params,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		};
+
+    try {
+
+      const test = await axios.get(url, config);
+
+      let resData = test;
+      console.log('resData : ', resData['data']);
+  
+
+    }catch(error){
+      console.log('err : ',error);
+    }
+    
+
+  };
+
+
+
+
 const userOrderDelivery = async (type) => {
 	let data = table_data[type].getSelectedData();
+
+  
 
 	if (data.length <= 0) {
 		alert['title'] = 'user_order_delivery_no_content';
@@ -987,6 +1046,7 @@ const userOrderDelivery = async (type) => {
 	}
 
 	let prevCompany: string = '';
+  console.log('data : ', data);
 	data.forEach((item) => {
 		if (prevCompany === '') {
 			prevCompany = item.user.customer_name;
@@ -1000,8 +1060,18 @@ const userOrderDelivery = async (type) => {
 		}
 	});
 
+  let totalAmount = data[0]['totalAmount'] ; // 총 입금액
+  let totalUnpaidPrice = data[0]['totalUnpaidPrice'] ; // 총 매출액
+
+
+  console.log('totalAmount',totalAmount);
+  console.log('totalUnpaidPrice',totalUnpaidPrice);
+  
+   
+
 	let obj = {};
 	let company = '';
+  
 
 	for (const item of data) {
 		const url = `${api}/user_order_sub/info_select`;
@@ -1018,9 +1088,13 @@ const userOrderDelivery = async (type) => {
 
 			let resData = res.data;
 
+     
 			resData.forEach((object) => {
 				let reqDate = object.userOrder.req_date;
-				let price = parseInt(object.price);
+				
+
+
+        let price = parseInt(object.price);
 				let product = object.product.name;
 				let qty = parseInt(object.qty);
 				let supplyPrice = parseInt(object.supply_price);
@@ -1057,6 +1131,139 @@ const userOrderDelivery = async (type) => {
 			console.error('Error fetching data:', error);
 		}
 	}
+  
+  
+    console.log('obj : ', obj);
+    let amountDateArray = Object.keys(obj);
+
+    let total_amount_array = {};
+    
+    
+
+    for(let i=0; i<amountDateArray.length; i++){   // 입금액 구하기
+      const url = `${api}/user_order_amount/select`;
+      const params = { user_id : data[0]['user']['id'],  end_date : amountDateArray[i]};
+      const config = {
+        params: params,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+      try {
+
+        const res = await axios.get(url, config);
+
+        let resData = res.data;
+
+        if(resData.length > 0){   // 해당날짜 기준 입금액이 존재한다면
+          let newAmount = resData.reduce((accumulator, currentValue) => {
+            return parseInt(accumulator) + parseInt(currentValue.amount);
+          
+          }, 0);
+          if(total_amount_array.hasOwnProperty(amountDateArray[i])){
+
+          }else{
+            total_amount_array[amountDateArray[i]] = newAmount;
+          }
+
+
+        }else{  // 해당날짜 기준 입금액이 존재하지 않는다면
+          if(total_amount_array.hasOwnProperty(amountDateArray[i])){
+
+          }else{
+            total_amount_array[amountDateArray[i]] = 0;
+          }
+
+        }
+
+
+      }catch(error){
+        console.log('err : ',error);
+      }
+    }
+
+    let total_supply_array = {};
+    
+    for(let i=0; i<amountDateArray.length; i++){   // 총매출액 구하기
+      const url = `${api}/user_order_sub/supply_price_select`;
+      const params = { user_id : data[0]['user']['id'],  req_date : amountDateArray[i]};
+      const config = {
+        params: params,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+      try {
+
+        const res = await axios.get(url, config);
+
+        let resData = res.data;
+        if(resData.length > 0){   // 해당날짜 기준 입금액이 존재한다면
+          let newSupplyPrice = resData.reduce((accumulator, currentValue) => {
+            return parseInt(accumulator) + parseInt(currentValue.supply_price);
+          
+          }, 0);
+          if(total_supply_array.hasOwnProperty(amountDateArray[i])){
+
+          }else{
+            total_supply_array[amountDateArray[i]] = newSupplyPrice;
+          }
+
+
+        }else{  // 해당날짜 기준 입금액이 존재하지 않는다면
+          if(total_supply_array.hasOwnProperty(amountDateArray[i])){
+
+          }else{
+            total_supply_array[amountDateArray[i]] = 0;
+          }
+
+        }
+   
+      }catch(error){
+        console.log('err : ',error);
+      }
+    }
+
+
+
+    let oldestDate = null;
+    let latestDate = null;
+
+// 특정 객체의 키를 확인하고, 가장 오래된 날짜 찾기
+for (let key in total_amount_array) {
+    if (total_amount_array.hasOwnProperty(key) && Object.prototype.toString.call(new Date(key)) === '[object Date]') {
+        let currentDate = new Date(key);
+
+        // 가장 오래된 날짜인지 확인
+        if (!oldestDate || currentDate < oldestDate) {
+            oldestDate = currentDate;
+        }
+        if (!latestDate || currentDate > latestDate) {
+          latestDate = currentDate;
+        }
+    }
+}
+
+// 가장 오래된 날짜 출력 (이월 기준)
+  let prev_date = moment(oldestDate).format('YYYY-MM-DD');
+
+  let latest_date = moment(latestDate).format('YYYY-MM-DD');
+
+  console.log('latest_date : ', latest_date);
+  console.log('prev_date : ', prev_date);
+
+
+  let prevAmount = total_supply_array[prev_date] - total_amount_array[prev_date];
+
+
+  console.log('prevAmount : ', prevAmount);
+  console.log('supply : ', total_supply_array[prev_date]);
+  console.log('amount : ', total_amount_array[prev_date]);
+  console.log('latest_date amount : ', total_amount_array[latest_date]);
+  
+
 
 	// 엑셀 생성
 	const workbook = new Excel.Workbook();
@@ -1069,10 +1276,9 @@ const userOrderDelivery = async (type) => {
 	// 수정일(현재 일자로 처리)
 	workbook.modified = new Date();
 
-	let startDate = search_state.start_date;
-	let endDate = search_state.end_date;
+	
 	let searchDate =
-		moment(startDate).format('YYYY.MM.DD') + '~' + moment(endDate).format('YYYY.MM.DD');
+		moment(prev_date).format('YYYY.MM.DD') + '~' + moment(latest_date).format('YYYY.MM.DD');
 
 	let file_name = company + '(' + searchDate + ').xlsx';
 
@@ -1094,21 +1300,49 @@ const userOrderDelivery = async (type) => {
 		{ name: '품명[적요]' },
 		{ name: '수량' },
 		{ name: '단가' },
-		{ name: '차변' },
-		{ name: '대변' },
-		{ name: '참조' },
+		{ name: '공급가액' },
+		
 		{ name: '잔액' }
 	];
 
 	let totalSupplyPrice = 0;
 	let totalQty = 0;
 	let rows = [];
+
+
+
+
+   
+
+
+
+  rows.push([
+    "이월",
+    "",
+    "",
+    "",
+    "",
+    prevAmount.toLocaleString(),
+  ]);
+
 	Object.keys(obj).forEach((date) => {
 		let sumSupplyPrice = 0;
 		let sumQty = 0;
 
+    if(total_amount_array.hasOwnProperty(date) && total_amount_array[date] > 0 ) {
+      rows.push([
+        date,
+        '입금',
+        0,
+        0,
+        (total_amount_array[date]).toLocaleString(),
+        (prevAmount -= total_amount_array[date]).toLocaleString(),
+      ]);
+    }
+
 		Object.keys(obj[date]).forEach((productName) => {
 			const data = obj[date][productName];
+
 
 			// 데이터 행 추가
 			rows.push([
@@ -1117,9 +1351,7 @@ const userOrderDelivery = async (type) => {
 				parseInt(data.qty).toLocaleString(),
 				parseInt(data.price).toLocaleString(),
 				parseInt(data.supplyPrice).toLocaleString(),
-				0,
-				0,
-				0
+				(prevAmount += parseInt(data.supplyPrice)).toLocaleString(),
 			]);
 
 			sumQty += parseInt(data.qty);
@@ -1128,6 +1360,8 @@ const userOrderDelivery = async (type) => {
 			totalSupplyPrice += parseInt(data.supplyPrice);
 		});
 
+
+  
 		// 소계 행 추가
 		rows.push([
 			'소 계',
@@ -1135,8 +1369,7 @@ const userOrderDelivery = async (type) => {
 			sumQty.toLocaleString(),
 			'',
 			sumSupplyPrice.toLocaleString(),
-			'',
-			'',
+		
 			''
 		]);
 	});
@@ -1148,8 +1381,7 @@ const userOrderDelivery = async (type) => {
 		totalQty.toLocaleString(),
 		'',
 		totalSupplyPrice.toLocaleString(),
-		'',
-		'',
+		
 		''
 	]);
 
@@ -1337,6 +1569,46 @@ const userOrderExcelDownload = (type,config) => {
 }
 
 
+const amountAddRow = () => {
+  let new_obj = {
+    uid : parseInt(update_form['amount_array'].length) + 1, 
+    amount_date : moment().format('YYYY-MM-DD'),
+    amount : 0,
+
+  }
+
+
+  update_form['amount_array'].push(new_obj);
+  console.log('update_form : ', update_form);
+  user_form_state.update(()=> update_form);
+
+}
+const amountDeleteRow = () => {
+  console.log('눌림');
+
+  update_form['amount_array'].pop();
+
+  user_form_state.update(()=> update_form);
+
+}
+const amountAllDeleteRow = () => {
+ 
+
+  update_form['amount_array'] = [];
+
+  user_form_state.update(()=> update_form);
+
+}
+const amountSelectDeleteRow = (index) => {
+  
+  console.log('item_uid : ', index);
+
+  update_form['amount_array'].splice(index,1);
+  
+  user_form_state.update(()=> update_form);
+
+}
+
 
 
 
@@ -1355,6 +1627,23 @@ const printContent = (data : any) => {
       };
   
       return axios.get(url, config).then(res => {
+        let amount_array = item.amount_array ;
+
+        if(amount_array !==null ){
+         
+          amount_array = JSON.parse(item.amount_array).reduce((accumulator, currentValue) => {
+            return parseInt(accumulator) + parseInt(currentValue.amount);
+          
+          }, 0);
+        }else{
+          
+          amount_array = 0;
+        }
+
+
+        console.log('amount_array : ', amount_array);
+        
+        
         let user_order_checked_data = res.data;
         const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2, index2) => `
          
@@ -1383,7 +1672,9 @@ const printContent = (data : any) => {
                     margin: 0.5cm;
                   }
                   body {
-                    font-family: 'Nanum Gothic', sans-serif;
+                    // font-family: 'Nanum Gothic', sans-serif;
+                    font-family: 'Gulim', "굴림", serif, sans-serif;
+                    
                     margin: 0;
                     padding: 0px 30px 0px 5px;
                     box-sizing: border-box;
@@ -1624,17 +1915,18 @@ const printContent = (data : any) => {
                 <div style="margin : 25px 0px 0px 40px; text-align: left;">
                
 
-                <span style="text-align : left;">전미수금 : ${item.totalUnpaidPrice-item.totalSupplyPrice > 0? commaNumber(item.totalUnpaidPrice-item.totalSupplyPrice) : 0}</span>
+                <span style="text-align : left;">전미수금 : ${item.totalUnpaidPrice-amount_array-item.totalSupplyPrice > 0? commaNumber(item.totalUnpaidPrice-amount_array-item.totalSupplyPrice) : 0}</span>
     
-                <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(item.totalUnpaidPrice-item.totalSupplyPrice+item.totalSupplyPrice)}</span>
+                <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(item.totalUnpaidPrice-amount_array)}</span>
     
     
-                <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 :        </span>
-                <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 :        </span>
+                <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 : ${commaNumber(amount_array)}       </span>
+                <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 : ${commaNumber(item.totalSupplyPrice-amount_array)}       </span>
             
                 <br/>
            
              
+                
                 ${item.description}
 
                 </div>
@@ -1644,11 +1936,6 @@ const printContent = (data : any) => {
 
           
   
-          
-
-        
-
-
             </body>
           </html>
         `;
@@ -1720,4 +2007,4 @@ const shipImageDownload = () => {
 
 
 
-export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery}
+export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow}

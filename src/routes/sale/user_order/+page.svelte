@@ -21,7 +21,7 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {userOrderModalOpen,userOrderExcelDownload, userOrderDelivery} from '$lib/store/user_order/function';
+    import {userOrderModalOpen,userOrderExcelDownload, userOrderDelivery,test} from '$lib/store/user_order/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {user_order_form_state,user_order_modal_state} from '$lib/store/user_order/state';
@@ -138,10 +138,13 @@
                           엑셀다운
                       </Button>
                       
-                      <Button  color='green' on:click={() => userOrderDelivery('user_order')}>
-                        <Icon.PrintSolid class='mr-2' size="20" />
-                        업체 전달
-                    </Button>
+            
+                    <Button  color='green' on:click={() => userOrderDelivery('user_order')}>
+                        
+                      <Icon.PrintSolid class='mr-2' size="20" />
+                      업체 전달
+                  </Button>
+
 
                       <Button  color='light' on:click={() => userOrderModalOpen('','print')}>
                         <Icon.PrintSolid class='mr-2' size="20" />

@@ -24,6 +24,8 @@ import {v4 as uuid} from 'uuid';
     name : '',
     email : '',
     phone : '',
+    staff_name : '',
+    staff_phone : '',
     password : '1111',
     car : '',
     auth:'',
