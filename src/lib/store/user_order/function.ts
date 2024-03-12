@@ -8,7 +8,7 @@ import {user_order_modal_state,user_order_form_state} from './state';
 
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
-import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state} from '$lib/store/common/state';
+import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state} from '$lib/store/common/state';
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
@@ -31,6 +31,8 @@ let toast : any;
 let search_state : any;
 let login_data : any;
 let table_data : any;
+let table_real_data : any;
+
 let user_data : any;
 let selected_data : any;
 
@@ -63,6 +65,9 @@ login_state.subscribe((data) => {
 })
 table_state.subscribe((data) => {
   table_data = data;
+})
+table_real_state.subscribe((data) => {
+  table_real_data = data;
 })
 
 common_selected_state.subscribe((data) => {
@@ -214,8 +219,8 @@ const save = (param,title) => {
    
     if(title === 'add'){
       let data;
-      if(table_data['user_order_sub_list']){
-        data = table_data['user_order_sub_list'].getSelectedData();
+      if(table_data['user_order_sub_list2']){
+        data = table_data['user_order_sub_list2'].getData();
       }else{
         alert['type'] = 'save';
         alert['value'] = true;
@@ -578,6 +583,7 @@ const save = (param,title) => {
                     checked_data.push(product_uid);
                     product_data[i]['selected'] = true; 
                     if(update_modal['title'] === 'add'){
+                      product_data[i]['selected'] = true; 
                       product_data[i]['qty'] = user_order_checked_data[j]['qty'].toString(); 
                    
                     }else if(update_modal['title'] === 'update'){
@@ -596,8 +602,34 @@ const save = (param,title) => {
 
                 }
 
-
+                let new_obj = {
+                  uid : parseInt(product_data[i]['uid']),
+                  name : product_data[i]['name'],
+                 
+                  
+                }
+               
+                product_data[i]['product'] = new_obj; 
               }
+
+              console.log('product_data : ', product_data);
+
+              table_real_data['user_order_sub_list2'] = product_data.filter(item=> {
+                return item['selected'] === true;
+              });
+
+              product_data = product_data.sort((a, b) => {
+                const prevData = a["type"]["name"];
+                const afterData = b["type"]["name"];
+              
+                if (prevData < afterData) return -1;
+                if (prevData > afterData) return 1;
+                return 0;
+              }); 
+
+              table_real_data['user_order_sub_list'] = product_data;
+              table_real_state.update(() => table_real_data);
+
 
             
               // table_data['user_order_sub'].setData(res.data);
@@ -697,6 +729,89 @@ const save = (param,title) => {
      })
 
     
+}
+
+
+
+const userOrderSub2Table = (table_state,tableComponent) => {
+
+      if(table_state['user_order_sub_list2']){
+        table_state['user_order_sub_list2'].destory();
+      }
+
+    
+        let url;
+        let params;
+        update_modal['title']
+        if(update_modal['title'] === 'add'){
+          url = `${api}/user_product/info_select`;
+          params = { user_id : update_form.user};
+
+        }
+        if(update_modal['title'] === 'update'){
+           url = `${api}/user_order_sub/info_select`;
+           params = { user_order_uid : update_form.uid};
+        }
+     
+
+        const config = {
+          params : params,
+          headers:{
+            "Content-Type": "application/json",
+            
+          }
+        }
+          axios.get(url,config).then(res=>{
+            
+            let data =  res.data;
+
+            if(update_modal['title'] === 'add'){
+              console.log('data  : ', data);
+              for(let i=0; i<data.length; i++){
+                data[i]['type'] = data[i]['product']['type'];
+                data[i]['uid'] = data[i]['product']['uid'];
+              }
+
+            }else if(update_modal['title'] === 'update'){
+
+              for(let i=0; i<data.length; i++){
+                data[i]['type'] = data[i]['product']['type'];
+            
+              }
+            }
+         
+
+            
+
+        
+      table_data['user_order_sub_list2'] =   new Tabulator(tableComponent, {
+        tooltips: true, // 전역 설정: 모든 열에 툴팁 적용
+        height:TABLE_TOTAL_CONFIG['height'],
+        layout:TABLE_TOTAL_CONFIG['layout'],
+        movableColumns:TABLE_TOTAL_CONFIG['movableColumns'],
+        locale: TABLE_TOTAL_CONFIG['locale'],
+        langs: TABLE_TOTAL_CONFIG['langs'],
+        placeholder:"데이터 없음",
+        rowClick:function(e, row){
+          row.toggleSelect(); //toggle row selected state on row click
+      },
+
+        cellEdited:function(cell){
+          // 행이 업데이트될 때 실행되는 코드
+          var updatedData = cell.getData();
+          console.log("Updated Data:", updatedData);
+          // 여기에서 데이터를 처리하면 됩니다.
+      },
+        data : res.data.length > 0 ? data : [],
+        columns: TABLE_HEADER_CONFIG['user_order_sub_list2'],
+        
+        });
+  
+        table_state.update(()=> table_data);
+        table_real_state.update(()=> table_real_data);
+
+    
+      });
 }
 
 
@@ -2005,6 +2120,94 @@ const shipImageDownload = () => {
 }
 
 
+function updateUserOrderSub(cell:any,title:any) {
 
 
-export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow}
+  let new_data = cell.getData();
+
+  
+
+  let checkData = table_data['user_order_sub_list2'].getData().find(item => item['uid'] === new_data['uid']);
+
+
+ 
+
+
+  if(checkData){
+
+    
+
+  }else{
+    table_real_data['user_order_sub_list2'].push(new_data);
+    table_real_state.update(()=> table_real_data);
+
+  }
+
+  table_real_data['user_order_sub_list2'] = table_real_data['user_order_sub_list2'].sort((a, b) => {
+    const prevData = a["type"]["name"];
+    const afterData = b["type"]["name"];
+  
+    if (prevData < afterData) return -1;
+    if (prevData > afterData) return 1;
+    return 0;
+  }); 
+
+  table_real_state.update(()=> table_real_data);
+
+  table_data['user_order_sub_list2'].setData(table_real_data['user_order_sub_list2']);
+  
+  
+  //table_data['user_product_list'].setData(table_real_data['user_product_list']);
+  
+
+  table_state.update(()=> table_data);
+
+
+}
+
+function deleteUserOrder(cell:any) {
+
+  let new_data = cell.getData();
+  
+  
+  let checkData = table_real_data['user_order_sub_list'].find(item => item['uid'] === new_data['uid']);
+
+
+  if(checkData){
+   
+    
+
+  
+  let newData = table_data['user_order_sub_list2'].getData().filter(item => item['product']['uid'] !== checkData['product']['uid']);
+
+  table_data['user_order_sub_list2'].setData(newData);
+
+
+
+  table_real_data['user_order_sub_list2'] = newData; 
+
+  table_state.update(()=> table_data);
+
+  table_real_state.update(()=> table_real_data);
+
+  
+
+    
+  }else{
+    
+
+  }
+
+ 
+
+ 
+ 
+   
+}
+
+
+
+
+
+
+export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderSub2Table,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow,updateUserOrderSub,deleteUserOrder}

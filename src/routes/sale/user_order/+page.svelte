@@ -21,7 +21,7 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {userOrderModalOpen,userOrderExcelDownload, userOrderDelivery,test} from '$lib/store/user_order/function';
+    import {userOrderModalOpen,userOrderExcelDownload, userOrderDelivery} from '$lib/store/user_order/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {user_order_form_state,user_order_modal_state} from '$lib/store/user_order/state';

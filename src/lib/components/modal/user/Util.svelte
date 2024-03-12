@@ -195,7 +195,7 @@
           
         
           
-          <Tabs style="underline">
+          <!-- <Tabs style="underline">
             <TabItem open title={"전체"} on:click={()=> userProductTabClick("전체")}>
                 
             </TabItem>
@@ -205,7 +205,7 @@
               </TabItem>
       
             {/each}
-          </Tabs>
+          </Tabs> -->
 
 
           <div class="grid grid-cols-2 gap-4">

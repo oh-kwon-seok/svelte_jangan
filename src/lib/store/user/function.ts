@@ -310,7 +310,9 @@ const save = (param,title) => {
         auth = 'user';
       }
       
-      let data =  table_data['user_product'].getSelectedData();
+      let data =  table_data['user_product_list'].getData();
+
+      
 
       let checked_data = data.filter(item => {
         if(item['qty'] === "" || item['qty'] === undefined || item['qty'] === null){
@@ -526,10 +528,10 @@ const save = (param,title) => {
               
               let user_checked_data =  res.data;
 
-              table_real_data['user_product_list'] = user_checked_data;
+              // table_real_data['user_product_list'] = user_checked_data;
 
-              console.log('table : ', product_data);
-              table_real_state.update(()=> table_real_data);
+            
+              // table_real_state.update(()=> table_real_data);
            
 
 
@@ -571,10 +573,19 @@ const save = (param,title) => {
               table_real_data['user_product_list'] = product_data.filter(item=> {
                 return item['selected'] === true;
               });
+
+              console.log('table_real_data', table_real_data['user_product_list']);
               
 
-      
-              table_real_data['user_product'] = product_data;
+              product_data = product_data.sort((a, b) => {
+                const prevData = a["type"]["name"];
+                const afterData = b["type"]["name"];
+              
+                if (prevData < afterData) return -1;
+                if (prevData > afterData) return 1;
+                return 0;
+              }); ;
+              table_real_data['user_product'] = product_data
               table_real_state.update(() => table_real_data);
 
               table_data['user_product'] =   new Tabulator(tableComponent, {
@@ -700,7 +711,12 @@ const userProduct2Table = (table_state,tableComponent) => {
     axios.get(url,config).then(res=>{
       let data = res.data;
 
+      for(let i=0; i<data.length; i++){
+        data[i]['type'] = data[i]['product']['type'];
 
+      }
+
+      console.log('data : ', data);
   
       table_data['user_product_list'] =   new Tabulator(tableComponent, {
         tooltips: true, // 전역 설정: 모든 열에 툴팁 적용
@@ -718,15 +734,15 @@ const userProduct2Table = (table_state,tableComponent) => {
           row.toggleSelect(); //toggle row selected state on row click
       },
   
-        rowFormatter:function(row){
-              row.getElement().classList.add("table-primary"); //mark rows with age greater than or equal to 18 as successful;
-              let selected = row.getData().selected;
+        // rowFormatter:function(row){
+        //       row.getElement().classList.add("table-primary"); //mark rows with age greater than or equal to 18 as successful;
+        //       let selected = row.getData().selected;
   
-              if(selected){
-                row.getElement().classList.add("tabulator-selected");
-                row.toggleSelect();
-              }
-        },
+        //       if(selected){
+        //         row.getElement().classList.add("tabulator-selected");
+        //         row.toggleSelect();
+        //       }
+        // },
         cellEdited:function(cell){
           // 행이 업데이트될 때 실행되는 코드
           var updatedData = cell.getData();
@@ -767,6 +783,8 @@ const userProductTabClick = (title) => {
     }
     
     table_data['user_product'].setData(check_data);
+    table_real_data['']
+
     table_state.update(()=> table_data);
     
 
@@ -774,75 +792,52 @@ const userProductTabClick = (title) => {
 }
 
 
-function updateUserProduct(cell:any) {
+function updateUserProduct(cell:any,title:any) {
 
 
     let new_data = cell.getData();
     console.log('new_data : ', new_data);
-    console.log('getData : ', table_data['user_product_list'].getData());
+    console.log('getData : ', table_data['user_product'].getSelectedData());
     
 
     let checkData = table_data['user_product_list'].getData().find(item => item['product']['uid'] === new_data['product']['uid']);
 
 
 
-    if(checkData){
+    // if(checkData){
 
-      console.log('checkData : ', checkData);
+    //   console.log('checkData : ', checkData);
       
   
-    }else{
-      table_real_data['user_product_list'].push(new_data);
-      table_real_state.update(()=> table_real_data);
+    // }else{
+    //   table_real_data['user_product_list'].push(new_data);
+    //   table_real_state.update(()=> table_real_data);
   
-    }
-  
+    // }
+
+    table_real_data['user_product_list'] = table_data['user_product'].getSelectedData().sort((a, b) => {
+      const prevData = a["type"]["name"];
+      const afterData = b["type"]["name"];
+    
+      if (prevData < afterData) return -1;
+      if (prevData > afterData) return 1;
+      return 0;
+    }); 
+
+    table_real_state.update(()=> table_real_data);
+
     table_data['user_product_list'].setData(table_real_data['user_product_list']);
+    
+    
+    //table_data['user_product_list'].setData(table_real_data['user_product_list']);
+    
   
     table_state.update(()=> table_data);
 
   
 }
 
-function deleteUserOrder(cell:any) {
 
-  let new_data = cell.getData();
-  
-  
-  let checkData = table_real_data['user_order_sub_list'].find(item => item['product']['uid'] === new_data['product']['uid']);
-
-
-  if(checkData){
-    checkData['qty'] = 0;
-    
-
-  
-  let newData = table_data['user_order_sub2_list'].getData().filter(item => item['product']['uid'] !== checkData['product']['uid']);
-
-  table_data['user_order_sub2_list'].setData(newData);
-
-
-
-  table_real_data['user_order_sub2_list'] = newData; 
-
-  table_state.update(()=> table_data);
-
-  table_real_state.update(()=> table_real_data);
-
-  
-
-    
-  }else{
-    
-
-  }
-
- 
-
- 
- 
-   
-}
 
 
 

@@ -2,7 +2,7 @@
 
 
 import { writable } from 'svelte/store';
-import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state,common_type_state } from './state';
+import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state,common_type_state,common_type_object_state } from './state';
 
 // import {item_data,item_form_state} from '$lib/store/info/item/state';
 
@@ -40,6 +40,8 @@ let product_data : any;
 let car_data : any;
 
 let type_data : any;
+
+let type_object_data : any;
 
 
 let company_data : any;
@@ -120,6 +122,10 @@ common_user_order_sub_state.subscribe((data : any) => {
   user_order_sub_data = data;
 })
 
+common_type_object_state.subscribe((data : any) => {
+  type_object_data = data;
+})
+
 
 const init_login_data : any = {
   user_idx : "",
@@ -170,10 +176,16 @@ const infoCallApi = (title) => {
         }else if(title === 'type'){
           type_data = res.data;
           common_type_state.update(()=> type_data);
-        
-        }
-      
 
+          if(type_data.length > 0){
+            for (let i = 0; i < type_data.length; i++) {
+              let item = type_data[i];
+              type_object_data[item.name] = item.name;
+            }
+           
+            common_type_object_state.update(()=> type_object_data);
+          }
+        }
       }else {
       
       }
@@ -195,8 +207,17 @@ const infoCallApi = (title) => {
 
     if (confirmLogout) {
         // 여기에 로그아웃 로직을 추가하세요.
-        login_data = init_login_data;
-        console.log('init_login_data : ', init_login_data);
+        login_data = {
+          user_idx : "",
+          id : "",
+          name : "",
+          password : "",
+          token :"",
+        
+          status : false,
+          
+        };;
+       
         removeCookie('my-cookie');
         removeCookie('password');
         removeCookie('autoSave');

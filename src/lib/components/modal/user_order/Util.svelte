@@ -13,7 +13,7 @@
 
     import {fileButtonClick} from '$lib/store/common/function';
     
-    import {save,userOrderSubTable,userTable,userOrderFileUpload,shipImageDownload,modalClose,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow} from '$lib/store/user_order/function';
+    import {save,userOrderSubTable,userOrderSub2Table,userTable,userOrderFileUpload,shipImageDownload,modalClose,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow} from '$lib/store/user_order/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     
     import {onMount,afterUpdate } from 'svelte';
@@ -80,6 +80,8 @@
     
     let tableComponent = "example-table-theme";
     let tableComponent1 = "example-table-theme1";
+    let tableComponent2 = "example-table-theme2";
+    
     $: amountArray = $user_order_form_state.amount_array;
     
 
@@ -110,6 +112,7 @@
           console.log('업데이트됌',);
           amountArray = $user_order_form_state.amount_array;
           userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
+          userOrderSub2Table(table_state,tableComponent2)
           
         }
       })
@@ -277,15 +280,25 @@
 
 
          
-          <div class="grid grid-cols-1 gap-4">
-                <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
-                <p class="mb-4 font-semibold text-xl dark:text-white">주문 목록</p>
+         
+
+            <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
+          <div class="grid grid-cols-2 gap-4">
+            <p class="mb-4 font-semibold text-xl dark:text-white">취급품목</p>
+            <p class="mb-4 font-semibold text-xl dark:text-white">주문목록</p>    
           </div>
 
-           
+          <!-- <div class="grid grid-cols-2 gap-4">
+            <div  class="w-1/2" id="example-table-theme1" bind:this={tableComponent1}></div>
+            <div  class="w-1/2" id="example-table-theme2" bind:this={tableComponent2}></div>
+          </div> -->
+          <div class="flex flex-row">
+            <div  class="w-2/5" id="example-table-theme1" bind:this={tableComponent1}></div>
+            <div  class="w-3/5" id="example-table-theme2" bind:this={tableComponent2}></div>
+          </div>
 
           <div class="flex flex-row">
-            <div id="example-table-theme1" bind:this={tableComponent1} />
+           
             {#if $user_order_form_state['image_url'] !== "null" &&  $user_order_form_state['image_url'] !== "" && $user_order_modal_state['title'] === 'update'}
           
             

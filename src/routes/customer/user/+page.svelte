@@ -77,8 +77,7 @@
     </script>
         <style>
           @import 'tabulator-tables/dist/css/tabulator_modern.min.css';
-       
-          /* 나머지 스타일 정의 */
+        
         </style>
 
 

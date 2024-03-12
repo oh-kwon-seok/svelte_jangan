@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 
 import {product_modal_state} from '$lib/store/product/state';
 
-import {table_state} from '$lib/store/common/state';
+import {table_state,common_type_object_state} from '$lib/store/common/state';
 
 
 
@@ -19,10 +19,23 @@ import { phoneNumber,businessNumber,updateSupplyPrice ,commaNumber} from './func
 
 import { userModalOpen,updateUserProduct} from '$lib/store/user/function';
 
-import { userOrderModalOpen} from '$lib/store/user_order/function';
+import { userOrderModalOpen,updateUserOrderSub,deleteUserOrder} from '$lib/store/user_order/function';
 import moment from 'moment';
 
 import axios from 'axios'
+
+
+
+
+let type_object_data : any;
+
+
+common_type_object_state.subscribe((data : any) => {
+    type_object_data = data;
+  })
+
+
+
 
 const api = import.meta.env.VITE_API_BASE_URL;
 
@@ -1089,29 +1102,54 @@ const TABLE_HEADER_CONFIG : any = {
     //     console.log('로그로그');
     // }},
    
-    // {title:"ID", field:"uid", width:150, headerFilter:"input"},
-    {title:"분류", field:"type.name", width:150, headerFilter:"input", 
-   
+    { title: "ID", formatter: "rownum", align: "center", width: 70, 
+    cellClick:function(e : any, cell:any){
+        let row = cell.getRow();
+
+        let selected = row.getData();
+        console.log('selected : ',selected);
+        
+        updateUserProduct(cell);
+        
+    },},
+
+    {title:"분류", field:"type.name", width:150,  editor: false, // 에디터 사용하지 않음
+    headerFilter:"select",
+    headerFilterParams:{values:type_object_data, clearable:true},
+    cellClick:function(e : any, cell:any){
+        let row = cell.getRow();
+
+        let selected = row.getData();
+        console.log('selected : ',selected);
+        
+        updateUserProduct(cell);
+        
     },
-    {title:"상품명", field:"name", width:500, headerFilter:"input", 
+
+    },
+    {title:"상품명", field:"name", width:450, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
      },
      cellClick:function(e : any, cell:any){
-       
+        let row = cell.getRow();
+
+        let selected = row.getData();
+        console.log('selected : ',selected);
+        
         updateUserProduct(cell);
         
     },
 
    },
-    {title:"수량", field:"qty", width:150, editor : "input"},
+   
 
    ],
 
    user_product_list : [
    
-    // {title:"ID", field:"uid", width:150, headerFilter:"input"},
+    { title: "ID", formatter: "rownum", align: "center", width: 70,},
     {title:"분류", field:"type.name", width:150, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
@@ -1124,7 +1162,7 @@ const TABLE_HEADER_CONFIG : any = {
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
      },
     },
-    {title:"수량", field:"qty", width:150, editor : "input"},
+    // {title:"수량", field:"qty", width:150, editor : "input"},
 
    ],
 
@@ -1211,15 +1249,63 @@ const TABLE_HEADER_CONFIG : any = {
 ],
 
     user_order_sub_list : [
-        {formatter:"rowSelection",width : 60, field: "selected", titleFormatter:"rowSelection", hozAlign:"center", headerSort:true, 
-        cellClick:function(e : any, cell:any){
-            cell.getRow().toggleSelect();
-            console.log(cell.getRow());
-        }},
-        {title:"ID", field:"uid", width:150, headerFilter:"input"},
-        {title:"분류", field:"type.name", width:150, headerFilter:"input"},
+        { title: "ID", formatter: "rownum", align: "center", width: 70,},
+   
+        {title:"분류", field:"type.name", width:150, headerFilter:"input",
+    
+        editor: false, // 에디터 사용하지 않음
+        headerFilter:"select",
+        headerFilterParams:{values:type_object_data, clearable:true},
+    },
+        
       
         {title:"상품명", field:"name", width:500, headerFilter:"input", 
+        formatter:function(cell : any){
+            var value = cell.getValue();
+        return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+         },
+         cellClick:function(e : any, cell:any){
+            let row = cell.getRow();
+    
+            let selected = row.getData();
+            console.log('selected : ',selected);
+            
+            updateUserOrderSub(cell);
+            
+        },
+    
+      
+        },
+     
+    
+       ],
+
+       user_order_sub_list2 : [
+        {title:"삭제", field:"delete", width:100,  
+        formatter:function(cell : any){
+           
+        return "<span style='color:red; font-weight:bold;'>삭제</span>";
+        },
+        cellClick:function(e : any, cell:any){
+            let row = cell.getRow();
+        if(row){
+            deleteUserOrder(row);
+        }else{
+        
+        }
+        }
+        },
+
+        { title: "ID", formatter: "rownum", align: "center", width: 70,},
+   
+        {title:"분류", field:"type.name", width:150, headerFilter:"input",
+            editor: false, // 에디터 사용하지 않음
+            headerFilter:"select",
+            headerFilterParams:{values:type_object_data, clearable:true},
+
+        },
+      
+        {title:"상품명", field:"product.name", width:500, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
         return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
