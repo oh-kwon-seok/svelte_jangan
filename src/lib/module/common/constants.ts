@@ -4,7 +4,7 @@ import { DateTime } from 'luxon';
 
 import {product_modal_state} from '$lib/store/product/state';
 
-import {table_state,common_type_object_state} from '$lib/store/common/state';
+import {table_state,common_type_object_state,common_company_object_state} from '$lib/store/common/state';
 
 
 
@@ -29,9 +29,14 @@ import axios from 'axios'
 
 let type_object_data : any;
 
+let company_object_data : any;
+
 
 common_type_object_state.subscribe((data : any) => {
     type_object_data = data;
+  })
+  common_company_object_state.subscribe((data : any) => {
+    company_object_data = data;
   })
 
 
@@ -1251,7 +1256,7 @@ const TABLE_HEADER_CONFIG : any = {
     user_order_sub_list : [
         { title: "ID", formatter: "rownum", align: "center", width: 70,},
    
-        {title:"분류", field:"type.name", width:150, headerFilter:"input",
+        {title:"분류", field:"type.name", width:150,
     
         editor: false, // 에디터 사용하지 않음
         headerFilter:"select",
@@ -1281,34 +1286,21 @@ const TABLE_HEADER_CONFIG : any = {
        ],
 
        user_order_sub_list2 : [
-        {title:"삭제", field:"delete", width:100,  
-        formatter:function(cell : any){
-           
-        return "<span style='color:red; font-weight:bold;'>삭제</span>";
-        },
-        cellClick:function(e : any, cell:any){
-            let row = cell.getRow();
-        if(row){
-            deleteUserOrder(row);
-        }else{
         
-        }
-        }
-        },
 
         { title: "ID", formatter: "rownum", align: "center", width: 70,},
    
-        {title:"분류", field:"type.name", width:150, headerFilter:"input",
-            editor: false, // 에디터 사용하지 않음
-            headerFilter:"select",
-            headerFilterParams:{values:type_object_data, clearable:true},
+        // {title:"분류", field:"type.name", width:150, headerFilter:"input",
+        //     editor: false, // 에디터 사용하지 않음
+        //     headerFilter:"select",
+        //     headerFilterParams:{values:type_object_data, clearable:true},
 
-        },
+        // },
       
-        {title:"상품명", field:"product.name", width:500, headerFilter:"input", 
+        {title:"상품명", field:"product.name", width:400, headerFilter:"input", 
         formatter:function(cell : any){
             var value = cell.getValue();
-        return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+        return "<span style='color:#3FB449; font-size : 14px; font-weight:bold;'>" + value + "</span>";
          },
     
       
@@ -1335,14 +1327,28 @@ const TABLE_HEADER_CONFIG : any = {
             symbol:"원",
             symbolAfter:"p",
             precision:false,
-        }},
+        },cellEdited: updateSupplyPrice},
         {title:"매입단가", field:"buy_price", width:150, editor : "input",formatter: "money",  formatterParams: {
             
             thousand:",",
             symbol:"원",
           symbolAfter:"p",
           precision:false,
-      }},
+      },cellEdited: updateSupplyPrice},
+      {title:"삭제", field:"delete", width:100,  
+        formatter:function(cell : any){
+           
+        return "<span style='color:red; font-weight:bold;'>삭제</span>";
+        },
+        cellClick:function(e : any, cell:any){
+            let row = cell.getRow();
+        if(row){
+            deleteUserOrder(row);
+        }else{
+        
+        }
+        }
+        },
         
 
     
@@ -1364,7 +1370,11 @@ const TABLE_HEADER_CONFIG : any = {
          },
     
         },
-        {title:"매입처", field:"product.company.name", width:150, headerFilter:"input"},
+        {title:"매입처", field:"product.company.name", width:150,  headerFilter:"select",headerFilterParams:{values:company_object_data, clearable:true}, editor: false,},
+        
+       
+
+
         {title:"지정차량", field:"userOrder.car.name", width:150, headerFilter:"input"},
         {title:"수량", field:"qty", width:150, editor : "input",formatter: "money",  formatterParams: {
           

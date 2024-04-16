@@ -4,11 +4,11 @@
 import { DateTime } from 'luxon';
 import { writable } from 'svelte/store';
 import {user_order_modal_state,user_order_form_state} from './state';
-
+import {product_modal_state} from '$lib/store/product/state';
 
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
-import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state} from '$lib/store/common/state';
+import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state,common_change_status_state, common_product_state} from '$lib/store/common/state';
 import moment from 'moment';
 
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
@@ -18,6 +18,8 @@ import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER,CLIENT_INFO} from '$
 import { user_form_state } from '../user/state';
 import Excel from 'exceljs';
 import { end } from '@popperjs/core';
+import { tick } from 'svelte';
+
 const api = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -35,8 +37,10 @@ let table_real_data : any;
 
 let user_data : any;
 let selected_data : any;
+let change_status_data : any;
+let product_data : any;
 
-
+let product_modal : any;
 
 
 
@@ -77,8 +81,17 @@ common_selected_state.subscribe((data) => {
 common_user_state.subscribe((data) => {
   user_data = data;
 })
- 
- 
+common_change_status_state.subscribe((data) => {
+  change_status_data = data;
+})
+
+
+common_product_state.subscribe((data) => {
+  product_data = data;
+})
+product_modal_state.subscribe((data) => {
+  product_modal = data;
+})
 
 
 
@@ -102,6 +115,7 @@ const userOrderModalOpen = (data : any, title : any) => {
         price_status : '미수금',
         order_status : '주문완료',
         description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+        notice : '',
         image_url:'',
         ship_image_url:'',
         req_date : moment().format('YYYY-MM-DD'),
@@ -204,6 +218,25 @@ const modalClose = (title) => {
 
   alert['type'] = 'save';
   alert['value'] = false;
+  // if(table_data['user_order_sub_list']){
+  //   table_data['user_order_sub_list'].destroy();
+  //   table_state.update(()=> table_data)
+
+
+  // }
+  // if(table_data['user_order_sub_list2']){
+  //   table_data['user_order_sub_list2'].destroy(); 
+  //   table_state.update(()=> table_data)
+
+  // } if(table_data['user']){
+  //   table_data['user'].destroy(); 
+  //   table_state.update(()=> table_data)
+
+  // }
+
+
+
+  
   common_alert_state.update(() => alert);
   user_order_modal_state.update(() => update_modal);
 
@@ -239,13 +272,12 @@ const save = (param,title) => {
 
       }
 
-      let checked_data = data.filter(item => {
-        return parseInt(item.qty) > 0 && item.qty !== undefined 
-      })
-      console.log('checked_data : ', checked_data);
-
+      // let checked_data = data.filter(item => {
+      //   return parseInt(item.qty) > 0 && item.qty !== undefined 
+      // })
+      
     
-      if( param['user'] === '' || param['car'] === '' || checked_data.length === 0 || checked_data.length === undefined ){
+      if( param['user'] === '' || param['car'] === '' || data.length === 0 || data.length === undefined ){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
@@ -269,6 +301,7 @@ const save = (param,title) => {
             order_status : param.order_status,
             price_status : param.price_status,
             description : param.description,
+            notice : param.notice,
             user_id : param.user,
             car_uid : param.car,
          
@@ -278,7 +311,7 @@ const save = (param,title) => {
             auth : 'user',
             req_date : param.req_date,
             req_des : param.req_des,
-            user_order_sub : checked_data,
+            user_order_sub : data,
             user_order_amount : param.amount_array,
             token : login_data['token'],
           };
@@ -315,19 +348,27 @@ const save = (param,title) => {
       const url = `${api}/user_order/update`
       
     
-      let data =  table_data['user_order_sub_list'].getSelectedData();
+      let data =  table_data['user_order_sub_list2'].getData();
 
-      let checked_data = data.filter(item => {
-        if(item['buy_price'] === "" || item['buy_price'] === undefined || item['buy_price'] === null){
-          item['buy_price'] = 0; 
+      // let checked_data = data.filter(item => {
+      //   if(item['buy_price'] === "" || item['buy_price'] === undefined || item['buy_price'] === null){
+      //     item['buy_price'] = 0; 
 
-        }
-        return parseInt(item.qty) > 0 && item.qty !== undefined 
-      })
+      //   }
+      //   return item 
+      // })
+
+      for(let i=0; i<data.length; i++){
+        Object.keys(data[i]).map((item)=> {    
+          if(data[i][item] === undefined){
+            data[i][item] = 0;
+          }
+        }); 
+
+      }
 
      
-      console.log('param  : ', param );
-      
+      console.log('data : ', data);
 
         
         let params = {
@@ -336,6 +377,7 @@ const save = (param,title) => {
           order_status : param.order_status,
           price_status : param.price_status,
           description : param.description,
+          notice : param.notice,
           req_date : param.req_date,
           req_des : param.req_des,
         
@@ -346,7 +388,7 @@ const save = (param,title) => {
           car_uid : param.car,
           used : param.used,
           auth : 'user',
-          user_order_sub : checked_data,
+          user_order_sub : data,
           user_order_amount : param.amount_array,
           token : login_data['token'],
 
@@ -372,6 +414,7 @@ const save = (param,title) => {
             price_status : '미수금',
             order_status : '주문완료',
             description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+            notice : "",
             image_url:'',
             ship_image_url:'',
             req_date : moment().format('YYYY-MM-DD'),
@@ -438,6 +481,7 @@ const save = (param,title) => {
                 price_status : '미수금',
                 order_status : '주문완료',
                 description : '**농협 김옥병(453103-56-019411) 오늘도 건강하고 힘나는 하루 되세요**',
+                notice : "",
                 image_url:'',
                 ship_image_url:'',
                 req_date : moment().format('YYYY-MM-DD'),
@@ -475,7 +519,6 @@ const save = (param,title) => {
     if(title === 'print'){
       let data = selected_data;
 
-      console.log('data : ', data);
       if(data.length === 0){
         alert['type'] = 'print';
         alert['value'] = true;
@@ -612,20 +655,20 @@ const save = (param,title) => {
                 product_data[i]['product'] = new_obj; 
               }
 
-              console.log('product_data : ', product_data);
-
+             
               table_real_data['user_order_sub_list2'] = product_data.filter(item=> {
                 return item['selected'] === true;
               });
 
-              product_data = product_data.sort((a, b) => {
-                const prevData = a["type"]["name"];
-                const afterData = b["type"]["name"];
+              // 분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
+              // product_data = product_data.sort((a, b) => {
+              //   const prevData = a["type"]["name"];
+              //   const afterData = b["type"]["name"];
               
-                if (prevData < afterData) return -1;
-                if (prevData > afterData) return 1;
-                return 0;
-              }); 
+              //   if (prevData < afterData) return -1;
+              //   if (prevData > afterData) return 1;
+              //   return 0;
+              // }); 
 
               table_real_data['user_order_sub_list'] = product_data;
               table_real_state.update(() => table_real_data);
@@ -766,7 +809,6 @@ const userOrderSub2Table = (table_state,tableComponent) => {
             let data =  res.data;
 
             if(update_modal['title'] === 'add'){
-              console.log('data  : ', data);
               for(let i=0; i<data.length; i++){
                 data[i]['type'] = data[i]['product']['type'];
                 data[i]['uid'] = data[i]['product']['uid'];
@@ -799,7 +841,6 @@ const userOrderSub2Table = (table_state,tableComponent) => {
         cellEdited:function(cell){
           // 행이 업데이트될 때 실행되는 코드
           var updatedData = cell.getData();
-          console.log("Updated Data:", updatedData);
           // 여기에서 데이터를 처리하면 됩니다.
       },
         data : res.data.length > 0 ? data : [],
@@ -842,7 +883,7 @@ const userTable = (table_state,type,tableComponent) => {
     table_state['user'].destory();
   }
             table_data[type] =   new Tabulator(tableComponent, {
-              height:"25vh",
+              height:"35vh",
               layout:TABLE_TOTAL_CONFIG['layout'],
               pagination:TABLE_TOTAL_CONFIG['pagination'],
               paginationSize:1000,
@@ -987,8 +1028,7 @@ const printInvoice = async (data) => {
     }
   }
 
-  console.log(obj);
-
+ 
   page = `
             <html>
             <head>
@@ -1062,7 +1102,6 @@ const printInvoice = async (data) => {
           
           element.forEach(object => {
 
-            console.log(object);
             for (const product in object) {
               if (Object.prototype.hasOwnProperty.call(object, product)) {
                 const qty = object[product];
@@ -1086,8 +1125,7 @@ const printInvoice = async (data) => {
 
   page += `</body></html>`;
 
-  console.log(page);
-
+ 
   // 프린트 다이얼로그가 열리기 전에 현재 창의 내용을 변경하지 않도록
   const printWindow : any = window.open('', '_blank');          
 
@@ -1112,41 +1150,6 @@ const printInvoice = async (data) => {
 };
 
 
-/**
- * 업체 전달 메소드
- */
-
-
-
-const test = async() => {
-    
- 
-
-    const url = `${api}/user_order_amount/select`;
-		const params = { user_id : 'ohjin999',  end_date : '2024-03-31'};
-		const config = {
-			params: params,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		};
-
-    try {
-
-      const test = await axios.get(url, config);
-
-      let resData = test;
-      console.log('resData : ', resData['data']);
-  
-
-    }catch(error){
-      console.log('err : ',error);
-    }
-    
-
-  };
-
-
 
 
 const userOrderDelivery = async (type) => {
@@ -1161,8 +1164,7 @@ const userOrderDelivery = async (type) => {
 	}
 
 	let prevCompany: string = '';
-  console.log('data : ', data);
-	data.forEach((item) => {
+ 	data.forEach((item) => {
 		if (prevCompany === '') {
 			prevCompany = item.user.customer_name;
 		} //
@@ -1179,8 +1181,6 @@ const userOrderDelivery = async (type) => {
   let totalUnpaidPrice = data[0]['totalUnpaidPrice'] ; // 총 매출액
 
 
-  console.log('totalAmount',totalAmount);
-  console.log('totalUnpaidPrice',totalUnpaidPrice);
   
    
 
@@ -1248,7 +1248,6 @@ const userOrderDelivery = async (type) => {
 	}
   
   
-    console.log('obj : ', obj);
     let amountDateArray = Object.keys(obj);
 
     let total_amount_array = {};
@@ -1684,7 +1683,9 @@ const userOrderExcelDownload = (type,config) => {
 }
 
 
-const amountAddRow = () => {
+const  amountAddRow = () => {
+  change_status_data = true;
+
   let new_obj = {
     uid : parseInt(update_form['amount_array'].length) + 1, 
     amount_date : moment().format('YYYY-MM-DD'),
@@ -1695,7 +1696,8 @@ const amountAddRow = () => {
 
   update_form['amount_array'].push(new_obj);
   console.log('update_form : ', update_form);
-  user_form_state.update(()=> update_form);
+  user_order_form_state.update(()=> update_form);
+  common_change_status_state.update(()=> change_status_data);
 
 }
 const amountDeleteRow = () => {
@@ -1703,7 +1705,7 @@ const amountDeleteRow = () => {
 
   update_form['amount_array'].pop();
 
-  user_form_state.update(()=> update_form);
+  user_order_form_state.update(()=> update_form);
 
 }
 const amountAllDeleteRow = () => {
@@ -1711,7 +1713,7 @@ const amountAllDeleteRow = () => {
 
   update_form['amount_array'] = [];
 
-  user_form_state.update(()=> update_form);
+  user_order_form_state.update(()=> update_form);
 
 }
 const amountSelectDeleteRow = (index) => {
@@ -1720,9 +1722,122 @@ const amountSelectDeleteRow = (index) => {
 
   update_form['amount_array'].splice(index,1);
   
-  user_form_state.update(()=> update_form);
+  user_order_form_state.update(()=> update_form);
 
 }
+
+
+
+
+const productSave = async(param,title) => {
+
+  console.log(param);
+
+  product_modal['title'] = 'add';
+  product_modal['add']['use'] = true;
+ 
+      if(param['name'] === '' || param['type'] === '' || param['company'] === ''){
+        //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+        alert['type'] = 'save';
+        alert['value'] = true;
+        product_modal_state.update(() => update_modal);
+ 
+        return common_alert_state.update(() => alert);
+  
+      }else {
+      
+        const url = `${api}/product/save`
+        try {
+  
+          
+          let params = {
+            name : param.name,
+            type_uid : param.type,
+            company_uid : param.company,
+            used : param.used,
+            
+            token : login_data['token'],
+          };
+        await axios.post(url,
+          params,
+        ).then(res => {
+          console.log('res',res);
+          if(res.data !== undefined && res.data !== null && res.data !== '' ){
+            console.log('실행');
+            console.log('res:data', res.data);
+            
+            toast['type'] = 'success';
+            toast['value'] = true;
+            update_modal['title'] = '';
+            update_modal['add']['use'] = !update_modal['add']['use'];
+            product_modal_state.update(() => update_modal);
+
+
+            let product_url = `${api}/product/info_select`; 
+            const product_config = {
+              headers:{
+                "Content-Type": "application/json",
+                
+              }
+            }
+          
+         
+              axios.get(product_url,product_config).then(res=>{
+                if(res.data !== undefined && res.data !== null && res.data !== '' ){
+                  if(table_data['user_order_sub_list']){
+                    console.log('res.data');
+
+                     let product_data = res.data.sort((a, b) => {
+                      const prevData = moment(a["created"]);
+                      const afterData = moment(b["created"]);
+              
+                      if (prevData > afterData) return -1;
+                      if (prevData < afterData) return 1;
+                      return 0;
+                    }); 
+
+                    console.log('product_data : ', product_data);
+
+                    table_data['user_order_sub_list'].setData( product_data);
+                  
+                  
+                    table_state.update(()=> table_data);
+                  }
+                
+                }
+
+              });
+           
+
+            return common_toast_state.update(() => toast);
+
+          }else{
+          
+            return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+          }
+        })
+        }catch (e:any){
+          return console.log('에러 : ',e);
+        };
+      }
+
+
+    
+    
+  
+  
+  }
+
+  const productModalClose = (title) => {
+    product_modal['title'] = '';
+    product_modal[title]['use'] = !product_modal[title]['use'];
+  
+    
+    product_modal_state.update(() => product_modal);
+  
+  
+  }
+
 
 
 
@@ -2141,16 +2256,17 @@ function updateUserOrderSub(cell:any,title:any) {
     table_real_data['user_order_sub_list2'].push(new_data);
     table_real_state.update(()=> table_real_data);
 
-  }
-
-  table_real_data['user_order_sub_list2'] = table_real_data['user_order_sub_list2'].sort((a, b) => {
-    const prevData = a["type"]["name"];
-    const afterData = b["type"]["name"];
+  } 
   
-    if (prevData < afterData) return -1;
-    if (prevData > afterData) return 1;
-    return 0;
-  }); 
+  //분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
+  // table_real_data['user_order_sub_list2'] = table_real_data['user_order_sub_list2'].sort((a, b) => {
+  //   const prevData = a["type"]["name"];
+  //   const afterData = b["type"]["name"];
+  
+  //   if (prevData < afterData) return -1;
+  //   if (prevData > afterData) return 1;
+  //   return 0;
+  // }); 
 
   table_real_state.update(()=> table_real_data);
 
@@ -2210,4 +2326,4 @@ function deleteUserOrder(cell:any) {
 
 
 
-export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderSub2Table,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow,updateUserOrderSub,deleteUserOrder}
+export {userOrderModalOpen,userOrderExcelDownload,save,userTable,userOrderSubTable,userOrderSub2Table,userOrderFileUpload,shipImageDownload,modalClose, userOrderDelivery,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow,updateUserOrderSub,deleteUserOrder,productSave,productModalClose}

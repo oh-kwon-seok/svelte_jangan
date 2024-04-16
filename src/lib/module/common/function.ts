@@ -1,13 +1,12 @@
 const businessNumber = (number: string): string => {
    
-    console.log('number : ',number);
+ 
     // 입력된 문자열에서 숫자만 추출
     const numericString = number.replace(/\D/g, '');
 
     // 숫자를 사업자등록번호 형식으로 변환
     if (numericString.length >= 10) {
-        console.log(`${numericString.slice(0, 3)}-${numericString.slice(3, 5)}-${numericString.slice(5)}`);
-    
+       
         return `${numericString.slice(0, 3)}-${numericString.slice(3, 5)}-${numericString.slice(5)}`;
     }
     
@@ -102,6 +101,12 @@ const commaNumber = (number:any) => {
         return ''
 };
 
+function passwordCheck(password:string) {
+    // 최소한 하나의 문자, 하나의 숫자, 하나의 특수문자를 포함하는지 확인하는 정규표현식
+    var regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+\\\|\[\]{};:\'",.<>\/?]).{8,}$/;
+    return regex.test(password);
+}
+
 
 
 
@@ -113,5 +118,6 @@ export {
     phoneNumber,
     validEmail,
     updateSupplyPrice, commaNumber,
-    getDayOfWeek
+    getDayOfWeek,
+    passwordCheck
 }

@@ -2,7 +2,7 @@
 
 
 import { writable } from 'svelte/store';
-import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state,common_type_state,common_type_object_state } from './state';
+import {common_alert_state,common_toast_state, menu_state,url_state,load_state,common_search_state,login_state,common_product_state,  common_car_state,common_company_state,common_user_state,common_user_order_state,common_user_order_sub_state,table_state,common_type_state,common_type_object_state,common_company_object_state } from './state';
 
 // import {item_data,item_form_state} from '$lib/store/info/item/state';
 
@@ -42,6 +42,8 @@ let car_data : any;
 let type_data : any;
 
 let type_object_data : any;
+
+let company_object_data : any;
 
 
 let company_data : any;
@@ -146,8 +148,7 @@ const infoCallApi = (title) => {
 
  
   const url = `${api}/${title}/info_select`; 
-  console.log();
-
+  
   const config = {
     headers:{
       "Content-Type": "application/json",
@@ -169,9 +170,11 @@ const infoCallApi = (title) => {
           common_user_state.update(()=> user_data);
         
         }else if(title === 'company'){
-          console.log('resdata : ', res.data);
           company_data = res.data;
           common_company_state.update(()=> company_data);
+  
+
+
         
         }else if(title === 'type'){
           type_data = res.data;
@@ -244,7 +247,6 @@ const changeUrl = (obj) => {
   url_data['path'] =obj['path'];
   url_data['query'] =obj['query'];
 
-  console.log('url_data',url_data);
   
   url_state.update(()=> url_data);
 
@@ -291,7 +293,6 @@ const onChangeHandler = (e) => {
 
   const handleToggle = (title) => {
    
-    console.log('title', title);
     
     menu_data[title] = !menu_data[title];
     menu_state.update(()=> menu_data);
@@ -309,7 +310,6 @@ const onSearchHandler = (e : any) => {
 
     search_data['search_text'] = e.target.value;
     
-    console.log('e.target.value',e.target.value);
     // if(search_data['type'] === 'all'){
     //   search_data['filteredItems'] = list_data.filter((item) => item['maker'].indexOf(search_data['search_text'].toLowerCase()) !== -1 || item['name'].indexOf(search_data['search_text'].toLowerCase()) !== -1)
     // }else {
@@ -389,7 +389,6 @@ const check_delete = (data, key,value) => {
 const excelDownload = (type,config) => {
   
       let data =  table_data[type].getSelectedData();
-      console.log('data  : ', table_data[type].getSelectedData());
       
       
       
@@ -530,10 +529,8 @@ const excelDownload = (type,config) => {
       let change_data = [];
       const buffer = reader.result;
       wb.xlsx.load(buffer).then(workbook => {
-        console.log(workbook, 'workbook instance')
         workbook.eachSheet((sheet, id) => {
           sheet.eachRow((row, rowIndex) => {
-            console.log(row.values, rowIndex);
             if(rowIndex > 1){
             let obj = {
 
@@ -680,11 +677,6 @@ const excelDownload = (type,config) => {
           }
         }
           axios.get(url,config).then(res=>{
-            console.log('url : ',url);
-            console.log('select_query : ',res);
-            console.log('table_data : ',table_data);
-            console.log('type : ', type);
-            console.log('params : ', params);
             
             table_data[type].setData(res.data);
             table_state.update(() => table_data);
@@ -731,8 +723,7 @@ const excelDownload = (type,config) => {
         }
           axios.get(url,config).then(res=>{
             
-            console.log('makeTable : ',res);
-         
+           
            
             if(res.data.length > 0){
              
@@ -775,8 +766,7 @@ const excelDownload = (type,config) => {
          
              
               });
-              console.log('table_data  :', table_data);
-
+            
               table_state.update(()=> table_data);
 
           
@@ -819,8 +809,7 @@ const excelDownload = (type,config) => {
             
       
             });
-            console.log('table_data  :', table_data);
-
+            
             table_state.update(()=> table_data);
 
 
@@ -837,9 +826,6 @@ const excelDownload = (type,config) => {
       const makeCustomTable = (table_state,type,tableComponent,select) => {
 
 
-        console.log(table_state);
-        console.log(type);
-        console.log(tableComponent);
         
         const url = `${api}/${type}/${select}`; 
         
@@ -874,9 +860,7 @@ const excelDownload = (type,config) => {
         }
           axios.get(url,config).then(res=>{
             
-            console.log('makeTable : ',res);
-            console.log('url : ',url);
-         
+          
            
             if(res.data.length > 0){
              
@@ -918,8 +902,7 @@ const excelDownload = (type,config) => {
          
              
               });
-              console.log('table_data  :', table_data);
-
+             
               table_state.update(()=> table_data);
 
           
@@ -962,8 +945,7 @@ const excelDownload = (type,config) => {
             
       
             });
-            console.log('table_data  :', table_data);
-
+            
             table_state.update(()=> table_data);
 
 
@@ -974,12 +956,16 @@ const excelDownload = (type,config) => {
         
     }
 
+    const handleSubmit = (e) => {
+      e.preventDefault(); // 폼의 기본 동작 방지
+      // 폼 제출에 대한 추가 로직을 이곳에 추가할 수 있습니다.
+    }
+
 
     const selectCustomQuery = (type,select) => {
    
       const url = `${api}/${type}/${select}`; 
 
-      console.log('url : ', url);
             
       search_data['filter'] = TABLE_FILTER[type];
       
@@ -989,8 +975,6 @@ const excelDownload = (type,config) => {
 
       let end_date = moment(search_data['end_date']).format('YYYY-MM-DDTHH:mm:ss');
 
-      console.log('start_date: ',start_date);
-      console.log('end_date: ',end_date);
       
       let search_text = search_data['search_text'];
       let filter_title = search_data['filter_title'];
@@ -1013,7 +997,6 @@ const excelDownload = (type,config) => {
         }
       }
         axios.get(url,config).then(res=>{
-          console.log('res.data : ',res);
           
           table_data[type].setData(res.data);
           table_state.update(() => table_data);
@@ -1053,5 +1036,7 @@ export {handleToggle,
   tokenChange,
   select_query,
   selectCustomQuery,
-  logout
+  logout,
+  handleSubmit
+
 }

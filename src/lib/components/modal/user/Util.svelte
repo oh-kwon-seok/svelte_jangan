@@ -11,11 +11,13 @@
     import {user_modal_state, user_form_state} from '$lib/store/user/state';
     import {common_alert_state, common_toast_state,common_car_state,table_state,common_type_state} from '$lib/store/common/state';
     
-    import {save,userProductTable,userProduct2Table,modalClose,userProductTabClick,} from '$lib/store/user/function';
+    import {save,userProductTable,userProduct2Table,modalClose,userProductTabClick} from '$lib/store/user/function';
 
     
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
-    import {businessNumber,phoneNumber,validEmail} from '$lib/module/common/function';
+    import {businessNumber,phoneNumber,validEmail,passwordCheck} from '$lib/module/common/function';
+
+    import {handleSubmit} from '$lib/store/common/function';
     
     import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
 
@@ -48,14 +50,21 @@
 
 
       onMount(()=>{
+      
         userProductTable(table_state,"user_product",tableComponent);
         userProduct2Table(table_state,tableComponent1);
         
       });
 
       afterUpdate(()=> {
-        userProductTable(table_state,"user_product",tableComponent);
-        userProduct2Table(table_state,tableComponent1);
+      
+        if($table_state['user_product']){
+
+        }else{
+          userProductTable(table_state,"user_product",tableComponent);
+          userProduct2Table(table_state,tableComponent1);
+        }
+      
         
   
       })
@@ -67,7 +76,7 @@
     <Modal title={`회원 ${label_title}`}  permanent={true} color={color} bind:open={$user_modal_state[title]['use']} size="xl" placement={ 'center'}   class="w-full">
        
           <!-- grid grid-cols-2 gap-4 -->
-        <form action="#">
+        <form action="#" on:submit={handleSubmit}>
           {#if title === 'add' || title === 'update'}
    
         <div class="grid grid-cols-2 gap-4">
@@ -131,9 +140,14 @@
                     {/if}
                   </button>
                 </Input>
-                {#if $user_form_state['code'] === '' && $common_alert_state['value'] === true}
-                <Helper class="mt-2" color="red"><span class="font-medium">데이터를 입력해주세요</span></Helper>
+                {#if $user_form_state['password'] === ''}
+                <Helper class='mt-2' color='red'><span class="font-medium">비밀번호가 공백입니다.</span></Helper>
                 {/if}
+                {#if  $user_form_state['password'] !== '' && passwordCheck($user_form_state['password']) === false}
+                <Helper class='mt-2' color='red'><span class="font-medium">비밀번호는 숫자,문자,특수문자포함 8글자 이상이어야 합니다.</span></Helper>
+                {/if}
+
+
               </Label>
               {/if}
 

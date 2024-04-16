@@ -1,5 +1,6 @@
 
 <script>
+	import { SearchOutline } from 'flowbite-svelte-icons';
 
     // @ts-nocheck
     import { Hr, Button ,Modal, Label, Select, Input, Helper,Img,Textarea} from 'flowbite-svelte'
@@ -9,14 +10,18 @@
     import Toast from '$lib/components/toast/Toast.svelte';
     import Alert from '$lib/components/alert/Alert.svelte';
     import {user_order_modal_state, user_order_form_state} from '$lib/store/user_order/state';
-    import {common_alert_state, common_toast_state,common_car_state,table_state} from '$lib/store/common/state';
+    import {product_modal_state} from '$lib/store/product/state';
 
-    import {fileButtonClick} from '$lib/store/common/function';
+    import {common_alert_state, common_toast_state,common_car_state,table_state,common_change_status_state} from '$lib/store/common/state';
+
+    import {fileButtonClick,handleSubmit} from '$lib/store/common/function';
     
     import {save,userOrderSubTable,userOrderSub2Table,userTable,userOrderFileUpload,shipImageDownload,modalClose,amountAddRow,amountDeleteRow,amountAllDeleteRow,amountSelectDeleteRow} from '$lib/store/user_order/function';
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
-    
+    import {productModalOpen} from '$lib/store/product/function';
     import {onMount,afterUpdate } from 'svelte';
+    import Product from '$lib/components/modal/user_order/Product.svelte';
+
     export let title;
 
 
@@ -76,7 +81,7 @@
     }
     // let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
     
-    
+    let change_status = false;
     
     let tableComponent = "example-table-theme";
     let tableComponent1 = "example-table-theme1";
@@ -100,6 +105,7 @@
       });
 
       afterUpdate(()=> {
+        console.log('동작하나 ? ');
           if(table_state['user']){
            
           }else{
@@ -109,11 +115,18 @@
         
 
         if($user_order_form_state['user'] !== ''){
-          console.log('업데이트됌',);
+          console.log('업데이트됌');
           amountArray = $user_order_form_state.amount_array;
-          userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
-          userOrderSub2Table(table_state,tableComponent2)
-          
+          if($common_change_status_state){
+            console.log('common_change_status_state : ', $common_change_status_state);
+
+          }else{
+            userOrderSubTable(table_state,"user_order_sub_list",tableComponent1);
+            userOrderSub2Table(table_state,tableComponent2)
+            
+          }
+       
+
         }
       })
 
@@ -147,7 +160,7 @@
        
           <!-- grid grid-cols-2 gap-4 -->
         <!-- <form on:submit={(event)=> event.preventDefault()}> -->
-          <form >
+          <form action="#" on:submit={handleSubmit}>
           {#if title === 'add' || title === 'update'}
           
 
@@ -211,9 +224,17 @@
 
     
           <Label class="space-y-2">
-            <span>안내사항</span>
-            <Input type="textarea"   id="last_name" placeholder="안내사항을 적어주세요" required bind:value={$user_order_form_state['description']}/>
+            <span>계좌번호 및 안내사항</span>
+            <Textarea type="text"   id="last_name" placeholder="안내사항을 적어주세요"  bind:value={$user_order_form_state['description']}/>
+        
           </Label>
+          
+          <Label class="space-y-2">
+            <span>공지사항</span>
+            <Textarea type="text" id="last_name" rows="4"  bind:value={$user_order_form_state['notice']}/>
+           
+          </Label>
+
           
           <Label class="space-y-2">
             <span>배송희망일자</span>
@@ -237,7 +258,7 @@
 
 
           </div>
-
+          {#if $user_order_form_state['user'] !== ''}
           <div class="grid grid-cols-1 gap-4">
             <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
             <p class="mb-4 font-semibold text-xl dark:text-white">입금 목록</p>
@@ -245,15 +266,15 @@
 
         
     
-          {#if $user_order_form_state['user'] !== ''}
+        
           <div class="grid grid-cols-3 gap-4">
-          <!-- <Button color="blue" on:click={amountAddRow}>입금 추가</Button> -->
-          <button  on:click={amountAddRow}>입금 추가</button>
-          <button on:click={amountDeleteRow}>입금 삭제</button>
-          <button on:click={amountAllDeleteRow}>전체 삭제</button>
+          <Button class="m-2 " outline color="blue" on:click={ amountAddRow}>입금 추가</Button>
+        
+          <Button class="m-2 " outline color="red" on:click={amountDeleteRow}>입금 삭제</Button>
+          <Button class="m-2 " outline color="purple" on:click={amountAllDeleteRow}>전체 삭제</Button>
          
        
-            {#each amountArray as item,i} 
+            {#each $user_order_form_state.amount_array as item,i} 
         
               <Label class="space-y-1">
                 <span>입금날짜</span>
@@ -268,7 +289,7 @@
               
               </Label>    
               <Label class="space-y-1">
-                  <button on:click={()=> amountSelectDeleteRow(i)}>삭제</button>
+                  <Button class = "mt-6"outline color="red" on:click={()=> amountSelectDeleteRow(i)}>삭제</Button>
               
               </Label>    
         
@@ -278,24 +299,38 @@
             {/if}
 
 
-
-         
-         
-
+            {#if $user_order_form_state['user'] !== ''}
             <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
-          <div class="grid grid-cols-2 gap-4">
-            <p class="mb-4 font-semibold text-xl dark:text-white">취급품목</p>
-            <p class="mb-4 font-semibold text-xl dark:text-white">주문목록</p>    
-          </div>
+            <div class="grid grid-cols-2 gap-4">
+              <p class="mb-4 font-semibold text-xl dark:text-white">취급 품목</p>
+              <Button outline class="m-2" on:click={() => {productModalOpen('','add')}}>
+                <Icon.SearchenginBrand class='mr-2' size="20" />
+                없는 식자재 추가하기
+              </Button>
 
-          <!-- <div class="grid grid-cols-2 gap-4">
-            <div  class="w-1/2" id="example-table-theme1" bind:this={tableComponent1}></div>
-            <div  class="w-1/2" id="example-table-theme2" bind:this={tableComponent2}></div>
-          </div> -->
-          <div class="flex flex-row">
-            <div  class="w-2/5" id="example-table-theme1" bind:this={tableComponent1}></div>
-            <div  class="w-3/5" id="example-table-theme2" bind:this={tableComponent2}></div>
-          </div>
+              {#if $product_modal_state['title'] === 'add'}
+              
+              <Product title="add" />
+              
+              {/if}
+            </div>
+    
+    
+         
+              <div  class="w-full" id="example-table-theme1" bind:this={tableComponent1}></div>
+              <Hr class="my-8 bg-slate-300 "  height="h-1"></Hr>
+    
+              <div class="grid grid-cols-1 gap-4">
+                <p class="mb-4 font-semibold text-xl dark:text-white">주문 목록</p>
+              </div>
+              <div  class="w-full" id="example-table-theme2" bind:this={tableComponent2}></div>
+         
+              {/if}
+      
+
+        
+
+
 
           <div class="flex flex-row">
            
@@ -392,6 +427,10 @@
       
       
         </form>
+
+   
+
+
       
         
         

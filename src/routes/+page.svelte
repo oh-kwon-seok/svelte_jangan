@@ -2,12 +2,15 @@
 
 <script lang="ts">
 	
-	import { Button, Label, Input, Checkbox, Card, Spinner} from 'flowbite-svelte'
+	import { Button, Label, Input, Checkbox, Card, Spinner,Helper} from 'flowbite-svelte'
 	import axios from 'axios'
 	import Alert from '$lib/components/alert/Alert.svelte';
 	import Loading from '$lib/components/button/Loading.svelte';
 	
 	import {LOGIN_ALERT} from '$lib/module/common/constants';
+
+	import {passwordCheck} from '$lib/module/common/function';
+	
 	import login_url from '$lib/images/login_url.jpg';
 	import bg_url from '$lib/images/main_bg.jpg';
 
@@ -152,6 +155,12 @@
 				<Label class="space-y-2 justify-center">
 					<span>Password</span>
 					<Input  type="password" name="password" placeholder="•••••" required bind:value={$login_state.password} />
+					
+					{#if $common_alert_state['type'] === 'login' && $common_alert_state['value'] === true}
+						{#if  $login_state['password'] !== '' && passwordCheck($login_state['password']) === false}
+						<Helper class='mt-2' color='red'><span class="font-medium">비밀번호는 숫자,문자,특수문자포함 8글자 이상이어야 합니다.</span></Helper>
+						{/if}
+					{/if}
 				</Label>
 				<div class="flex items-start">
 					<Checkbox bind:checked={autoSave}>자동 저장</Checkbox>

@@ -16,6 +16,7 @@ import moment from 'moment';
 import {TOAST_SAMPLE} from '$lib/module/common/constants';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
+import { passwordCheck } from '$lib/module/common/function';
 
 const api = import.meta.env.VITE_API_BASE_URL;
 
@@ -46,7 +47,7 @@ let init_form_data = {
     phone : '',
     staff_name : '',
     staff_phone : '',
-    password : '1111',
+    password : 'qwer12!@',
     car : '',
     used : 1,
     auth:'',
@@ -112,6 +113,7 @@ const userModalOpen = (data : any, title : any) => {
     user_modal_state.update(() => update_modal);
 
    
+
   
 
     if(title === 'add'){
@@ -125,7 +127,7 @@ const userModalOpen = (data : any, title : any) => {
           phone : '',
           staff_name : '',
           staff_phone : '',
-          password : '1111',
+          password : 'qwer12!@',
           car : '',
           used : 1,
           auth:'',
@@ -187,7 +189,7 @@ const modalClose = (title) => {
       phone : '',
       staff_name : '',
       staff_phone : '',
-      password : '1111',
+      password : 'qwer12!@',
       car : '',
       used : 1,
       auth:'',
@@ -209,16 +211,20 @@ const save = (param,title) => {
  
   update_modal['title'] = 'add';
   update_modal['add']['use'] = true;
- 
+  
+
+  
     if(title === 'add'){
   
     
-      if( param['code'] === '' || param['car'] === ''){
+      if( param['code'] === '' || param['car'] === '' || param['password'] === '' || passwordCheck(param['password']) === false){
         //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
         alert['type'] = 'save';
         alert['value'] = true;
         user_modal_state.update(() => update_modal);
- 
+        
+     
+
         return common_alert_state.update(() => alert);
   
       }else {
@@ -267,7 +273,7 @@ const save = (param,title) => {
                 phone : '',
                 staff_name : '',
                 staff_phone : '',
-                password : '1111',
+                password : 'qwer12!@',
                 car : '',
                 used : 1,
                 auth:'',
@@ -367,7 +373,7 @@ const save = (param,title) => {
               phone : '',
               staff_name : '',
               staff_phone : '',
-              password : '1111',
+              password : 'qwer12!@',
               car : '',
               used : 1,
               auth:'',
@@ -437,7 +443,7 @@ const save = (param,title) => {
                   phone : '',
                   staff_name : '',
                   staff_phone : '',
-                  password : '1111',
+                  password : 'qwer12!@',
                   car : '',
                   used : 1,
                   auth:'',
@@ -577,14 +583,16 @@ const save = (param,title) => {
               console.log('table_real_data', table_real_data['user_product_list']);
               
 
-              product_data = product_data.sort((a, b) => {
-                const prevData = a["type"]["name"];
-                const afterData = b["type"]["name"];
+              // 분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
+
+              // product_data = product_data.sort((a, b) => {
+              //   const prevData = a["type"]["name"];
+              //   const afterData = b["type"]["name"];
               
-                if (prevData < afterData) return -1;
-                if (prevData > afterData) return 1;
-                return 0;
-              }); ;
+              //   if (prevData < afterData) return -1;
+              //   if (prevData > afterData) return 1;
+              //   return 0;
+              // }); ;
               table_real_data['user_product'] = product_data
               table_real_state.update(() => table_real_data);
 
@@ -795,42 +803,25 @@ const userProductTabClick = (title) => {
 function updateUserProduct(cell:any,title:any) {
 
 
-    let new_data = cell.getData();
-    console.log('new_data : ', new_data);
-    console.log('getData : ', table_data['user_product'].getSelectedData());
+
+   
+    // 분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
+    // table_real_data['user_product_list'] = table_data['user_product'].getSelectedData().sort((a, b) => {
+    //   const prevData = a["type"]["name"];
+    //   const afterData = b["type"]["name"];
     
-
-    let checkData = table_data['user_product_list'].getData().find(item => item['product']['uid'] === new_data['product']['uid']);
-
-
-
-    // if(checkData){
-
-    //   console.log('checkData : ', checkData);
-      
-  
-    // }else{
-    //   table_real_data['user_product_list'].push(new_data);
-    //   table_real_state.update(()=> table_real_data);
-  
-    // }
-
-    table_real_data['user_product_list'] = table_data['user_product'].getSelectedData().sort((a, b) => {
-      const prevData = a["type"]["name"];
-      const afterData = b["type"]["name"];
-    
-      if (prevData < afterData) return -1;
-      if (prevData > afterData) return 1;
-      return 0;
-    }); 
+    //   if (prevData < afterData) return -1;
+    //   if (prevData > afterData) return 1;
+    //   return 0;
+    // }); 
+    table_real_data['user_product_list'] = table_data['user_product'].getSelectedData();
 
     table_real_state.update(()=> table_real_data);
 
     table_data['user_product_list'].setData(table_real_data['user_product_list']);
     
     
-    //table_data['user_product_list'].setData(table_real_data['user_product_list']);
-    
+
   
     table_state.update(()=> table_data);
 
