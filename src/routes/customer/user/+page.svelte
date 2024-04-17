@@ -22,7 +22,7 @@
 
     import * as Icon from 'svelte-awesome-icons';
 
-    import {userModalOpen} from '$lib/store/user/function';
+    import {userModalOpen,userProductExcelUpload,userProductExcelFormDownload} from '$lib/store/user/function';
     import {excelDownload, excelUpload, fileButtonClick} from '$lib/store/common/function';
     
     import {user_form_state,user_modal_state} from '$lib/store/user/state';
@@ -127,6 +127,24 @@
                           <Icon.FileCsvSolid class='mr-2' size="20" />
                           엑셀다운
                       </Button>
+                      <Button  color='green' on:click={() => userProductExcelFormDownload()}>
+                        <Icon.FileCsvSolid class='mr-2' size="20" />
+                        즐겨찾기 엑셀 업로드 양식 다운
+                      </Button>
+
+                      <Button  color='green' on:click={(e)=> fileButtonClick('upload')}>
+                        <Icon.UploadSolid class='mr-2' size="20" />
+                          즐겨찾기 엑셀 업로드
+                        <input 
+                        hidden  
+                        id = 'upload' 
+                        type='file' 
+                        accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+                        on:change={(e)=> userProductExcelUpload(e)}
+                  
+                        />
+                    </Button>
+
 
                       
 

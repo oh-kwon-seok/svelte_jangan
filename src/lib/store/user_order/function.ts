@@ -368,8 +368,7 @@ const save = (param,title) => {
       }
 
      
-      console.log('data : ', data);
-
+      
         
         let params = {
 
@@ -1154,37 +1153,30 @@ const printInvoice = async (data) => {
 
 const userOrderDelivery = async (type) => {
 	let data = table_data[type].getSelectedData();
-
-  
-
-	if (data.length <= 0) {
-		alert['title'] = 'user_order_delivery_no_content';
+ 
+  if(data.length === 0){
+    alert['title'] = 'user_order_delivery_no_content';
 		alert['value'] = true;
 		return common_alert_state.update(() => alert);
-	}
-
-	let prevCompany: string = '';
- 	data.forEach((item) => {
-		if (prevCompany === '') {
-			prevCompany = item.user.customer_name;
-		} //
-		else {
-			if (prevCompany !== item.user.customer_name) {
-				alert['title'] = 'user_order_delivery';
-				alert['value'] = true;
-				return common_alert_state.update(() => alert);
-			}
-		}
-	});
-
-  let totalAmount = data[0]['totalAmount'] ; // 총 입금액
-  let totalUnpaidPrice = data[0]['totalUnpaidPrice'] ; // 총 매출액
 
 
-  
+  }else{
+
+    let prevCompany = data[0]['user']['customer_name'];
+    let afterCompany;
+    await data.forEach((item) => {
+        afterCompany = item.user.customer_name;
+    });
+
    
-
-	let obj = {};
+    if(prevCompany !== afterCompany){
+     
+      alert['title'] = 'user_order_delivery';
+      alert['value'] = true;
+      return common_alert_state.update(() => alert);
+    }else{
+    
+      let obj = {};
 	let company = '';
   
 
@@ -1365,17 +1357,11 @@ for (let key in total_amount_array) {
 
   let latest_date = moment(latestDate).format('YYYY-MM-DD');
 
-  console.log('latest_date : ', latest_date);
-  console.log('prev_date : ', prev_date);
-
+ 
 
   let prevAmount = total_supply_array[prev_date] - total_amount_array[prev_date];
 
 
-  console.log('prevAmount : ', prevAmount);
-  console.log('supply : ', total_supply_array[prev_date]);
-  console.log('amount : ', total_amount_array[prev_date]);
-  console.log('latest_date amount : ', total_amount_array[latest_date]);
   
 
 
@@ -1551,6 +1537,18 @@ for (let key in total_amount_array) {
 		anchor.click();
 		window.URL.revokeObjectURL(url);
 	});
+
+      
+
+    }
+  
+
+  
+	
+
+  }
+
+	
 };
 
 // 열 문자를 숫자로 변환하는 함수
@@ -1570,8 +1568,7 @@ function columnToNumber(column) {
 const userOrderExcelDownload = (type,config) => {
   
   let data =  table_data[type].getSelectedData();
-  console.log('data  : ', table_data[type].getSelectedData());
-
+  
   
   if(data.length > 0){
     // 모든 객체에서 공통된 키(key) 이름을 찾기 위한 반복문
@@ -1695,14 +1692,12 @@ const  amountAddRow = () => {
 
 
   update_form['amount_array'].push(new_obj);
-  console.log('update_form : ', update_form);
   user_order_form_state.update(()=> update_form);
   common_change_status_state.update(()=> change_status_data);
 
 }
 const amountDeleteRow = () => {
-  console.log('눌림');
-
+  
   update_form['amount_array'].pop();
 
   user_order_form_state.update(()=> update_form);
@@ -1718,8 +1713,7 @@ const amountAllDeleteRow = () => {
 }
 const amountSelectDeleteRow = (index) => {
   
-  console.log('item_uid : ', index);
-
+  
   update_form['amount_array'].splice(index,1);
   
   user_order_form_state.update(()=> update_form);
@@ -1731,8 +1725,7 @@ const amountSelectDeleteRow = (index) => {
 
 const productSave = async(param,title) => {
 
-  console.log(param);
-
+  
   product_modal['title'] = 'add';
   product_modal['add']['use'] = true;
  
@@ -1761,10 +1754,7 @@ const productSave = async(param,title) => {
         await axios.post(url,
           params,
         ).then(res => {
-          console.log('res',res);
           if(res.data !== undefined && res.data !== null && res.data !== '' ){
-            console.log('실행');
-            console.log('res:data', res.data);
             
             toast['type'] = 'success';
             toast['value'] = true;
@@ -1785,8 +1775,7 @@ const productSave = async(param,title) => {
               axios.get(product_url,product_config).then(res=>{
                 if(res.data !== undefined && res.data !== null && res.data !== '' ){
                   if(table_data['user_order_sub_list']){
-                    console.log('res.data');
-
+                   
                      let product_data = res.data.sort((a, b) => {
                       const prevData = moment(a["created"]);
                       const afterData = moment(b["created"]);
@@ -1795,8 +1784,6 @@ const productSave = async(param,title) => {
                       if (prevData < afterData) return 1;
                       return 0;
                     }); 
-
-                    console.log('product_data : ', product_data);
 
                     table_data['user_order_sub_list'].setData( product_data);
                   
@@ -1842,39 +1829,90 @@ const productSave = async(param,title) => {
 
 
 
-const printContent = (data : any) => {
+const printContent = async(data) => {
   
+  let check_data = [];
+  let test_sub_data = [];
 
-  const generateA4Pages = (data) => {
-    const pages = data.map((item, index) => {
+
+  if (Array.isArray(data) && data.length > 0) {
+    for (const item of data) {
       const url = `${api}/user_order_sub/info_select`;
       const params = { user_order_uid: item['uid'] };
       const config = {
         params: params,
         headers: {
-          "Content-Type": "application/json",
-        }
+          'Content-Type': 'application/json',
+        },
       };
-  
-      return axios.get(url, config).then(res => {
-        let amount_array = item.amount_array ;
 
-        if(amount_array !==null ){
+      try {
+        const res = await axios.get(url, config);
+          
+          let page_qty = 0; 
+          page_qty = Math.ceil(res.data.length / 14);
+        
          
-          amount_array = JSON.parse(item.amount_array).reduce((accumulator, currentValue) => {
-            return parseInt(accumulator) + parseInt(currentValue.amount);
-          
-          }, 0);
-        }else{
-          
-          amount_array = 0;
-        }
-
-
-        console.log('amount_array : ', amount_array);
+         const  dataArray = res.data;
         
+          for(let i =0; i<page_qty; i++){
+            let newItem = { ...item }; // 객체의 복사본 생성 (spread 연산자 사용)
+
+            let user_order_sub = []; // 각 페이지별 들어갈 품목 데이터
+            for (let j = 0; j < dataArray.length; j += 14) {
+             
+              const slicedData = dataArray.slice(j, j + 14); // 14개씩 잘라낸 데이터
+              user_order_sub.push(slicedData); // 각 슬라이스된 배열을 독립적인 요소로 추가
+            }
+              newItem['pageNo'] = i+1 // newItem에 first_data 배열을 추가
+              newItem['pageQty'] = page_qty; 
+              newItem['user_order_sub'] = user_order_sub[i]; // newItem에 first_data 배열을 추가
+              check_data.push(newItem); // test_data 배열에 newItem 추가
+          
+          }
+          
         
-        let user_order_checked_data = res.data;
+            
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
+
+  
+
+  const generateA4Pages = (check_data) => {
+    
+    const pages = check_data.map((item, index) => {
+     
+   
+  
+      let amount_array = item.amount_array ;
+
+      if(amount_array !==null ){
+      
+        amount_array = JSON.parse(item.amount_array).reduce((accumulator, currentValue) => {
+          return parseInt(accumulator) + parseInt(currentValue.amount);
+        
+        }, 0);
+      }else{
+        
+        amount_array = 0;
+      }
+
+      
+        let user_order_checked_data = item['user_order_sub'];
+        const nextPageText = `
+         
+
+        <div style="padding : 1px;" class="table_row">
+        <div style="width:10%; text-align : left; "></div>
+          <div style="width:90%; text-align : left;  "><span style="font-weight : bold; font-size : 16px;">다음장 계속</span></div>
+        </div>
+        
+      `
+
+                
         const productDetails = user_order_checked_data.length > 0 && user_order_checked_data.map((item2, index2) => `
          
 
@@ -1889,8 +1927,10 @@ const printContent = (data : any) => {
             <div style="width:15%; text-align : right; ">${commaNumber(item2.supply_price)}</div>
             <div style="width:13%; text-align : left; "></div>
           </div>
-
+          
         `).join('');
+
+
   
         return `
           <html>
@@ -1941,7 +1981,7 @@ const printContent = (data : any) => {
                 <div style="display:flex; flex-direction : column; width : 60%;" class="table-container">
                     <div class="table_row">
                         
-                        <div style="width : 20%; text-align : right;  ">${item['uid']}</div>
+                        <div style="width : 20%; text-align : right;  ">${item['pageNo']}</div>
                     
                     </div>
                    
@@ -2028,11 +2068,17 @@ const printContent = (data : any) => {
 
             ${productDetails}
 
+            ${item['pageNo'] < item['pageQty'] ? nextPageText : ""}
+
 
               
               </div>
+              <br/>
               <div style="margin : 25px 0px 0px 40px; text-align: left;">
               ${item['description']}
+              ${item['notice']}
+
+
               </div>
            
               </div>
@@ -2043,7 +2089,7 @@ const printContent = (data : any) => {
                   <div style="display:flex; flex-direction : column; width : 60%;" class="table-container">
                       <div class="table_row">
                           
-                          <div style="width : 20%; text-align : right;  ">${item['uid']}</div>
+                          <div style="width : 20%; text-align : right;  ">${item['pageNo']}</div>
                       
                       </div>
                      
@@ -2138,24 +2184,32 @@ const printContent = (data : any) => {
                   
   
               ${productDetails}
+
+              ${item['pageNo'] < item['pageQty'] ? nextPageText : ""}
+  
   
   
                 
                 </div>
                 <div style="margin : 25px 0px 0px 40px; text-align: left;">
-               
+              ${item['pageNo'] === item['pageQty'] ? 
+                
+  
+               `
 
-                <span style="text-align : left;">전미수금 : ${item.totalUnpaidPrice-amount_array-item.totalSupplyPrice > 0? commaNumber(item.totalUnpaidPrice-amount_array-item.totalSupplyPrice) : 0}</span>
-    
-                <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(item.totalUnpaidPrice-amount_array)}</span>
-    
-    
-                <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 : ${commaNumber(amount_array)}       </span>
-                <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 : ${commaNumber(item.totalSupplyPrice-amount_array)}       </span>
-            
-                <br/>
+              <span style="text-align : left;">전미수금 : ${item.totalUnpaidPrice-amount_array-item.totalSupplyPrice > 0? commaNumber(item.totalUnpaidPrice-amount_array-item.totalSupplyPrice) : 0}</span>
+  
+              <span style="text-align : left;">&nbsp;&nbsp;&nbsp;합계 : ${commaNumber(item.totalUnpaidPrice-amount_array)}</span>
+  
+  
+              <span style="text-align : left; font-weight : bold; padding-left : 50px;">입금 : ${commaNumber(amount_array)}       </span>
+              <span style="text-align : left; font-weight : bold; padding-left : 150px;">잔액 : ${commaNumber(item.totalSupplyPrice-amount_array)}       </span>
+          
+              ` : ``
+              }
+              <br/>  
            
-             
+              
                 
                 ${item.description}
 
@@ -2169,7 +2223,7 @@ const printContent = (data : any) => {
             </body>
           </html>
         `;
-      });
+      
     });
   
     // pages는 Promise 객체의 배열이므로 Promise.all을 사용하여 모든 페이지의 HTML을 얻은 뒤 반환합니다.
@@ -2189,7 +2243,7 @@ const printContent = (data : any) => {
  
   const printWindow: any = window.open('', '_blank');
 
-  generateA4Pages(data)
+  generateA4Pages(check_data)
     .then(content => {
       printWindow.document.write(content);
       printWindow.document.close();
@@ -2285,9 +2339,7 @@ function deleteUserOrder(cell:any) {
 
   let new_data = cell.getData();
   
-  
-  let checkData = table_real_data['user_order_sub_list'].find(item => item['uid'] === new_data['uid']);
-
+  let checkData = table_real_data['user_order_sub_list'].find(item => item['uid'] === new_data['product']['uid']);
 
   if(checkData){
    
@@ -2301,7 +2353,7 @@ function deleteUserOrder(cell:any) {
 
 
   table_real_data['user_order_sub_list2'] = newData; 
-
+  
   table_state.update(()=> table_data);
 
   table_real_state.update(()=> table_real_data);

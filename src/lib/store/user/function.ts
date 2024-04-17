@@ -17,7 +17,7 @@ import {TOAST_SAMPLE} from '$lib/module/common/constants';
 import {TabulatorFull as Tabulator} from 'tabulator-tables';
 import {TABLE_TOTAL_CONFIG,TABLE_HEADER_CONFIG,TABLE_FILTER} from '$lib/module/common/constants';
 import { passwordCheck } from '$lib/module/common/function';
-
+import Excel from 'exceljs';
 const api = import.meta.env.VITE_API_BASE_URL;
 
 
@@ -33,7 +33,7 @@ let login_data : any;
 let table_data : any;
 let table_real_data : any;
 let user_data : any;
-
+let user_product_upload_data : any;
 let selected_data : any;
 
 
@@ -828,6 +828,198 @@ function updateUserProduct(cell:any,title:any) {
   
 }
 
+const userProductExcelUpload = (e) => {
+  
+  const config : any = [
+    {header: '사업자번호(ID)', key: 'company_code', width: 50},
+    {header: '상품명', key: 'name', width: 50},
+
+
+  ]; 
+
+
+  const wb = new Excel.Workbook();
+  const reader = new FileReader()
+
+  let file = e.target.files[0];
+
+  reader.readAsArrayBuffer(file)
+  reader.onload = () => {
+   let change_data = [];
+   
+    const buffer = reader.result;
+    wb.xlsx.load(buffer).then(workbook => {
+      console.log(workbook, 'workbook instance')
+      workbook.eachSheet((sheet, id) => {
+        sheet.eachRow((row, rowIndex) => {
+        
+          if(rowIndex > 1){
+          let obj = {
+
+          };
+          for(let i=0; i<config.length; i++){
+            obj[config[i].key] = row.values[i+1] !== '' ?  row.values[i+1] : "";
+
+          }
+          change_data.push(obj);
+          
+          user_product_upload_data = change_data;
+
+        
+        }else {
+
+        }
+        });
+
+        console.log('product_upload_data',user_product_upload_data);
+
+        
+
+
+      })
+
+      const url = `${api}/user_product/excel_upload`
+      try {
+
+        let params = {
+          data :  user_product_upload_data,
+          
+        };
+      axios.post(url,
+        params,
+      ).then(res => {
+        console.log('res',res);
+        if(res.data !== undefined && res.data !== null && res.data !== '' ){
+          console.log('실행');
+          console.log('res:data', res.data);
+          
+          toast['type'] = 'success';
+          toast['value'] = true;
+          update_modal['title'] = '';
+          update_modal['update']['use'] = false;
+          select_query('user');
+          return common_toast_state.update(() => toast);
+
+        }else{
+        
+          return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+        }
+      })
+      }catch (e:any){
+        return console.log('에러 : ',e);
+      };
+
+
+    })
+
+  }
+
+}
+
+
+const userProductExcelFormDownload = () => {
+
+  const data = [{
+    company_code : "2353252352",
+    name : "대상)청정원쇠고기맛나/2키로",
+   
+  },{
+    company_code : "2353252352",
+    name : "대상)청정원쇠고기맛나/2키로",
+   
+  },
+  {
+    company_code : "3451112356",
+    name : "물비누/파랑/통",
+  },
+]; 
+
+
+
+  const config : any = [
+    {header: '사업자번호(ID)', key: 'company_code', width: 50},
+    {header: '상품명', key: 'name', width: 50},
+  
+  ]; 
+
+
+    try {
+
+      let text_title : any= '품목 업로드 형식';
+     
+
+    const workbook = new Excel.Workbook();
+      // 엑셀 생성
+
+      // 생성자
+      workbook.creator = '작성자';
+     
+      // 최종 수정자
+      workbook.lastModifiedBy = '최종 수정자';
+     
+      // 생성일(현재 일자로 처리)
+      workbook.created = new Date();
+     
+      // 수정일(현재 일자로 처리)
+      workbook.modified = new Date();
+
+      let file_name = text_title + moment().format('YYYY-MM-DD HH:mm:ss') + '.xlsx';
+      let sheet_name = moment().format('YYYYMMDDHH:mm:ss');
+   
+    
+      workbook.addWorksheet(text_title);
+         
+
+      const sheetOne = workbook.getWorksheet(text_title);
+           
+           
+            
+      // 컬럼 설정
+      // header: 엑셀에 표기되는 이름
+      // key: 컬럼을 접근하기 위한 key
+      // hidden: 숨김 여부
+      // width: 컬럼 넓이
+      sheetOne.columns = config;
+   
+      const sampleData = data;
+      const borderStyle = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+     
+      sampleData.map((item, index) => {
+        sheetOne.addRow(item);
+     
+        // 추가된 행의 컬럼 설정(헤더와 style이 다를 경우)
+        
+        for(let loop = 1; loop <= config.length; loop++) {
+          const col = sheetOne.getRow(index + 2).getCell(loop);
+          col.border = borderStyle;
+          col.font = {name: 'Arial Black', size: 10};
+        }
+      
+    });
+
+
+        
+   
+      workbook.xlsx.writeBuffer().then((data) => {
+        const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = file_name;
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      })
+    } catch(error) {
+      console.error(error);
+    }
+
+ 
+}
 
 
 
@@ -841,4 +1033,6 @@ function updateUserProduct(cell:any,title:any) {
 
 
 
-export {userModalOpen,save,userProductTable,modalClose,userProductTabClick,userProduct2Table,updateUserProduct}
+
+
+export {userModalOpen,save,userProductTable,modalClose,userProductTabClick,userProduct2Table,updateUserProduct,userProductExcelFormDownload, userProductExcelUpload}

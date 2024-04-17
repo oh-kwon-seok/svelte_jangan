@@ -1,5 +1,7 @@
 
 <script>
+// @ts-nocheck
+
 	import { SearchOutline } from 'flowbite-svelte-icons';
 
     // @ts-nocheck
@@ -22,7 +24,10 @@
     import {onMount,afterUpdate } from 'svelte';
     import Product from '$lib/components/modal/user_order/Product.svelte';
 
-    export let title;
+    /**
+	 * @type {string}
+	 */
+     export let title;
 
 
 
@@ -79,7 +84,6 @@
       color = "light";
 
     }
-    // let color = title === 'add' || title === 'update' ? 'blue' : 'red'; 
     
     let change_status = false;
     
