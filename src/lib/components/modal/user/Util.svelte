@@ -9,11 +9,15 @@
     import Toast from '$lib/components/toast/Toast.svelte';
     import Alert from '$lib/components/alert/Alert.svelte';
     import {user_modal_state, user_form_state} from '$lib/store/user/state';
+  
     import {common_alert_state, common_toast_state,common_car_state,table_state,common_type_state} from '$lib/store/common/state';
     
-    import {save,userProductTable,userProduct2Table,modalClose,userProductTabClick} from '$lib/store/user/function';
+    import {save,userProductTable,userProduct2Table,modalClose} from '$lib/store/user/function';
 
+    import {product_modal_state } from '$lib/store/product/state';
     
+    import {productModalOpen} from '$lib/store/product/function';
+
     import {DATA_FAIL_ALERT,DATA_SELECT_ALERT} from '$lib/module/common/constants';
     import {businessNumber,phoneNumber,validEmail,passwordCheck} from '$lib/module/common/function';
 
@@ -22,6 +26,8 @@
     import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
 
     import {onMount,afterUpdate } from 'svelte';
+
+    import Product from '$lib/components/modal/user/Product.svelte';
     export let title;
 
 
@@ -206,6 +212,18 @@
             <p class="mb-4 font-semibold text-xl dark:text-white">취급품목</p>
             <p class="mb-4 font-semibold text-xl dark:text-white">즐겨찾기</p>    
           </div>
+
+          <Button outline class="m-2" on:click={() => {productModalOpen('','add')}}>
+            <Icon.SearchenginBrand class='mr-2' size="20" />
+            없는 식자재 추가하기
+          </Button>
+
+          {#if $product_modal_state['title'] === 'add'}
+          
+          <Product title="add" />
+          
+          {/if}
+
           
         
           

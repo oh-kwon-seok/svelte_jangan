@@ -17,7 +17,7 @@ import { typeModalOpen } from '$lib/store/type/function';
 import { companyModalOpen } from '$lib/store/company/function';
 import { phoneNumber,businessNumber,updateSupplyPrice ,commaNumber} from './function';
 
-import { userModalOpen,updateUserProduct} from '$lib/store/user/function';
+import { userModalOpen,updateUserProduct,deleteUserProduct} from '$lib/store/user/function';
 
 import { userOrderModalOpen,updateUserOrderSub,deleteUserOrder} from '$lib/store/user_order/function';
 import moment from 'moment';
@@ -1155,19 +1155,33 @@ const TABLE_HEADER_CONFIG : any = {
    user_product_list : [
    
     { title: "ID", formatter: "rownum", align: "center", width: 70,},
-    {title:"분류", field:"type.name", width:150, headerFilter:"input", 
+    // {title:"분류", field:"type.name", width:150, headerFilter:"input", 
+    // formatter:function(cell : any){
+    //     var value = cell.getValue();
+    // return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
+    //  },
+    // },
+    {title:"상품명", field:"product.name", width:400, headerFilter:"input", 
     formatter:function(cell : any){
         var value = cell.getValue();
     return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
      },
     },
-    {title:"상품명", field:"product.name", width:500, headerFilter:"input", 
-    formatter:function(cell : any){
-        var value = cell.getValue();
-    return "<span style='color:#3FB449; font-weight:bold;'>" + value + "</span>";
-     },
+    {title:"삭제", field:"delete", width:100,  
+        formatter:function(cell : any){
+           
+        return "<span style='color:red; font-weight:bold;'>삭제</span>";
+        },
+        cellClick:function(e : any, cell:any){
+            let row = cell.getRow();
+        if(row){
+            deleteUserProduct(row);
+        }else{
+        
+        }
+        }
     },
-    // {title:"수량", field:"qty", width:150, editor : "input"},
+   
 
    ],
 

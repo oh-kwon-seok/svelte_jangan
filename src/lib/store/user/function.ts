@@ -4,10 +4,10 @@
 
 import { writable } from 'svelte/store';
 import {user_modal_state,user_form_state} from './state';
-
+import {product_modal_state} from '$lib/store/product/state';
 import {v4 as uuid} from 'uuid';
 import axios from 'axios'
-import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state} from '$lib/store/common/state';
+import {common_alert_state, common_toast_state,common_search_state,login_state,table_state,common_selected_state,common_user_state,table_real_state,common_product_state} from '$lib/store/common/state';
 
 import {select_query} from '$lib/store/common/function';
 
@@ -35,6 +35,11 @@ let table_real_data : any;
 let user_data : any;
 let user_product_upload_data : any;
 let selected_data : any;
+
+let product_data : any;
+
+let product_modal : any;
+
 
 
 let init_form_data = {
@@ -94,6 +99,13 @@ common_user_state.subscribe((data) => {
 common_selected_state.subscribe((data) => {
   selected_data = data;
 })
+common_product_state.subscribe((data) => {
+  product_data = data;
+})
+product_modal_state.subscribe((data) => {
+  product_modal = data;
+})
+
  
  
 
@@ -325,11 +337,17 @@ const save = (param,title) => {
           item['qty'] = 0; 
 
         }
+        if(item['uid'] !== item['product']['uid']){
+          item['uid'] = item['product']['uid']
+        }
+       
+
+
         return item;
       })
 
 
-    
+      console.log('checked_data  :', checked_data);
       try {
 
       
@@ -534,66 +552,50 @@ const save = (param,title) => {
               
               let user_checked_data =  res.data;
 
-              // table_real_data['user_product_list'] = user_checked_data;
-
-            
-              // table_real_state.update(()=> table_real_data);
+         
            
 
 
-              for(let i=0; i < product_data.length; i++){
-                let product_uid = product_data[i]['uid'];
+              // for(let i=0; i < product_data.length; i++){
+              //   let product_uid = product_data[i]['uid'];
 
-                for(let j=0; j< user_checked_data.length; j++){
-                  let user_checked_uid = user_checked_data[j]['product']['uid'];
-                  if(product_uid === user_checked_uid){
-                    checked_data.push(product_uid);
-                    product_data[i]['selected'] = true; 
+              //   for(let j=0; j< user_checked_data.length; j++){
+              //     let user_checked_uid = user_checked_data[j]['product']['uid'];
+              //     if(product_uid === user_checked_uid){
+              //       checked_data.push(product_uid);
+              //       product_data[i]['selected'] = true; 
                     
-                    product_data[i]['qty'] = user_checked_data[j]['qty'].toString(); 
+              //       product_data[i]['qty'] = user_checked_data[j]['qty'].toString(); 
                     
            
-                    user_checked_data.splice(j,1);
-                    break;
-                  }
+              //       user_checked_data.splice(j,1);
+              //       break;
+              //     }
 
-                }
+              //   }
 
               
-                let new_obj = {
-                  uid : parseInt(product_data[i]['uid']),
-                  name : product_data[i]['name'],
+              //   let new_obj = {
+              //     uid : parseInt(product_data[i]['uid']),
+              //     name : product_data[i]['name'],
                  
                   
-                }
+              //   }
                
-                product_data[i]['product'] = new_obj; 
+              //   product_data[i]['product'] = new_obj; 
 
 
-              }
+              // }
 
 
-              console.log('product_data : ', product_data);
+             
+              console.log('user_check_data : ',user_checked_data);
 
+              table_real_data['user_product_list'] = user_checked_data;
 
-              table_real_data['user_product_list'] = product_data.filter(item=> {
-                return item['selected'] === true;
-              });
+            
+              table_real_data['user_product'] = product_data;
 
-              console.log('table_real_data', table_real_data['user_product_list']);
-              
-
-              // 분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
-
-              // product_data = product_data.sort((a, b) => {
-              //   const prevData = a["type"]["name"];
-              //   const afterData = b["type"]["name"];
-              
-              //   if (prevData < afterData) return -1;
-              //   if (prevData > afterData) return 1;
-              //   return 0;
-              // }); ;
-              table_real_data['user_product'] = product_data
               table_real_state.update(() => table_real_data);
 
               table_data['user_product'] =   new Tabulator(tableComponent, {
@@ -805,6 +807,8 @@ function updateUserProduct(cell:any,title:any) {
 
 
    
+
+   
     // 분류별로 정렬하는거지만 사용자가 하지말아달라고 요청함
     // table_real_data['user_product_list'] = table_data['user_product'].getSelectedData().sort((a, b) => {
     //   const prevData = a["type"]["name"];
@@ -814,15 +818,33 @@ function updateUserProduct(cell:any,title:any) {
     //   if (prevData > afterData) return 1;
     //   return 0;
     // }); 
-    table_real_data['user_product_list'] = table_data['user_product'].getSelectedData();
+
+    let new_data = cell.getData();
+    let checkData = table_data['user_product_list'].getData().find(item => item['product']['uid'] === new_data['uid']);
+    console.log('cell : ', new_data);
+    console.log('checkData : ', checkData);
+    console.log('getData : ', table_data['user_product_list'].getData());
+   
+    
+    if(checkData){
+
+    
+
+    }else{
+      let new_obj = {
+        product  : new_data,
+      }
+
+      console.log('new_data22 : ', new_obj);
+      table_real_data['user_product_list'].push(new_obj);
+      table_real_state.update(()=> table_real_data);
+  
+    } 
 
     table_real_state.update(()=> table_real_data);
 
     table_data['user_product_list'].setData(table_real_data['user_product_list']);
     
-    
-
-  
     table_state.update(()=> table_data);
 
   
@@ -915,6 +937,134 @@ const userProductExcelUpload = (e) => {
   }
 
 }
+
+
+const productSave = async(param,title) => {
+
+  
+  product_modal['title'] = 'add';
+  product_modal['add']['use'] = true;
+ 
+      if(param['name'] === '' || param['type'] === '' || param['company'] === ''){
+        //return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+        alert['type'] = 'save';
+        alert['value'] = true;
+        product_modal_state.update(() => update_modal);
+ 
+        return common_alert_state.update(() => alert);
+  
+      }else {
+      
+        const url = `${api}/product/save`
+        try {
+  
+          
+          let params = {
+            name : param.name,
+            type_uid : param.type,
+            company_uid : param.company,
+            used : param.used,
+            
+            token : login_data['token'],
+          };
+        await axios.post(url,
+          params,
+        ).then(res => {
+          if(res.data !== undefined && res.data !== null && res.data !== '' ){
+            
+            toast['type'] = 'success';
+            toast['value'] = true;
+            update_modal['title'] = '';
+            update_modal['add']['use'] = !update_modal['add']['use'];
+            product_modal_state.update(() => update_modal);
+
+
+            let product_url = `${api}/product/info_select`; 
+            const product_config = {
+              headers:{
+                "Content-Type": "application/json",
+                
+              }
+            }
+          
+         
+              axios.get(product_url,product_config).then(res=>{
+                if(res.data !== undefined && res.data !== null && res.data !== '' ){
+                  if(table_data['user_product']){
+                   
+                     let product_data = res.data.sort((a, b) => {
+                      const prevData = moment(a["created"]);
+                      const afterData = moment(b["created"]);
+              
+                      if (prevData > afterData) return -1;
+                      if (prevData < afterData) return 1;
+                      return 0;
+                    }); 
+
+                    table_data['user_product'].setData( product_data);
+                  
+                  
+                    table_state.update(()=> table_data);
+                  }
+                
+                }
+
+              });
+           
+
+            return common_toast_state.update(() => toast);
+
+          }else{
+          
+            return common_toast_state.update(() => TOAST_SAMPLE['fail']);
+          }
+        })
+        }catch (e:any){
+          return console.log('에러 : ',e);
+        };
+      }
+
+
+    
+    
+  
+  
+  }
+
+  const productModalClose = (title) => {
+    product_modal['title'] = '';
+    product_modal[title]['use'] = !product_modal[title]['use'];
+  
+    
+    product_modal_state.update(() => product_modal);
+  
+  
+  }
+
+
+function deleteUserProduct(cell:any) {
+
+  let data = cell.getData();
+  
+ 
+  
+  let newData = table_data['user_product_list'].getData().filter(item => item['product']['uid'] !== data['product']['uid']);
+
+  table_data['user_product_list'].setData(newData);
+
+
+
+  table_real_data['user_product_list'] = newData; 
+  
+  table_state.update(()=> table_data);
+
+  table_real_state.update(()=> table_real_data);
+
+  
+
+    
+}
+
 
 
 const userProductExcelFormDownload = () => {
@@ -1035,4 +1185,4 @@ const userProductExcelFormDownload = () => {
 
 
 
-export {userModalOpen,save,userProductTable,modalClose,userProductTabClick,userProduct2Table,updateUserProduct,userProductExcelFormDownload, userProductExcelUpload}
+export {userModalOpen,save,userProductTable,modalClose,userProductTabClick,userProduct2Table,updateUserProduct,userProductExcelFormDownload, userProductExcelUpload,deleteUserProduct,productSave,productModalClose}
