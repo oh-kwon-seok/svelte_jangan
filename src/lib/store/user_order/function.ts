@@ -38,6 +38,7 @@ let table_real_data : any;
 let user_data : any;
 let selected_data : any;
 let change_status_data : any;
+
 let product_data : any;
 
 let product_modal : any;
