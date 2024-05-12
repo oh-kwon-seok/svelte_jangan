@@ -4,7 +4,7 @@ node_modules
 /.svelte-kit
 /package
 env.txt
-
+.env.local
 !.env.example
 .vercel
 .output
